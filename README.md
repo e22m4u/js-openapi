@@ -261,7 +261,7 @@ usersScope.defineOperation({
   path: '/{id}',
   method: OAOperationMethod.GET,
   operation: {
-    summary: 'Get user by id',
+    summary: 'Find user',
     responses: {
       200: {
         description: 'User found',
@@ -275,7 +275,7 @@ usersScope.defineOperation({
   path: '/{id}',
   method: OAOperationMethod.DELETE,
   operation: {
-    summary: 'Delete user by id',
+    summary: 'Delete user',
     responses: {
       200: {
         description: 'User deleted',
@@ -305,7 +305,7 @@ adminScope.defineOperation({
   path: '/users/{id}',
   method: OAOperationMethod.DELETE,
   operation: {
-    summary: 'Delete user by id',
+    summary: 'Delete user',
     responses: {
       200: {
         description: 'User deleted',
