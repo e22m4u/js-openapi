@@ -102,7 +102,7 @@ console.log(JSON.stringify(document, null, 2));
 import {OADataType, OAOperationMethod} from '@e22m4u/js-openapi';
 
 builder.defineSchemaComponent({
-  name: 'User',
+  name: 'User', // <= имя нового компонента
   schema: {
     type: OADataType.OBJECT,
     properties: {
@@ -134,7 +134,7 @@ builder.defineOperation({
         description: 'User found',
         content: {
           'application/json': {
-            schema: oaRef('User'),
+            schema: oaRef('User'), // <= ссылка
             // утилита "oaRef" создаст объект
             // {"$ref": "#/components/schemas/User"}
           },
@@ -187,7 +187,7 @@ builder.defineOperation({
 import {OADataType} from '@e22m4u/js-openapi';
 
 builder.defineSchemaComponent({
-  name: 'UserInput',
+  name: 'UserInput', // <= имя нового компонента
   schema: {
     type: OADataType.OBJECT,
     properties: {
@@ -217,7 +217,7 @@ builder.defineOperation({
     requestBody: {
       description: 'Data for the new user',
       required: true,
-      content: oaJsonContent(oaRef('UserInput')),
+      content: oaJsonContent(oaRef('UserInput')), // <= ссылка
       // "content": {
       //   "application/json": {
       //     "schema": {
@@ -229,7 +229,7 @@ builder.defineOperation({
     responses: {
       201: {
         description: 'User created',
-        content: oaJsonContent(oaRef('User')),
+        content: oaJsonContent(oaRef('User')), // <= ссылка
         // "content": {
         //   "application/json": {
         //     "schema": {
