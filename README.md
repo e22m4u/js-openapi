@@ -135,7 +135,7 @@ builder.defineOperation({
         content: {
           'application/json': {
             schema: oaRef('User'), // <= ссылка на компонент
-            // утилита "oaRef" создаст объект
+            // утилита "oaRef" создаст объект:
             // {"$ref": "#/components/schemas/User"}
           },
         },
@@ -217,7 +217,7 @@ builder.defineOperation({
     requestBody: {
       description: 'Data for the new user',
       required: true,
-      content: oaJsonContent(oaRef('UserInput')), // <= ссылка на компонент
+      content: oaJsonContent(oaRef('UserInput')),
       // "content": {
       //   "application/json": {
       //     "schema": {
@@ -229,7 +229,7 @@ builder.defineOperation({
     responses: {
       201: {
         description: 'User created',
-        content: oaJsonContent(oaRef('User')), // <= ссылка на компонент
+        content: oaJsonContent(oaRef('User')),
         // "content": {
         //   "application/json": {
         //     "schema": {
