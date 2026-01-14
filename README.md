@@ -204,7 +204,7 @@ builder.defineSchemaComponent({
 });
 ```
 
-Определение тела запроса и ответа с использованием ссылок.
+Определение тела запроса и тела ответа с использованием ссылок.
 
 ```js
 import {oaRef, oaJsonContent, OAOperationMethod} from '@e22m4u/js-openapi';
