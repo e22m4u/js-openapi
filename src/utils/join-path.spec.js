@@ -61,4 +61,9 @@ describe('joinPath', function () {
     const result = joinPath('api/v1', 'users');
     expect(result).to.be.eq('/api/v1/users');
   });
+
+  it('should convert number arguments to string segments', function () {
+    const result = joinPath(-10, 0, 10);
+    expect(result).to.be.eq('/-10/0/10');
+  });
 });

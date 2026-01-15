@@ -1,5 +1,3 @@
-import {OADocumentObject} from './document-specification.js';
-
 import {
   OADocumentBuilder,
   OAOperationDefinition,
@@ -36,9 +34,4 @@ export declare class OADocumentScope {
    * @param options
    */
   createScope(options?: OADocumentScopeOptions): OADocumentScope;
-
-  /**
-   * Build.
-   */
-  build(): OADocumentObject;
 }

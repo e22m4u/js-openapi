@@ -22,7 +22,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   OAApiKeyLocation: () => OAApiKeyLocation,
-  OAComponentType: () => OAComponentType,
+  OAComponentsSegment: () => OAComponentsSegment,
   OADataFormat: () => OADataFormat,
   OADataType: () => OADataType,
   OADocumentBuilder: () => OADocumentBuilder,
@@ -32,7 +32,6 @@ __export(index_exports, {
   OAParameterLocation: () => OAParameterLocation,
   OAParameterStyle: () => OAParameterStyle,
   OASecuritySchemeType: () => OASecuritySchemeType,
-  OA_COMPONENT_TYPE_TO_KEY_MAP: () => OA_COMPONENT_TYPE_TO_KEY_MAP,
   OPENAPI_VERSION: () => OPENAPI_VERSION,
   oaCallbackRef: () => oaCallbackRef,
   oaExampleRef: () => oaExampleRef,
@@ -49,66 +48,51 @@ module.exports = __toCommonJS(index_exports);
 
 // src/constants.js
 var OPENAPI_VERSION = "3.1.0";
+var OAComponentsSegment = {
+  SCHEMAS: "schemas",
+  RESPONSES: "responses",
+  PARAMETERS: "parameters",
+  EXAMPLES: "examples",
+  REQUEST_BODIES: "requestBodies",
+  HEADERS: "headers",
+  SECURITY_SCHEMES: "securitySchemes",
+  LINKS: "links",
+  CALLBACKS: "callbacks",
+  PATH_ITEMS: "pathItems"
+};
 
 // src/utils/oa-ref.js
 var import_js_format = require("@e22m4u/js-format");
-var OAComponentType = {
-  SCHEMA: "schema",
-  RESPONSE: "response",
-  PARAMETER: "parameter",
-  EXAMPLE: "example",
-  REQUEST_BODY: "requestBody",
-  HEADER: "header",
-  SECURITY_SCHEME: "securityScheme",
-  LINK: "link",
-  CALLBACK: "callback",
-  PATH_ITEM: "pathItem"
-};
-var OA_COMPONENT_TYPE_TO_KEY_MAP = {
-  [OAComponentType.SCHEMA]: "schemas",
-  [OAComponentType.RESPONSE]: "responses",
-  [OAComponentType.PARAMETER]: "parameters",
-  [OAComponentType.EXAMPLE]: "examples",
-  [OAComponentType.REQUEST_BODY]: "requestBodies",
-  [OAComponentType.HEADER]: "headers",
-  [OAComponentType.SECURITY_SCHEME]: "securitySchemes",
-  [OAComponentType.LINK]: "links",
-  [OAComponentType.CALLBACK]: "callbacks",
-  [OAComponentType.PATH_ITEM]: "pathItems"
-};
-function oaRef(name, type) {
+function oaRef(name, segment) {
   if (!name || typeof name !== "string") {
     throw new import_js_format.InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
       name
     );
   }
-  if (!type || typeof type !== "string") {
+  if (!Object.values(OAComponentsSegment).includes(segment)) {
     throw new import_js_format.InvalidArgumentError(
-      'Parameter "type" must be a non-empty String, but %v was given.',
-      type
+      'Parameter "segment" must be one of values: %l, but %v was given.',
+      Object.values(OAComponentsSegment),
+      segment
     );
   }
-  const key = OA_COMPONENT_TYPE_TO_KEY_MAP[type];
-  if (!key) {
-    throw new import_js_format.InvalidArgumentError("Component type %v is not supported.", type);
-  }
-  return { $ref: `#/components/${key}/${name}` };
+  return { $ref: `#/components/${segment}/${name}` };
 }
 __name(oaRef, "oaRef");
-var oaSchemaRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.SCHEMA), "oaSchemaRef");
-var oaResponseRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.RESPONSE), "oaResponseRef");
-var oaParameterRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.PARAMETER), "oaParameterRef");
-var oaExampleRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.EXAMPLE), "oaExampleRef");
-var oaRequestBodyRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.REQUEST_BODY), "oaRequestBodyRef");
-var oaSecuritySchemeRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.SECURITY_SCHEME), "oaSecuritySchemeRef");
-var oaLinkRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.LINK), "oaLinkRef");
-var oaCallbackRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.CALLBACK), "oaCallbackRef");
-var oaPathItemRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentType.PATH_ITEM), "oaPathItemRef");
+var oaSchemaRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.SCHEMAS), "oaSchemaRef");
+var oaResponseRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.RESPONSES), "oaResponseRef");
+var oaParameterRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.PARAMETERS), "oaParameterRef");
+var oaExampleRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.EXAMPLES), "oaExampleRef");
+var oaRequestBodyRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.REQUEST_BODIES), "oaRequestBodyRef");
+var oaSecuritySchemeRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.SECURITY_SCHEMES), "oaSecuritySchemeRef");
+var oaLinkRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.LINKS), "oaLinkRef");
+var oaCallbackRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.CALLBACKS), "oaCallbackRef");
+var oaPathItemRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSegment.PATH_ITEMS), "oaPathItemRef");
 
 // src/utils/join-path.js
 function joinPath(...segments) {
-  const path = segments.filter(Boolean).map((seg) => seg.replace(/(^\/|\/$)/g, "")).filter(Boolean).join("/");
+  const path = segments.filter((seg) => seg != void 0).map((seg) => String(seg).replace(/(^\/|\/$)/g, "")).filter(Boolean).join("/");
   return "/" + path;
 }
 __name(joinPath, "joinPath");
@@ -301,7 +285,10 @@ function validateShallowOADocumentObject(documentObject) {
 __name(validateShallowOADocumentObject, "validateShallowOADocumentObject");
 
 // src/oa-document-builder.js
-var _OADocumentBuilder = class _OADocumentBuilder extends import_js_service.Service {
+var OADocumentBuilder = class extends import_js_service.Service {
+  static {
+    __name(this, "OADocumentBuilder");
+  }
   /**
    * Document.
    *
@@ -361,35 +348,28 @@ var _OADocumentBuilder = class _OADocumentBuilder extends import_js_service.Serv
   /**
    * Define component.
    *
-   * @param {string} targetKey
-   * @param {string} componentKey
-   * @param {string} definitionLabel
+   * @param {string} segmentName
+   * @param {string} propertyName
    * @param {object} definition
    * @returns {this}
    */
-  _defineComponent(targetKey, componentKey, definitionLabel, definition) {
-    if (!targetKey || typeof targetKey !== "string") {
+  _defineComponent(segmentName, propertyName, definition) {
+    if (!Object.values(OAComponentsSegment).includes(segmentName)) {
       throw new import_js_format3.InvalidArgumentError(
-        'Property "targetKey" must be a non-empty String, but %v was given.',
-        targetKey
+        'Property "segmentName" must be one of values: %l, but %v was given.',
+        Object.values(OAComponentsSegment),
+        segmentName
       );
     }
-    if (!componentKey || typeof componentKey !== "string") {
+    if (!propertyName || typeof propertyName !== "string") {
       throw new import_js_format3.InvalidArgumentError(
-        'Property "componentKey" must be a non-empty String, but %v was given.',
-        componentKey
-      );
-    }
-    if (!definitionLabel || typeof definitionLabel !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
-        'Property "definitionLabel" must be a non-empty String, but %v was given.',
-        definitionLabel
+        'Property "propertyName" must be a non-empty String, but %v was given.',
+        propertyName
       );
     }
     if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
       throw new import_js_format3.InvalidArgumentError(
-        "%s Definition must be an Object, but %v was given.",
-        definitionLabel,
+        "Component definition must be an Object, but %v was given.",
         definition
       );
     }
@@ -399,140 +379,150 @@ var _OADocumentBuilder = class _OADocumentBuilder extends import_js_service.Serv
         definition.name
       );
     }
-    const component = definition[componentKey];
+    const component = definition[propertyName];
     if (!component || typeof component !== "object" || Array.isArray(component)) {
       throw new import_js_format3.InvalidArgumentError(
         "Property %v must be an Object, but %v was given.",
-        componentKey,
+        propertyName,
         component
       );
     }
     if (!this._document.components) {
       this._document.components = {};
     }
-    if (!this._document.components[targetKey]) {
-      this._document.components[targetKey] = {};
+    if (!this._document.components[segmentName]) {
+      this._document.components[segmentName] = {};
     }
-    this._document.components[targetKey][definition.name] = component;
+    this._document.components[segmentName][definition.name] = structuredClone(component);
     return this;
   }
   /**
    * Define schema component.
    *
-   * @param {import('./oa-document-builder.js').OASchemaComponentDefinition} schemaDef
+   * @param {object} schemaDef
    * @returns {this}
    */
   defineSchemaComponent(schemaDef) {
-    return this._defineComponent("schemas", "schema", "Schema", schemaDef);
+    return this._defineComponent(
+      OAComponentsSegment.SCHEMAS,
+      "schema",
+      schemaDef
+    );
   }
   /**
    * Define response component.
    *
-   * @param {import('./oa-document-builder.js').OAResponseComponentDefinition} responseDef
+   * @param {object} responseDef
    * @returns {this}
    */
   defineResponseComponent(responseDef) {
     return this._defineComponent(
-      "responses",
+      OAComponentsSegment.RESPONSES,
       "response",
-      "Response",
       responseDef
     );
   }
   /**
    * Define parameter component.
    *
-   * @param {import('./oa-document-builder.js').OAParameterComponentDefinition} parameterDef
+   * @param {object} parameterDef
    * @returns {this}
    */
   defineParameterComponent(parameterDef) {
     return this._defineComponent(
-      "parameters",
+      OAComponentsSegment.PARAMETERS,
       "parameter",
-      "Parameter",
       parameterDef
     );
   }
   /**
    * Define example component.
    *
-   * @param {import('./oa-document-builder.js').OAExampleComponentDefinition} exampleDef
+   * @param {object} exampleDef
    * @returns {this}
    */
   defineExampleComponent(exampleDef) {
-    return this._defineComponent("examples", "example", "Example", exampleDef);
+    return this._defineComponent(
+      OAComponentsSegment.EXAMPLES,
+      "example",
+      exampleDef
+    );
   }
   /**
    * Define request body component.
    *
-   * @param {import('./oa-document-builder.js').OARequestBodyComponentDefinition} requestBodyDef
+   * @param {object} requestBodyDef
    * @returns {this}
    */
   defineRequestBodyComponent(requestBodyDef) {
     return this._defineComponent(
-      "requestBodies",
+      OAComponentsSegment.REQUEST_BODIES,
       "requestBody",
-      "Request body",
       requestBodyDef
     );
   }
   /**
    * Define header component.
    *
-   * @param {import('./oa-document-builder.js').OAHeaderComponentDefinition} headerDef
+   * @param {object} headerDef
    * @returns {this}
    */
   defineHeaderComponent(headerDef) {
-    return this._defineComponent("headers", "header", "Header", headerDef);
+    return this._defineComponent(
+      OAComponentsSegment.HEADERS,
+      "header",
+      headerDef
+    );
   }
   /**
    * Define security scheme component.
    *
-   * @param {import('./oa-document-builder.js').OASecuritySchemeComponentDefinition} securitySchemeDef
+   * @param {object} securitySchemeDef
    * @returns {this}
    */
   defineSecuritySchemeComponent(securitySchemeDef) {
     return this._defineComponent(
-      "securitySchemes",
+      OAComponentsSegment.SECURITY_SCHEMES,
       "securityScheme",
-      "Security Scheme",
       securitySchemeDef
     );
   }
   /**
    * Define link component.
    *
-   * @param {import('./oa-document-builder.js').OALinkComponentDefinition} linkDef
+   * @param {object} linkDef
    * @returns {this}
    */
   defineLinkComponent(linkDef) {
-    return this._defineComponent("links", "link", "Link", linkDef);
+    return this._defineComponent(
+      OAComponentsSegment.LINKS,
+      "link",
+      linkDef
+    );
   }
   /**
    * Define callback component.
    *
-   * @param {import('./oa-document-builder.js').OACallbackComponentDefinition} callbackDef
+   * @param {object} callbackDef
    * @returns {this}
    */
   defineCallbackComponent(callbackDef) {
     return this._defineComponent(
-      "callbacks",
+      OAComponentsSegment.CALLBACKS,
       "callback",
-      "Callback",
       callbackDef
     );
   }
   /**
    * Define path item component.
    *
-   * @param {import('./oa-document-builder.js').OAPathItemComponentDefinition} pathItemDef
+   * @param {object} pathItemDef
    * @returns {this}
    */
   definePathItemComponent(pathItemDef) {
     return this._defineComponent(
-      "pathItems",
+      OAComponentsSegment.PATH_ITEMS,
       "pathItem",
-      "Path Item",
       pathItemDef
     );
   }
@@ -603,12 +593,22 @@ var _OADocumentBuilder = class _OADocumentBuilder extends import_js_service.Serv
   build() {
     return structuredClone(this._document);
   }
+  /**
+   * Build JSON.
+   *
+   * @param {string|number} [space]
+   * @returns {string}
+   */
+  buildJson(space = 0) {
+    return JSON.stringify(this._document, null, space);
+  }
 };
-__name(_OADocumentBuilder, "OADocumentBuilder");
-var OADocumentBuilder = _OADocumentBuilder;
 
 // src/oa-document-scope.js
-var _OADocumentScope = class _OADocumentScope {
+var OADocumentScope = class _OADocumentScope {
+  static {
+    __name(this, "OADocumentScope");
+  }
   /**
    * @param {object} rootBuilder
    * @param {object} [options]
@@ -754,21 +754,11 @@ var _OADocumentScope = class _OADocumentScope {
       tags: [...this.tags, ...options.tags || []]
     });
   }
-  /**
-   * Build.
-   *
-   * @returns {object}
-   */
-  build() {
-    return this.rootBuilder.build();
-  }
 };
-__name(_OADocumentScope, "OADocumentScope");
-var OADocumentScope = _OADocumentScope;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   OAApiKeyLocation,
-  OAComponentType,
+  OAComponentsSegment,
   OADataFormat,
   OADataType,
   OADocumentBuilder,
@@ -778,7 +768,6 @@ var OADocumentScope = _OADocumentScope;
   OAParameterLocation,
   OAParameterStyle,
   OASecuritySchemeType,
-  OA_COMPONENT_TYPE_TO_KEY_MAP,
   OPENAPI_VERSION,
   oaCallbackRef,
   oaExampleRef,

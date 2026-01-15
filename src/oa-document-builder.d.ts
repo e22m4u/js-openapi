@@ -235,4 +235,11 @@ export declare class OADocumentBuilder extends Service {
    * Build.
    */
   build(): OADocumentObject;
+
+  /**
+   * Build JSON.
+   *
+   * @param space
+   */
+  buildJson(space?: string | number): string;
 }

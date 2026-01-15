@@ -516,7 +516,7 @@ export type OASchemaPropertiesObject = {
  */
 export type OAWebhooksObject = {
   [name: string]: OAPathItemObject | OAReferenceObject | undefined;
-}
+};
 
 /**
  * Callbacks Object.

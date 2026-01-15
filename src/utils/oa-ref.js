@@ -1,36 +1,5 @@
+import {OAComponentsSegment} from '../constants.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
-
-/**
- * Component type.
- */
-export const OAComponentType = {
-  SCHEMA: 'schema',
-  RESPONSE: 'response',
-  PARAMETER: 'parameter',
-  EXAMPLE: 'example',
-  REQUEST_BODY: 'requestBody',
-  HEADER: 'header',
-  SECURITY_SCHEME: 'securityScheme',
-  LINK: 'link',
-  CALLBACK: 'callback',
-  PATH_ITEM: 'pathItem',
-};
-
-/**
- * Component type to key map.
- */
-export const OA_COMPONENT_TYPE_TO_KEY_MAP = {
-  [OAComponentType.SCHEMA]: 'schemas',
-  [OAComponentType.RESPONSE]: 'responses',
-  [OAComponentType.PARAMETER]: 'parameters',
-  [OAComponentType.EXAMPLE]: 'examples',
-  [OAComponentType.REQUEST_BODY]: 'requestBodies',
-  [OAComponentType.HEADER]: 'headers',
-  [OAComponentType.SECURITY_SCHEME]: 'securitySchemes',
-  [OAComponentType.LINK]: 'links',
-  [OAComponentType.CALLBACK]: 'callbacks',
-  [OAComponentType.PATH_ITEM]: 'pathItems',
-};
 
 /**
  * Create the Reference Object.
@@ -38,43 +7,42 @@ export const OA_COMPONENT_TYPE_TO_KEY_MAP = {
  * Example:
  *
  * ```js
- * oaRef('User', OAComponentType.SCHEMA);
+ * oaRef('User', OAComponentsSegment.SCHEMAS);
  * // {"$ref": "#/components/schemas/User"}
  * ```
  *
  * @param {string} name
- * @param {string} type
+ * @param {string} segment
  * @returns {object}
  */
-export function oaRef(name, type) {
+export function oaRef(name, segment) {
   if (!name || typeof name !== 'string') {
     throw new InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
       name,
     );
   }
-  if (!type || typeof type !== 'string') {
+  if (!Object.values(OAComponentsSegment).includes(segment)) {
     throw new InvalidArgumentError(
-      'Parameter "type" must be a non-empty String, but %v was given.',
-      type,
+      'Parameter "segment" must be one of values: %l, but %v was given.',
+      Object.values(OAComponentsSegment),
+      segment,
     );
   }
-  const key = OA_COMPONENT_TYPE_TO_KEY_MAP[type];
-  if (!key) {
-    throw new InvalidArgumentError('Component type %v is not supported.', type);
-  }
-  return {$ref: `#/components/${key}/${name}`};
+  return {$ref: `#/components/${segment}/${name}`};
 }
 
 /* aliases */
-export const oaSchemaRef = name => oaRef(name, OAComponentType.SCHEMA);
-export const oaResponseRef = name => oaRef(name, OAComponentType.RESPONSE);
-export const oaParameterRef = name => oaRef(name, OAComponentType.PARAMETER);
-export const oaExampleRef = name => oaRef(name, OAComponentType.EXAMPLE);
+export const oaSchemaRef = name => oaRef(name, OAComponentsSegment.SCHEMAS);
+export const oaResponseRef = name => oaRef(name, OAComponentsSegment.RESPONSES);
+export const oaParameterRef = name =>
+  oaRef(name, OAComponentsSegment.PARAMETERS);
+export const oaExampleRef = name => oaRef(name, OAComponentsSegment.EXAMPLES);
 export const oaRequestBodyRef = name =>
-  oaRef(name, OAComponentType.REQUEST_BODY);
+  oaRef(name, OAComponentsSegment.REQUEST_BODIES);
 export const oaSecuritySchemeRef = name =>
-  oaRef(name, OAComponentType.SECURITY_SCHEME);
-export const oaLinkRef = name => oaRef(name, OAComponentType.LINK);
-export const oaCallbackRef = name => oaRef(name, OAComponentType.CALLBACK);
-export const oaPathItemRef = name => oaRef(name, OAComponentType.PATH_ITEM);
+  oaRef(name, OAComponentsSegment.SECURITY_SCHEMES);
+export const oaLinkRef = name => oaRef(name, OAComponentsSegment.LINKS);
+export const oaCallbackRef = name => oaRef(name, OAComponentsSegment.CALLBACKS);
+export const oaPathItemRef = name =>
+  oaRef(name, OAComponentsSegment.PATH_ITEMS);

@@ -1,8 +1,8 @@
-import {OPENAPI_VERSION} from './constants.js';
 import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {OAOperationMethod} from './document-specification.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
+import {OAComponentsSegment, OPENAPI_VERSION} from './constants.js';
 import {validateShallowOADocumentObject} from './document-validators.js';
 
 /**
@@ -94,35 +94,27 @@ export class OADocumentBuilder extends Service {
   /**
    * Define component.
    *
-   * @param {string} targetKey
-   * @param {string} componentKey
-   * @param {string} definitionLabel
+   * @param {string} segmentName
+   * @param {string} propertyName
    * @param {object} definition
    * @returns {this}
    */
-  _defineComponent(targetKey, componentKey, definitionLabel, definition) {
-    // targetKey
-    if (!targetKey || typeof targetKey !== 'string') {
+  _defineComponent(segmentName, propertyName, definition) {
+    // segmentName
+    if (!Object.values(OAComponentsSegment).includes(segmentName)) {
       throw new InvalidArgumentError(
-        'Property "targetKey" must be a non-empty String, ' +
+        'Property "segmentName" must be one of values: %l, ' +
           'but %v was given.',
-        targetKey,
+        Object.values(OAComponentsSegment),
+        segmentName,
       );
     }
-    // componentKey
-    if (!componentKey || typeof componentKey !== 'string') {
+    // propertyName
+    if (!propertyName || typeof propertyName !== 'string') {
       throw new InvalidArgumentError(
-        'Property "componentKey" must be a non-empty String, ' +
+        'Property "propertyName" must be a non-empty String, ' +
           'but %v was given.',
-        componentKey,
-      );
-    }
-    // definitionLabel
-    if (!definitionLabel || typeof definitionLabel !== 'string') {
-      throw new InvalidArgumentError(
-        'Property "definitionLabel" must be a non-empty String, ' +
-          'but %v was given.',
-        definitionLabel,
+        propertyName,
       );
     }
     // definition
@@ -132,8 +124,7 @@ export class OADocumentBuilder extends Service {
       Array.isArray(definition)
     ) {
       throw new InvalidArgumentError(
-        '%s Definition must be an Object, but %v was given.',
-        definitionLabel,
+        'Component definition must be an Object, but %v was given.',
         definition,
       );
     }
@@ -145,7 +136,7 @@ export class OADocumentBuilder extends Service {
       );
     }
     // definition[componentKey]
-    const component = definition[componentKey];
+    const component = definition[propertyName];
     if (
       !component ||
       typeof component !== 'object' ||
@@ -153,41 +144,45 @@ export class OADocumentBuilder extends Service {
     ) {
       throw new InvalidArgumentError(
         'Property %v must be an Object, but %v was given.',
-        componentKey,
+        propertyName,
         component,
       );
     }
     if (!this._document.components) {
       this._document.components = {};
     }
-    if (!this._document.components[targetKey]) {
-      this._document.components[targetKey] = {};
+    if (!this._document.components[segmentName]) {
+      this._document.components[segmentName] = {};
     }
-    this._document.components[targetKey][definition.name] = component;
+    this._document.components[segmentName][definition.name] =
+      structuredClone(component);
     return this;
   }
 
   /**
    * Define schema component.
    *
-   * @param {import('./oa-document-builder.js').OASchemaComponentDefinition} schemaDef
+   * @param {object} schemaDef
    * @returns {this}
    */
   defineSchemaComponent(schemaDef) {
-    return this._defineComponent('schemas', 'schema', 'Schema', schemaDef);
+    return this._defineComponent(
+      OAComponentsSegment.SCHEMAS,
+      'schema',
+      schemaDef,
+    );
   }
 
   /**
    * Define response component.
    *
-   * @param {import('./oa-document-builder.js').OAResponseComponentDefinition} responseDef
+   * @param {object} responseDef
    * @returns {this}
    */
   defineResponseComponent(responseDef) {
     return this._defineComponent(
-      'responses',
+      OAComponentsSegment.RESPONSES,
       'response',
-      'Response',
       responseDef,
     );
   }
@@ -195,14 +190,13 @@ export class OADocumentBuilder extends Service {
   /**
    * Define parameter component.
    *
-   * @param {import('./oa-document-builder.js').OAParameterComponentDefinition} parameterDef
+   * @param {object} parameterDef
    * @returns {this}
    */
   defineParameterComponent(parameterDef) {
     return this._defineComponent(
-      'parameters',
+      OAComponentsSegment.PARAMETERS,
       'parameter',
-      'Parameter',
       parameterDef,
     );
   }
@@ -210,24 +204,27 @@ export class OADocumentBuilder extends Service {
   /**
    * Define example component.
    *
-   * @param {import('./oa-document-builder.js').OAExampleComponentDefinition} exampleDef
+   * @param {object} exampleDef
    * @returns {this}
    */
   defineExampleComponent(exampleDef) {
-    return this._defineComponent('examples', 'example', 'Example', exampleDef);
+    return this._defineComponent(
+      OAComponentsSegment.EXAMPLES,
+      'example',
+      exampleDef,
+    );
   }
 
   /**
    * Define request body component.
    *
-   * @param {import('./oa-document-builder.js').OARequestBodyComponentDefinition} requestBodyDef
+   * @param {object} requestBodyDef
    * @returns {this}
    */
   defineRequestBodyComponent(requestBodyDef) {
     return this._defineComponent(
-      'requestBodies',
+      OAComponentsSegment.REQUEST_BODIES,
       'requestBody',
-      'Request body',
       requestBodyDef,
     );
   }
@@ -235,24 +232,27 @@ export class OADocumentBuilder extends Service {
   /**
    * Define header component.
    *
-   * @param {import('./oa-document-builder.js').OAHeaderComponentDefinition} headerDef
+   * @param {object} headerDef
    * @returns {this}
    */
   defineHeaderComponent(headerDef) {
-    return this._defineComponent('headers', 'header', 'Header', headerDef);
+    return this._defineComponent(
+      OAComponentsSegment.HEADERS,
+      'header',
+      headerDef,
+    );
   }
 
   /**
    * Define security scheme component.
    *
-   * @param {import('./oa-document-builder.js').OASecuritySchemeComponentDefinition} securitySchemeDef
+   * @param {object} securitySchemeDef
    * @returns {this}
    */
   defineSecuritySchemeComponent(securitySchemeDef) {
     return this._defineComponent(
-      'securitySchemes',
+      OAComponentsSegment.SECURITY_SCHEMES,
       'securityScheme',
-      'Security Scheme',
       securitySchemeDef,
     );
   }
@@ -260,24 +260,28 @@ export class OADocumentBuilder extends Service {
   /**
    * Define link component.
    *
-   * @param {import('./oa-document-builder.js').OALinkComponentDefinition} linkDef
+   * @param {object} linkDef
    * @returns {this}
    */
   defineLinkComponent(linkDef) {
-    return this._defineComponent('links', 'link', 'Link', linkDef);
+    /* prettier-ignore */
+    return this._defineComponent(
+      OAComponentsSegment.LINKS,
+      'link',
+      linkDef,
+    );
   }
 
   /**
    * Define callback component.
    *
-   * @param {import('./oa-document-builder.js').OACallbackComponentDefinition} callbackDef
+   * @param {object} callbackDef
    * @returns {this}
    */
   defineCallbackComponent(callbackDef) {
     return this._defineComponent(
-      'callbacks',
+      OAComponentsSegment.CALLBACKS,
       'callback',
-      'Callback',
       callbackDef,
     );
   }
@@ -285,14 +289,13 @@ export class OADocumentBuilder extends Service {
   /**
    * Define path item component.
    *
-   * @param {import('./oa-document-builder.js').OAPathItemComponentDefinition} pathItemDef
+   * @param {object} pathItemDef
    * @returns {this}
    */
   definePathItemComponent(pathItemDef) {
     return this._defineComponent(
-      'pathItems',
+      OAComponentsSegment.PATH_ITEMS,
       'pathItem',
-      'Path Item',
       pathItemDef,
     );
   }
@@ -377,5 +380,15 @@ export class OADocumentBuilder extends Service {
    */
   build() {
     return structuredClone(this._document);
+  }
+
+  /**
+   * Build JSON.
+   *
+   * @param {string|number} [space]
+   * @returns {string}
+   */
+  buildJson(space = 0) {
+    return JSON.stringify(this._document, null, space);
   }
 }

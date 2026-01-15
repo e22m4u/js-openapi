@@ -3,4 +3,4 @@
  *
  * @param segments
  */
-export declare function joinPath(...segments: string[]): string;
+export declare function joinPath(...segments: (string | number)[]): string;

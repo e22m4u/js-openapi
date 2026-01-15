@@ -70,9 +70,9 @@ builder.defineOperation({
 Сборка документа.
 
 ```js
-const document = builder.build();
+const document = builder.buildJson();
 
-console.log(JSON.stringify(document, null, 2));
+console.log(document);
 // {
 //   "openapi": "3.1.0",
 //   "info": {
@@ -123,7 +123,7 @@ builder.defineSchemaComponent({
 Регистрация компонента параметра.
 
 ```js
-import {OADataType, OAOperationMethod} from '@e22m4u/js-openapi';
+import {OADataType, OAParameterLocation} from '@e22m4u/js-openapi';
 
 builder.defineParameterComponent({
   name: 'idParam', // <= имя нового компонента

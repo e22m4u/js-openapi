@@ -178,13 +178,4 @@ export class OADocumentScope {
       tags: [...this.tags, ...(options.tags || [])],
     });
   }
-
-  /**
-   * Build.
-   *
-   * @returns {object}
-   */
-  build() {
-    return this.rootBuilder.build();
-  }
 }
