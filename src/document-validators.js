@@ -34,6 +34,26 @@ export function validateShallowOADocumentObject(documentObject) {
       documentObject.info,
     );
   }
+  // info.title
+  if (
+    !documentObject.info.title ||
+    typeof documentObject.info.title !== 'string'
+  ) {
+    throw new InvalidArgumentError(
+      'Property "info.title" must be a non-empty String, but %v was given.',
+      documentObject.info.title,
+    );
+  }
+  // info.version
+  if (
+    !documentObject.info.version ||
+    typeof documentObject.info.version !== 'string'
+  ) {
+    throw new InvalidArgumentError(
+      'Property "info.version" must be a non-empty String, but %v was given.',
+      documentObject.info.version,
+    );
+  }
   // jsonSchemaDialect
   if (documentObject.jsonSchemaDialect !== undefined) {
     if (
