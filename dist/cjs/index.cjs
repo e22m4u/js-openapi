@@ -61,6 +61,9 @@ var OAComponentsSegment = {
   PATH_ITEMS: "pathItems"
 };
 
+// src/oa-document-scope.js
+var import_js_format4 = require("@e22m4u/js-format");
+
 // src/utils/oa-ref.js
 var import_js_format = require("@e22m4u/js-format");
 function oaRef(name, segment) {
@@ -92,13 +95,20 @@ var oaPathItemRef = /* @__PURE__ */ __name((name) => oaRef(name, OAComponentsSeg
 
 // src/utils/join-path.js
 function joinPath(...segments) {
-  const path = segments.filter((seg) => seg != void 0).map((seg) => String(seg).replace(/(^\/|\/$)/g, "")).filter(Boolean).join("/");
-  return "/" + path;
+  const path = segments.filter((seg) => seg != void 0).map((seg) => String(seg).replace(/(^\/+|\/+$)/g, "")).filter(Boolean).join("/");
+  return ("/" + path).replace(/\/+/g, "/");
 }
 __name(joinPath, "joinPath");
 
-// src/oa-document-scope.js
-var import_js_format4 = require("@e22m4u/js-format");
+// src/utils/normalize-path.js
+function normalizePath(value, noStartingSlash = false) {
+  if (typeof value !== "string") {
+    return "/";
+  }
+  const res = value.trim().replace(/\/+/g, "/").replace(/(^\/|\/$)/g, "");
+  return noStartingSlash ? res : "/" + res;
+}
+__name(normalizePath, "normalizePath");
 
 // src/oa-document-builder.js
 var import_js_format3 = require("@e22m4u/js-format");
@@ -556,12 +566,6 @@ var OADocumentBuilder = class extends import_js_service.Service {
         operationDef.path
       );
     }
-    if (operationDef.path[0] !== "/") {
-      throw new import_js_format3.InvalidArgumentError(
-        'Property "path" must start with forward slash "/", but %v was given.',
-        operationDef.path
-      );
-    }
     if (!operationDef.method || typeof operationDef.method !== "string") {
       throw new import_js_format3.InvalidArgumentError(
         'Property "method" must be a non-empty String, but %v was given.',
@@ -580,13 +584,16 @@ var OADocumentBuilder = class extends import_js_service.Service {
         operationDef.operation
       );
     }
+    const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};
     }
-    if (!this._document.paths[operationDef.path]) {
-      this._document.paths[operationDef.path] = {};
+    if (!this._document.paths[normalizedPath]) {
+      this._document.paths[normalizedPath] = {};
     }
-    this._document.paths[operationDef.path][operationDef.method] = structuredClone(operationDef.operation);
+    this._document.paths[normalizedPath][operationDef.method] = structuredClone(
+      operationDef.operation
+    );
   }
   /**
    * Create scope.
@@ -622,14 +629,32 @@ var OADocumentScope = class _OADocumentScope {
     __name(this, "OADocumentScope");
   }
   /**
-   * @param {object} rootBuilder
+   * Builder.
+   *
+   * @type {OADocumentBuilder}
+   */
+  _builder;
+  /**
+   * Path prefix.
+   *
+   * @type {string}
+   */
+  _pathPrefix;
+  /**
+   * Tags.
+   *
+   * @type {string[]}
+   */
+  _tags;
+  /**
+   * @param {object} builder
    * @param {object} [options]
    */
-  constructor(rootBuilder, options = {}) {
-    if (!(rootBuilder instanceof OADocumentBuilder)) {
+  constructor(builder, options = {}) {
+    if (!(builder instanceof OADocumentBuilder)) {
       throw new import_js_format4.InvalidArgumentError(
-        'Parameter "rootBuilder" must be an instance of OADocumentBuilder, but %v was given.',
-        rootBuilder
+        'Parameter "builder" must be an instance of OADocumentBuilder, but %v was given.',
+        builder
       );
     }
     if (!options || typeof options !== "object" || Array.isArray(options)) {
@@ -641,7 +666,7 @@ var OADocumentScope = class _OADocumentScope {
     if (options.pathPrefix !== void 0) {
       if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
         throw new import_js_format4.InvalidArgumentError(
-          'Parameter "pathPrefix" must be a non-empty String, but %v was given.',
+          'Property "pathPrefix" must be a non-empty String, but %v was given.',
           options.pathPrefix
         );
       }
@@ -649,7 +674,7 @@ var OADocumentScope = class _OADocumentScope {
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
         throw new import_js_format4.InvalidArgumentError(
-          'Parameter "tags" must be an Array, but %v was given.',
+          'Property "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
@@ -663,9 +688,33 @@ var OADocumentScope = class _OADocumentScope {
         }
       });
     }
-    this.rootBuilder = rootBuilder;
-    this.pathPrefix = options.pathPrefix || "/";
-    this.tags = options.tags || [];
+    this._builder = builder;
+    this._pathPrefix = normalizePath(options.pathPrefix || "/");
+    this._tags = options.tags || [];
+  }
+  /**
+   * Get builder.
+   *
+   * @returns {OADocumentBuilder}
+   */
+  getBuilder() {
+    return this._builder;
+  }
+  /**
+   * Get path prefix.
+   *
+   * @returns {string}
+   */
+  getPathPrefix() {
+    return this._pathPrefix;
+  }
+  /**
+   * Get tags.
+   *
+   * @returns {string[]}
+   */
+  getTags() {
+    return [...this._tags];
   }
   /**
    * Define operation.
@@ -683,12 +732,6 @@ var OADocumentScope = class _OADocumentScope {
     if (!operationDef.path || typeof operationDef.path !== "string") {
       throw new import_js_format4.InvalidArgumentError(
         'Property "path" must be a non-empty String, but %v was given.',
-        operationDef.path
-      );
-    }
-    if (operationDef.path[0] !== "/") {
-      throw new import_js_format4.InvalidArgumentError(
-        'Property "path" must start with forward slash "/", but %v was given.',
         operationDef.path
       );
     }
@@ -710,13 +753,13 @@ var OADocumentScope = class _OADocumentScope {
         operationDef.operation
       );
     }
-    const fullPath = joinPath(this.pathPrefix, operationDef.path);
+    const fullPath = joinPath(this._pathPrefix, operationDef.path);
     const operation = structuredClone(operationDef.operation);
-    if (this.tags.length > 0) {
-      operation.tags = [...this.tags, ...operation.tags || []];
+    if (this._tags.length > 0) {
+      operation.tags = [...this._tags, ...operation.tags || []];
       operation.tags = [...new Set(operation.tags)];
     }
-    this.rootBuilder.defineOperation({
+    this._builder.defineOperation({
       ...operationDef,
       path: fullPath,
       operation
@@ -739,7 +782,7 @@ var OADocumentScope = class _OADocumentScope {
     if (options.pathPrefix !== void 0) {
       if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
         throw new import_js_format4.InvalidArgumentError(
-          'Parameter "pathPrefix" must be a non-empty String, but %v was given.',
+          'Property "pathPrefix" must be a non-empty String, but %v was given.',
           options.pathPrefix
         );
       }
@@ -747,7 +790,7 @@ var OADocumentScope = class _OADocumentScope {
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
         throw new import_js_format4.InvalidArgumentError(
-          'Parameter "tags" must be an Array, but %v was given.',
+          'Property "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
@@ -761,9 +804,9 @@ var OADocumentScope = class _OADocumentScope {
         }
       });
     }
-    return new _OADocumentScope(this.rootBuilder, {
-      pathPrefix: joinPath(this.pathPrefix, options.pathPrefix),
-      tags: [...this.tags, ...options.tags || []]
+    return new _OADocumentScope(this._builder, {
+      pathPrefix: joinPath(this._pathPrefix, options.pathPrefix),
+      tags: [...this._tags, ...options.tags || []]
     });
   }
 };

@@ -1,5 +1,6 @@
 import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
+import {normalizePath} from './utils/normalize-path.js';
 import {OAOperationMethod} from './document-specification.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
 import {OAComponentsSegment, OPENAPI_VERSION} from './constants.js';
@@ -323,12 +324,6 @@ export class OADocumentBuilder extends Service {
         operationDef.path,
       );
     }
-    if (operationDef.path[0] !== '/') {
-      throw new InvalidArgumentError(
-        'Property "path" must start with forward slash "/", but %v was given.',
-        operationDef.path,
-      );
-    }
     // method
     if (!operationDef.method || typeof operationDef.method !== 'string') {
       throw new InvalidArgumentError(
@@ -353,14 +348,16 @@ export class OADocumentBuilder extends Service {
         operationDef.operation,
       );
     }
+    const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};
     }
-    if (!this._document.paths[operationDef.path]) {
-      this._document.paths[operationDef.path] = {};
+    if (!this._document.paths[normalizedPath]) {
+      this._document.paths[normalizedPath] = {};
     }
-    this._document.paths[operationDef.path][operationDef.method] =
-      structuredClone(operationDef.operation);
+    this._document.paths[normalizedPath][operationDef.method] = structuredClone(
+      operationDef.operation,
+    );
   }
 
   /**

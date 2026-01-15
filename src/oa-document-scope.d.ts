@@ -16,10 +16,25 @@ export type OADocumentScopeOptions = {
  */
 export declare class OADocumentScope {
   /**
-   * @param rootBuilder
+   * @param builder
    * @param options
    */
-  constructor(rootBuilder: OADocumentBuilder, options?: OADocumentScopeOptions);
+  constructor(builder: OADocumentBuilder, options?: OADocumentScopeOptions);
+
+  /**
+   * Get builder.
+   */
+  getBuilder(): OADocumentBuilder;
+
+  /**
+   * Get path prefix.
+   */
+  getPathPrefix(): string;
+
+  /**
+   * Get tags.
+   */
+  getTags(): string[];
 
   /**
    * Define operation.

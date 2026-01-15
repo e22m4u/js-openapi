@@ -1,5 +1,5 @@
-import {joinPath} from './utils/index.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
+import {joinPath, normalizePath} from './utils/index.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 import {OAOperationMethod} from './document-specification.js';
 
@@ -8,53 +8,104 @@ import {OAOperationMethod} from './document-specification.js';
  */
 export class OADocumentScope {
   /**
-   * @param {object} rootBuilder
+   * Builder.
+   *
+   * @type {OADocumentBuilder}
+   */
+  _builder;
+
+  /**
+   * Path prefix.
+   *
+   * @type {string}
+   */
+  _pathPrefix;
+
+  /**
+   * Tags.
+   *
+   * @type {string[]}
+   */
+  _tags;
+
+  /**
+   * @param {object} builder
    * @param {object} [options]
    */
-  constructor(rootBuilder, options = {}) {
-    if (!(rootBuilder instanceof OADocumentBuilder)) {
+  constructor(builder, options = {}) {
+    // builder
+    if (!(builder instanceof OADocumentBuilder)) {
       throw new InvalidArgumentError(
-        'Parameter "rootBuilder" must be an instance of OADocumentBuilder, ' +
+        'Parameter "builder" must be an instance of OADocumentBuilder, ' +
           'but %v was given.',
-        rootBuilder,
+        builder,
       );
     }
+    // options
     if (!options || typeof options !== 'object' || Array.isArray(options)) {
       throw new InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options,
       );
     }
+    // options.pathPrefix
     if (options.pathPrefix !== undefined) {
       if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Parameter "pathPrefix" must be a non-empty String, ' +
+          'Property "pathPrefix" must be a non-empty String, ' +
             'but %v was given.',
           options.pathPrefix,
         );
       }
     }
+    // options.tags
     if (options.tags !== undefined) {
       if (!Array.isArray(options.tags)) {
         throw new InvalidArgumentError(
-          'Parameter "tags" must be an Array, ' + 'but %v was given.',
+          'Property "tags" must be an Array, but %v was given.',
           options.tags,
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element "tags[%d]" must be a non-empty String, ' +
-              'but %v was given.',
+            'Element "tags[%d]" must be a non-empty String, but %v was given.',
             index,
             tag,
           );
         }
       });
     }
-    this.rootBuilder = rootBuilder;
-    this.pathPrefix = options.pathPrefix || '/';
-    this.tags = options.tags || [];
+    this._builder = builder;
+    this._pathPrefix = normalizePath(options.pathPrefix || '/');
+    this._tags = options.tags || [];
+  }
+
+  /**
+   * Get builder.
+   *
+   * @returns {OADocumentBuilder}
+   */
+  getBuilder() {
+    return this._builder;
+  }
+
+  /**
+   * Get path prefix.
+   *
+   * @returns {string}
+   */
+  getPathPrefix() {
+    return this._pathPrefix;
+  }
+
+  /**
+   * Get tags.
+   *
+   * @returns {string[]}
+   */
+  getTags() {
+    return [...this._tags];
   }
 
   /**
@@ -78,12 +129,6 @@ export class OADocumentScope {
     if (!operationDef.path || typeof operationDef.path !== 'string') {
       throw new InvalidArgumentError(
         'Property "path" must be a non-empty String, but %v was given.',
-        operationDef.path,
-      );
-    }
-    if (operationDef.path[0] !== '/') {
-      throw new InvalidArgumentError(
-        'Property "path" must start with forward slash "/", but %v was given.',
         operationDef.path,
       );
     }
@@ -112,20 +157,20 @@ export class OADocumentScope {
       );
     }
     // склеивание пути
-    const fullPath = joinPath(this.pathPrefix, operationDef.path);
+    const fullPath = joinPath(this._pathPrefix, operationDef.path);
     // создание копии схемы операции
     // чтобы избежать мутацию аргумента
     const operation = structuredClone(operationDef.operation);
     // объединение тегов текущей области
     // с тегами текущей операции и удаление
     // дубликатов
-    if (this.tags.length > 0) {
-      operation.tags = [...this.tags, ...(operation.tags || [])];
+    if (this._tags.length > 0) {
+      operation.tags = [...this._tags, ...(operation.tags || [])];
       operation.tags = [...new Set(operation.tags)];
     }
     // регистрация операции в родительском
     // экземпляре сборщика документа
-    this.rootBuilder.defineOperation({
+    this._builder.defineOperation({
       ...operationDef,
       path: fullPath,
       operation,
@@ -140,42 +185,44 @@ export class OADocumentScope {
    * @returns {OADocumentScope}
    */
   createScope(options = {}) {
+    // options
     if (!options || typeof options !== 'object' || Array.isArray(options)) {
       throw new InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options,
       );
     }
+    // options.pathPrefix
     if (options.pathPrefix !== undefined) {
       if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Parameter "pathPrefix" must be a non-empty String, ' +
+          'Property "pathPrefix" must be a non-empty String, ' +
             'but %v was given.',
           options.pathPrefix,
         );
       }
     }
+    // options.tags
     if (options.tags !== undefined) {
       if (!Array.isArray(options.tags)) {
         throw new InvalidArgumentError(
-          'Parameter "tags" must be an Array, ' + 'but %v was given.',
+          'Property "tags" must be an Array, but %v was given.',
           options.tags,
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element "tags[%d]" must be a non-empty String, ' +
-              'but %v was given.',
+            'Element "tags[%d]" must be a non-empty String, but %v was given.',
             index,
             tag,
           );
         }
       });
     }
-    return new OADocumentScope(this.rootBuilder, {
-      pathPrefix: joinPath(this.pathPrefix, options.pathPrefix),
-      tags: [...this.tags, ...(options.tags || [])],
+    return new OADocumentScope(this._builder, {
+      pathPrefix: joinPath(this._pathPrefix, options.pathPrefix),
+      tags: [...this._tags, ...(options.tags || [])],
     });
   }
 }

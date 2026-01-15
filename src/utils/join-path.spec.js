@@ -66,4 +66,9 @@ describe('joinPath', function () {
     const result = joinPath(-10, 0, 10);
     expect(result).to.be.eq('/-10/0/10');
   });
+
+  it('should remove duplicate slashes', function () {
+    const result = joinPath('/', '//foo//', '///bar///');
+    expect(result).to.be.eq('/foo/bar');
+  });
 });
