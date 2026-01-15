@@ -4,4 +4,3 @@ export * from './oa-document-builder.js';
 export * from './document-specification.js';
 
 export * from './utils/oa-ref.js';
-export * from './utils/oa-json-content.js';

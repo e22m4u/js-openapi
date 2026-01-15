@@ -14,7 +14,7 @@ export const OAOperationMethod = {
   HEAD: 'head',
   PATCH: 'patch',
   TRACE: 'trace',
-}
+};
 
 /**
  * Parameter Location.
@@ -25,7 +25,7 @@ export const OAParameterLocation = {
   HEADER: 'header',
   PATH: 'path',
   COOKIE: 'cookie',
-}
+};
 
 /**
  * Parameter Style.
@@ -53,7 +53,7 @@ export const OADataType = {
   OBJECT: 'object',
   ARRAY: 'array',
   NULL: 'null',
-}
+};
 
 /**
  * Data format.
@@ -66,7 +66,7 @@ export const OADataFormat = {
   DOUBLE: 'double',
   PASSWORD: 'password',
   BINARY: 'binary',
-}
+};
 
 /**
  * Media type.
@@ -78,7 +78,7 @@ export const OAMediaType = {
   APPLICATION_XML: 'application/xml',
   APPLICATION_JSON: 'application/json',
   MULTIPART_FORM_DATA: 'multipart/form-data',
-}
+};
 
 /**
  * Security Scheme Type.
@@ -90,7 +90,7 @@ export const OASecuritySchemeType = {
   MUTUAL_TLS: 'mutualTLS',
   OAUTH_2: 'oauth2',
   OPEN_ID_CONNECT: 'openIdConnect',
-}
+};
 
 /**
  * Api Key Location.
@@ -100,4 +100,4 @@ export const OAApiKeyLocation = {
   QUERY: 'query',
   HEADER: 'header',
   COOKIE: 'cookie',
-}
+};

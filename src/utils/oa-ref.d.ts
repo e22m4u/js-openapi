@@ -1,47 +1,32 @@
-import {
-  OAReferenceObject,
-  OAComponentsObject,
-} from '../document-specification.js';
+import {OAReferenceObject} from '../document-specification.js';
+
+/**
+ * Component type.
+ */
+export declare const OAComponentType: {
+  SCHEMA: 'schema';
+  RESPONSE: 'response';
+  PARAMETER: 'parameter';
+  EXAMPLE: 'example';
+  REQUEST_BODY: 'requestBody';
+  HEADER: 'header';
+  SECURITY_SCHEME: 'securityScheme';
+  LINK: 'link';
+  CALLBACK: 'callback';
+  PATH_ITEM: 'pathItem';
+};
+
+export type OAComponentType =
+  (typeof OAComponentType)[keyof typeof OAComponentType];
 
 /**
  * Create the Reference Object.
  *
- * Example 1:
- * 
+ * Example:
+ *
  * ```js
- * oaRef('User');
+ * oaRef('User', OAComponentType.SCHEMA);
  * // {"$ref": "#/components/schemas/User"}
- * ```
- * 
- * Example 2:
- * 
- * ```js
- * oaRef('Error', 'responses');
- * // {"$ref": "#/components/responses/Error"}
- * ```
- * 
- * Example 3:
- * 
- * ```js
- * builder.defineOperation({
- *   path: '/users',
- *   method: 'get',
- *   operation: {
- *     responses: {
- *       200: {
- *         description: 'List of users',
- *         content: {
- *           'application/json': {
- *             schema: {
- *               type: 'array',
- *               items: oaRef('User'), // <=
- *             },
- *           },
- *         },
- *       },
- *     },
- *   },
- * });
  * ```
  *
  * @param name
@@ -49,5 +34,16 @@ import {
  */
 export declare function oaRef(
   name: string,
-  type?: keyof OAComponentsObject,
+  type: OAComponentType,
 ): OAReferenceObject;
+
+/* aliases */
+export declare const oaSchemaRef: (name: string) => OAReferenceObject;
+export declare const oaResponseRef: (name: string) => OAReferenceObject;
+export declare const oaParameterRef: (name: string) => OAReferenceObject;
+export declare const oaExampleRef: (name: string) => OAReferenceObject;
+export declare const oaRequestBodyRef: (name: string) => OAReferenceObject;
+export declare const oaSecuritySchemeRef: (name: string) => OAReferenceObject;
+export declare const oaLinkRef: (name: string) => OAReferenceObject;
+export declare const oaCallbackRef: (name: string) => OAReferenceObject;
+export declare const oaPathItemRef: (name: string) => OAReferenceObject;

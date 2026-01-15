@@ -120,22 +120,49 @@ builder.defineSchemaComponent({
 });
 ```
 
-Использование зарегистрированного имени схемы.
+Регистрация компонента параметра.
 
 ```js
-import {oaRef, OAOperationMethod} from '@e22m4u/js-openapi';
+import {OADataType, OAOperationMethod} from '@e22m4u/js-openapi';
 
+builder.defineParameterComponent({
+  name: 'idParam', // <= имя нового компонента
+  parameter: {
+    name: 'id',
+    in: OAParameterLocation.PATH,
+    description: 'Identifier',
+    required: true,
+  },
+});
+```
+
+Использование зарегистрированного имени компонента.
+
+```js
+import {
+  oaSchemaRef,
+  OAMediaType,
+  oaParameterRef,
+  OAOperationMethod,
+} from '@e22m4u/js-openapi';
+
+// GET /users/{id}
 builder.defineOperation({
   path: '/users/{id}',
   method: OAOperationMethod.GET,
   operation: {
+    parameters: [
+      oaParameterRef('idParam'), // <= ссылка на параметр
+      // утилита "oaParameterRef" создаст объект-ссылку:
+      // {"$ref": "#/components/parameters/idParam"}
+    ],
     responses: {
       200: {
         description: 'User found',
         content: {
-          'application/json': {
-            schema: oaRef('User'), // <= ссылка на компонент
-            // утилита "oaRef" создаст объект:
+          [OAMediaType.APPLICATION_JSON]: {
+            schema: oaSchemaRef('User'), // <= ссылка на схему
+            // утилита "oaSchemaRef" создаст объект-ссылку:
             // {"$ref": "#/components/schemas/User"}
           },
         },
@@ -147,34 +174,73 @@ builder.defineOperation({
 
 ## Содержимое запросов и ответов
 
-Определение тела ответа операции.
+Определение тела запроса для операции.
 
 ```js
-import {
-  OADataType,
-  oaJsonContent,
-  OAOperationMethod,
-} from '@e22m4u/js-openapi';
+import {OADataType, OAMediaType, OAOperationMethod} from '@e22m4u/js-openapi';
 
+// POST /users
+builder.defineOperation({
+  path: '/users',
+  method: OAOperationMethod.POST,
+  operation: {
+    summary: 'Create a new user',
+    // тело запроса
+    requestBody: {
+      description: 'Data for the new user',
+      required: true,
+      content: {
+        [OAMediaType.APPLICATION_JSON]: {
+          // схема тела
+          schema: {
+            type: OADataType.OBJECT,
+            properties: {
+              email: {
+                type: OADataType.STRING,
+                format: 'email',
+              },
+              password: {
+                type: OADataType.STRING,
+              },
+            },
+            required: ['email', 'password'],
+          },
+        },
+      },
+    },
+  },
+});
+```
+
+Определение тела ответа для операции.
+
+```js
+import {OADataType, OAMediaType, OAOperationMethod} from '@e22m4u/js-openapi';
+
+// GET /status
 builder.defineOperation({
   path: '/status',
   method: OAOperationMethod.GET,
   operation: {
     summary: 'Get server status',
     responses: {
+      // успешный ответ
       200: {
         description: 'Server works fine',
-        content: oaJsonContent({
-          // утилита "oaJsonContent" оборачивает схему
-          // в стандартную структуру "application/json"
-          type: OADataType.OBJECT,
-          properties: {
-            status: {
-              type: OADataType.STRING,
-              example: 'ok',
+        content: {
+          [OAMediaType.APPLICATION_JSON]: {
+            // схема ответа
+            schema: {
+              type: OADataType.OBJECT,
+              properties: {
+                status: {
+                  type: OADataType.STRING,
+                  example: 'ok',
+                },
+              },
             },
           },
-        }),
+        },
       },
     },
   },
@@ -204,39 +270,36 @@ builder.defineSchemaComponent({
 });
 ```
 
-Определение тела запроса и тела ответа с использованием ссылок.
+Определение содержания запроса и ответа с использованием ссылок.
 
 ```js
-import {oaRef, oaJsonContent, OAOperationMethod} from '@e22m4u/js-openapi';
+import {oaSchemaRef, OAMediaType, OAOperationMethod} from '@e22m4u/js-openapi';
 
+// POST /users
 builder.defineOperation({
   path: '/users',
   method: OAOperationMethod.POST,
   operation: {
     summary: 'Create a new user',
+    // тело запроса
     requestBody: {
       description: 'Data for the new user',
       required: true,
-      content: oaJsonContent(oaRef('UserInput')), // <= ссылка на компонент
-      // "content": {
-      //   "application/json": {
-      //     "schema": {
-      //       "$ref": "#/components/schemas/UserInput"
-      //     }
-      //   }
-      // }
+      content: {
+        [OAMediaType.APPLICATION_JSON]: {
+          schema: oaSchemaRef('UserInput'), // <= ссылка на схему
+        },
+      },
     },
     responses: {
+      // успешный ответ
       201: {
         description: 'User created',
-        content: oaJsonContent(oaRef('User')), // <= ссылка на компонент
-        // "content": {
-        //   "application/json": {
-        //     "schema": {
-        //       "$ref": "#/components/schemas/User"
-        //     }
-        //   }
-        // }
+        content: {
+          [OAMediaType.APPLICATION_JSON]: {
+            schema: oaSchemaRef('User'), // <= ссылка на схему
+          },
+        },
       },
     },
   },
