@@ -67,12 +67,15 @@ builder.defineOperation({
 });
 ```
 
-Сборка документа.
+Формирование JSON документа.
 
 ```js
-const document = builder.buildJson();
+const jsonDoc = builder.buildJson(2);
+// первый аргумент указывает количество пробелов
+// для каждого уровня вложенности, и может быть
+// опущен в целях экономии размера документа
 
-console.log(document);
+console.log(jsonDoc);
 // {
 //   "openapi": "3.1.0",
 //   "info": {
