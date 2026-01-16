@@ -1,10 +1,10 @@
 import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {normalizePath} from './utils/normalize-path.js';
-import {OAOperationMethod} from './document-specification.js';
+import {OAComponentRegistry} from './oa-component-registry.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
-import {OAComponentsSegment, OPENAPI_VERSION} from './constants.js';
 import {validateShallowOADocumentObject} from './document-validators.js';
+import {OPENAPI_VERSION, OAOperationMethod} from './document-specification.js';
 
 /**
  * OpenAPI Document builder.
@@ -93,85 +93,14 @@ export class OADocumentBuilder extends Service {
   }
 
   /**
-   * Define component.
-   *
-   * @param {string} segmentName
-   * @param {string} propertyName
-   * @param {object} definition
-   * @returns {this}
-   */
-  _defineComponent(segmentName, propertyName, definition) {
-    // segmentName
-    if (!Object.values(OAComponentsSegment).includes(segmentName)) {
-      throw new InvalidArgumentError(
-        'Property "segmentName" must be one of values: %l, ' +
-          'but %v was given.',
-        Object.values(OAComponentsSegment),
-        segmentName,
-      );
-    }
-    // propertyName
-    if (!propertyName || typeof propertyName !== 'string') {
-      throw new InvalidArgumentError(
-        'Property "propertyName" must be a non-empty String, ' +
-          'but %v was given.',
-        propertyName,
-      );
-    }
-    // definition
-    if (
-      !definition ||
-      typeof definition !== 'object' ||
-      Array.isArray(definition)
-    ) {
-      throw new InvalidArgumentError(
-        'Component definition must be an Object, but %v was given.',
-        definition,
-      );
-    }
-    // definition.name
-    if (!definition.name || typeof definition.name !== 'string') {
-      throw new InvalidArgumentError(
-        'Property "name" must be a non-empty String, but %v was given.',
-        definition.name,
-      );
-    }
-    // definition[componentKey]
-    const component = definition[propertyName];
-    if (
-      !component ||
-      typeof component !== 'object' ||
-      Array.isArray(component)
-    ) {
-      throw new InvalidArgumentError(
-        'Property %v must be an Object, but %v was given.',
-        propertyName,
-        component,
-      );
-    }
-    if (!this._document.components) {
-      this._document.components = {};
-    }
-    if (!this._document.components[segmentName]) {
-      this._document.components[segmentName] = {};
-    }
-    this._document.components[segmentName][definition.name] =
-      structuredClone(component);
-    return this;
-  }
-
-  /**
    * Define schema component.
    *
    * @param {object} schemaDef
    * @returns {this}
    */
   defineSchemaComponent(schemaDef) {
-    return this._defineComponent(
-      OAComponentsSegment.SCHEMAS,
-      'schema',
-      schemaDef,
-    );
+    this.getService(OAComponentRegistry).defineSchema(schemaDef);
+    return this;
   }
 
   /**
@@ -181,11 +110,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineResponseComponent(responseDef) {
-    return this._defineComponent(
-      OAComponentsSegment.RESPONSES,
-      'response',
-      responseDef,
-    );
+    this.getService(OAComponentRegistry).defineResponse(responseDef);
+    return this;
   }
 
   /**
@@ -195,11 +121,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineParameterComponent(parameterDef) {
-    return this._defineComponent(
-      OAComponentsSegment.PARAMETERS,
-      'parameter',
-      parameterDef,
-    );
+    this.getService(OAComponentRegistry).defineParameter(parameterDef);
+    return this;
   }
 
   /**
@@ -209,11 +132,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineExampleComponent(exampleDef) {
-    return this._defineComponent(
-      OAComponentsSegment.EXAMPLES,
-      'example',
-      exampleDef,
-    );
+    this.getService(OAComponentRegistry).defineExample(exampleDef);
+    return this;
   }
 
   /**
@@ -223,11 +143,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineRequestBodyComponent(requestBodyDef) {
-    return this._defineComponent(
-      OAComponentsSegment.REQUEST_BODIES,
-      'requestBody',
-      requestBodyDef,
-    );
+    this.getService(OAComponentRegistry).defineRequestBody(requestBodyDef);
+    return this;
   }
 
   /**
@@ -237,11 +154,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineHeaderComponent(headerDef) {
-    return this._defineComponent(
-      OAComponentsSegment.HEADERS,
-      'header',
-      headerDef,
-    );
+    this.getService(OAComponentRegistry).defineHeader(headerDef);
+    return this;
   }
 
   /**
@@ -251,11 +165,10 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineSecuritySchemeComponent(securitySchemeDef) {
-    return this._defineComponent(
-      OAComponentsSegment.SECURITY_SCHEMES,
-      'securityScheme',
+    this.getService(OAComponentRegistry).defineSecurityScheme(
       securitySchemeDef,
     );
+    return this;
   }
 
   /**
@@ -265,12 +178,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineLinkComponent(linkDef) {
-    /* prettier-ignore */
-    return this._defineComponent(
-      OAComponentsSegment.LINKS,
-      'link',
-      linkDef,
-    );
+    this.getService(OAComponentRegistry).defineLink(linkDef);
+    return this;
   }
 
   /**
@@ -280,11 +189,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineCallbackComponent(callbackDef) {
-    return this._defineComponent(
-      OAComponentsSegment.CALLBACKS,
-      'callback',
-      callbackDef,
-    );
+    this.getService(OAComponentRegistry).defineCallback(callbackDef);
+    return this;
   }
 
   /**
@@ -294,11 +200,8 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   definePathItemComponent(pathItemDef) {
-    return this._defineComponent(
-      OAComponentsSegment.PATH_ITEMS,
-      'pathItem',
-      pathItemDef,
-    );
+    this.getService(OAComponentRegistry).definePathItem(pathItemDef);
+    return this;
   }
 
   /**
@@ -376,7 +279,24 @@ export class OADocumentBuilder extends Service {
    * @returns {object}
    */
   build() {
-    return structuredClone(this._document);
+    const doc = structuredClone(this._document);
+    // внедрение зарегистрированных компонентов
+    // в компоненты текущего документа
+    const compsMap = this.getService(OAComponentRegistry).getComponentsObject();
+    doc.components = doc.components || {};
+    Object.keys(compsMap).forEach(compsKey => {
+      const compsNames = Object.keys(compsMap[compsKey]);
+      if (compsNames.length) {
+        doc.components[compsKey] = doc.components[compsKey] || {};
+        compsNames.forEach(compName => {
+          doc.components[compsKey][compName] = compsMap[compsKey][compName];
+        });
+      }
+    });
+    if (!Object.keys(doc.components).length) {
+      delete doc.components;
+    }
+    return doc;
   }
 
   /**
@@ -386,6 +306,6 @@ export class OADocumentBuilder extends Service {
    * @returns {string}
    */
   buildJson(space = 0) {
-    return JSON.stringify(this._document, null, space);
+    return JSON.stringify(this.build(), null, space);
   }
 }

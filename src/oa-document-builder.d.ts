@@ -3,106 +3,28 @@ import {Service, ServiceContainer} from '@e22m4u/js-service';
 import {OADocumentScope, OADocumentScopeOptions} from './oa-document-scope.js';
 
 import {
-  OALinkObject,
-  OASchemaObject,
-  OAHeaderObject,
-  OAExampleObject,
   OADocumentObject,
-  OACallbackObject,
-  OAResponseObject,
-  OAPathItemObject,
   OAOperationMethod,
   OAOperationObject,
-  OAReferenceObject,
-  OAParameterObject,
-  OARequestBodyObject,
-  OASecuritySchemeObject,
 } from './document-specification.js';
+
+import {
+  OALinkComponentDefinition,
+  OASchemaComponentDefinition,
+  OAHeaderComponentDefinition,
+  OAExampleComponentDefinition,
+  OAResponseComponentDefinition,
+  OACallbackComponentDefinition,
+  OAPathItemComponentDefinition,
+  OAParameterComponentDefinition,
+  OARequestBodyComponentDefinition,
+  OASecuritySchemeComponentDefinition,
+} from './oa-component-registry.js';
 
 /**
  * Document input.
  */
 export type OADocumentInput = Optional<OADocumentObject, 'openapi' | 'info'>;
-
-/**
- * Schema component definition.
- */
-export type OASchemaComponentDefinition = {
-  name: string;
-  schema: OASchemaObject;
-};
-
-/**
- * Response component definition.
- */
-export type OAResponseComponentDefinition = {
-  name: string;
-  response: OAResponseObject | OAReferenceObject;
-};
-
-/**
- * Parameter component definition.
- */
-export type OAParameterComponentDefinition = {
-  name: string;
-  parameter: OAParameterObject | OAReferenceObject;
-};
-
-/**
- * Example component definition.
- */
-export type OAExampleComponentDefinition = {
-  name: string;
-  example: OAExampleObject | OAReferenceObject;
-};
-
-/**
- * Request body component definition.
- */
-export type OARequestBodyComponentDefinition = {
-  name: string;
-  requestBody: OARequestBodyObject | OAReferenceObject;
-};
-
-/**
- * Header component definition.
- */
-export type OAHeaderComponentDefinition = {
-  name: string;
-  header: OAHeaderObject | OAReferenceObject;
-};
-
-/**
- * Security scheme component definition.
- */
-export type OASecuritySchemeComponentDefinition = {
-  name: string;
-  securityScheme: OASecuritySchemeObject | OAReferenceObject;
-};
-
-/**
- * Link component definition.
- */
-export type OALinkComponentDefinition = {
-  name: string;
-  link: OALinkObject | OAReferenceObject;
-};
-
-/**
- * Callback component definition.
- */
-export type OACallbackComponentDefinition = {
-  name: string;
-  callback: OACallbackObject | OAReferenceObject;
-};
-
-/**
- * Path item component definition.
- */
-export type OAPathItemComponentDefinition = {
-  name: string;
-  pathItem: OAPathItemObject | OAReferenceObject;
-};
 
 /**
  * Operation definition.

@@ -1,25 +1,5 @@
-import {OAComponentsSegment} from '../constants.js';
 import {OAReferenceObject} from '../document-specification.js';
 
-/**
- * Create the Reference Object.
- *
- * Example:
- *
- * ```js
- * oaRef('User', OAComponentsSegment.SCHEMAS);
- * // {"$ref": "#/components/schemas/User"}
- * ```
- *
- * @param name
- * @param segment
- */
-export declare function oaRef(
-  name: string,
-  segment: OAComponentsSegment,
-): OAReferenceObject;
-
-/* aliases */
 export declare const oaSchemaRef: (name: string) => OAReferenceObject;
 export declare const oaResponseRef: (name: string) => OAReferenceObject;
 export declare const oaParameterRef: (name: string) => OAReferenceObject;

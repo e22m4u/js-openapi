@@ -2,6 +2,11 @@
 // https://spec.openapis.org/oas/v3.1.0
 
 /**
+ * OpenAPI version.
+ */
+export declare const OPENAPI_VERSION: '3.1.0';
+
+/**
  * Document object.
  * https://spec.openapis.org/oas/v3.1.0#openapi-object
  */

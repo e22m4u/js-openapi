@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {format} from '@e22m4u/js-format';
-import {OPENAPI_VERSION} from './constants.js';
+import {OPENAPI_VERSION} from './document-specification.js';
 import {validateShallowOADocumentObject} from './document-validators.js';
 
 const MINIMAL_DOCUMENT = {

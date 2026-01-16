@@ -1,48 +1,40 @@
-import {OAComponentsSegment} from '../constants.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
+
+import {
+  OAComponentType,
+  OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP,
+} from '../oa-component-registry.js';
 
 /**
  * Create the Reference Object.
  *
- * Example:
- *
- * ```js
- * oaRef('User', OAComponentsSegment.SCHEMAS);
- * // {"$ref": "#/components/schemas/User"}
- * ```
- *
  * @param {string} name
- * @param {string} segment
+ * @param {string} type
  * @returns {object}
  */
-export function oaRef(name, segment) {
+function oaRef(name, type) {
   if (!name || typeof name !== 'string') {
     throw new InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
       name,
     );
   }
-  if (!Object.values(OAComponentsSegment).includes(segment)) {
-    throw new InvalidArgumentError(
-      'Parameter "segment" must be one of values: %l, but %v was given.',
-      Object.values(OAComponentsSegment),
-      segment,
-    );
+  if (!Object.values(OAComponentType).includes(type)) {
+    throw new InvalidArgumentError('Component type %v is not supported.', type);
   }
+  const segment = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
   return {$ref: `#/components/${segment}/${name}`};
 }
 
 /* aliases */
-export const oaSchemaRef = name => oaRef(name, OAComponentsSegment.SCHEMAS);
-export const oaResponseRef = name => oaRef(name, OAComponentsSegment.RESPONSES);
-export const oaParameterRef = name =>
-  oaRef(name, OAComponentsSegment.PARAMETERS);
-export const oaExampleRef = name => oaRef(name, OAComponentsSegment.EXAMPLES);
+export const oaSchemaRef = name => oaRef(name, OAComponentType.SCHEMA);
+export const oaResponseRef = name => oaRef(name, OAComponentType.RESPONSE);
+export const oaParameterRef = name => oaRef(name, OAComponentType.PARAMETER);
+export const oaExampleRef = name => oaRef(name, OAComponentType.EXAMPLE);
 export const oaRequestBodyRef = name =>
-  oaRef(name, OAComponentsSegment.REQUEST_BODIES);
+  oaRef(name, OAComponentType.REQUEST_BODY);
 export const oaSecuritySchemeRef = name =>
-  oaRef(name, OAComponentsSegment.SECURITY_SCHEMES);
-export const oaLinkRef = name => oaRef(name, OAComponentsSegment.LINKS);
-export const oaCallbackRef = name => oaRef(name, OAComponentsSegment.CALLBACKS);
-export const oaPathItemRef = name =>
-  oaRef(name, OAComponentsSegment.PATH_ITEMS);
+  oaRef(name, OAComponentType.SECURITY_SCHEME);
+export const oaLinkRef = name => oaRef(name, OAComponentType.LINK);
+export const oaCallbackRef = name => oaRef(name, OAComponentType.CALLBACK);
+export const oaPathItemRef = name => oaRef(name, OAComponentType.PATH_ITEM);

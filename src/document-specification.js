@@ -2,6 +2,11 @@
 // https://spec.openapis.org/oas/v3.1.0
 
 /**
+ * OpenAPI version.
+ */
+export const OPENAPI_VERSION = '3.1.0';
+
+/**
  * Operation Method.
  * https://spec.openapis.org/oas/v3.1.0#path-item-object
  */
