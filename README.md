@@ -407,7 +407,7 @@ validateDataWithOpenApiSchema(data, schema);
 // Value at "/age" must be Number, but String was given.
 ```
 
-Отключение выброса ошибки для ручной обработки результата.
+Отключение выброса ошибок для ручной обработки результата.
 
 ```js
 const result = validateDataWithOpenApiSchema(data, schema, {
