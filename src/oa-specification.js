@@ -61,16 +61,46 @@ export const OADataType = {
 };
 
 /**
+ * Data type list.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
+ */
+export const OA_DATA_TYPE_LIST = Object.values(OADataType);
+
+/**
  * Data format.
  * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
  */
 export const OADataFormat = {
+  // number
   INT32: 'int32',
   INT64: 'int64',
   FLOAT: 'float',
   DOUBLE: 'double',
-  PASSWORD: 'password',
+  // date and time
+  DATE: 'date',
+  DATE_TIME: 'date-time',
+  TIME: 'time',
+  DURATION: 'duration',
+  // binary
+  BYTE: 'byte',
   BINARY: 'binary',
+  // identifiers and network
+  EMAIL: 'email',
+  IDN_EMAIL: 'idn-email',
+  UUID: 'uuid',
+  HOSTNAME: 'hostname',
+  IDN_HOSTNAME: 'idn-hostname',
+  IPV4: 'ipv4',
+  IPV6: 'ipv6',
+  URI: 'uri',
+  URI_REFERENCE: 'uri-reference',
+  IRI: 'iri',
+  IRI_REFERENCE: 'iri-reference',
+  // extra
+  PASSWORD: 'password',
+  REGEX: 'regex',
+  JSON_POINTER: 'json-pointer',
+  RELATIVE_JSON_POINTER: 'relative-json-pointer',
 };
 
 /**
@@ -106,3 +136,18 @@ export const OAApiKeyLocation = {
   HEADER: 'header',
   COOKIE: 'cookie',
 };
+
+/**
+ * Access mode.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ */
+export const OAAccessMode = {
+  READ: 'read',
+  WRITE: 'write',
+};
+
+/**
+ * Access mode list.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ */
+export const ACCESS_MODE_LIST = Object.values(OAAccessMode);

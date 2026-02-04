@@ -5,7 +5,7 @@ import {InvalidArgumentError} from '@e22m4u/js-format';
  *
  * @param {object} documentObject
  */
-export function validateShallowOADocumentObject(documentObject) {
+export function validateShallowOADocument(documentObject) {
   if (
     !documentObject ||
     typeof documentObject !== 'object' ||
@@ -75,6 +75,7 @@ export function validateShallowOADocumentObject(documentObject) {
         documentObject.servers,
       );
     }
+    // servers[n]
     documentObject.servers.forEach((serverObject, index) => {
       if (
         !serverObject ||
@@ -85,6 +86,15 @@ export function validateShallowOADocumentObject(documentObject) {
           'Element "servers[%d]" must be an Object, but %v was given.',
           index,
           serverObject,
+        );
+      }
+      // servers[n].url
+      if (!serverObject.url || typeof serverObject.url !== 'string') {
+        throw new InvalidArgumentError(
+          'Property "servers[%d].url" must be a non-empty String, ' +
+            'but %v was given.',
+          index,
+          serverObject.url,
         );
       }
     });
@@ -136,6 +146,7 @@ export function validateShallowOADocumentObject(documentObject) {
         documentObject.security,
       );
     }
+    // security[n]
     documentObject.security.forEach((securityRequirementObject, index) => {
       if (
         !securityRequirementObject ||
@@ -158,6 +169,7 @@ export function validateShallowOADocumentObject(documentObject) {
         documentObject.tags,
       );
     }
+    // tags[n]
     documentObject.tags.forEach((tagObject, index) => {
       if (
         !tagObject ||
@@ -168,6 +180,15 @@ export function validateShallowOADocumentObject(documentObject) {
           'Element "tags[%d]" must be an Object, but %v was given.',
           index,
           tagObject,
+        );
+      }
+      // tags[n].name
+      if (!tagObject.name || typeof tagObject.name !== 'string') {
+        throw new InvalidArgumentError(
+          'Property "tags[%d].name" must be a non-empty String, ' +
+            'but %v was given.',
+          index,
+          tagObject.name,
         );
       }
     });

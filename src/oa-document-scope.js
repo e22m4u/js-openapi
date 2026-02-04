@@ -1,7 +1,7 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
+import {OAOperationMethod} from './oa-specification.js';
 import {joinPath, normalizePath} from './utils/index.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
-import {OAOperationMethod} from './document-specification.js';
 
 /**
  * Document scope.

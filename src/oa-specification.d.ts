@@ -120,6 +120,10 @@ export declare const OAOperationMethod: {
   TRACE: 'trace';
 };
 
+/**
+ * Operation Method.
+ * https://spec.openapis.org/oas/v3.1.0#path-item-object
+ */
 export type OAOperationMethod =
   (typeof OAOperationMethod)[keyof typeof OAOperationMethod];
 
@@ -137,8 +141,10 @@ export type OAParameterObject = {
   style?: OAParameterStyle;
   explode?: boolean;
   allowReserved?: boolean;
-  schema?: OASchemaObject;
+  schema?: OABooleanSchema | OASchemaObject | OAReferenceObject;
   content?: OAContentObject;
+  example?: unknown;
+  examples?: OAExamplesObject;
 };
 
 /**
@@ -152,6 +158,10 @@ export declare const OAParameterLocation: {
   COOKIE: 'cookie';
 };
 
+/**
+ * Parameter Location.
+ * https://spec.openapis.org/oas/v3.1.0#parameter-locations
+ */
 export type OAParameterLocation =
   (typeof OAParameterLocation)[keyof typeof OAParameterLocation];
 
@@ -169,6 +179,10 @@ export declare const OAParameterStyle: {
   DEEP_OBJECT: 'deepObject';
 };
 
+/**
+ * Parameter Style.
+ * https://spec.openapis.org/oas/v3.1.0#style-values
+ */
 export type OAParameterStyle =
   (typeof OAParameterStyle)[keyof typeof OAParameterStyle];
 
@@ -183,21 +197,89 @@ export type OAReferenceObject = {
 };
 
 /**
+ * Boolean Schema.
+ * https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.2
+ */
+export type OABooleanSchema = boolean;
+
+/**
  * Schema Object.
  * https://spec.openapis.org/oas/v3.1.0#schema-object
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-01
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-table-of-contents-2
  */
 export type OASchemaObject = {
+  $schema?: string;
+  $id?: string;
+  $anchor?: string;
+  $dynamicAnchor?: string;
+  $ref?: string;
+  $dynamicRef?: string;
+  $defs?: OADefinitionsObject;
+  $comment?: string;
+  $vocabulary?: {[uri: string]: boolean};
+  // common
+  title?: string;
+  description?: string;
+  default?: unknown;
+  deprecated?: boolean;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+  examples?: unknown[];
+  // any
   type?: OADataType | OADataType[];
   format?: OADataFormat | string;
-  items?: OASchemaObject | OAReferenceObject;
-  required?: string[];
+  enum?: unknown[];
+  const?: unknown;
+  // composition
+  allOf?: (OABooleanSchema | OASchemaObject | OAReferenceObject)[];
+  oneOf?: (OABooleanSchema | OASchemaObject | OAReferenceObject)[];
+  anyOf?: (OABooleanSchema | OASchemaObject | OAReferenceObject)[];
+  not?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  // string
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  // number and integer
   minimum?: number;
   maximum?: number;
-  default?: unknown;
+  exclusiveMinimum?: number;
+  exclusiveMaximum?: number;
+  multipleOf?: number;
+  // arrays
+  items?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  prefixItems?: (OABooleanSchema | OASchemaObject | OAReferenceObject)[];
+  minItems?: number;
+  maxItems?: number;
+  uniqueItems?: boolean;
+  contains?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  maxContains?: number;
+  minContains?: number;
+  unevaluatedItems?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  // objects
   properties?: OASchemaPropertiesObject;
-  discriminator?: OADiscriminatorObject;
+  maxProperties?: number;
+  minProperties?: number;
+  required?: string[];
+  dependentRequired?: OADependentRequiredObject;
+  dependentSchemas?: OADependentSchemasObject;
+  additionalProperties?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  patternProperties?: OAPatternPropertiesObject;
+  unevaluatedProperties?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  propertyNames?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  // openapi specific
   xml?: OAXmlObject;
   externalDocs?: OAExternalDocumentationObject;
+  discriminator?: OADiscriminatorObject;
+  example?: unknown;
+  // contents of string-encoded data
+  contentEncoding?: string;
+  contentMediaType?: string;
+  contentSchema?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  // conditional validation
+  if?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  then?: OABooleanSchema | OASchemaObject | OAReferenceObject;
+  else?: OABooleanSchema | OASchemaObject | OAReferenceObject;
 };
 
 /**
@@ -214,21 +296,59 @@ export declare const OADataType: {
   NULL: 'null';
 };
 
+/**
+ * Data type.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
+ */
 export type OADataType = (typeof OADataType)[keyof typeof OADataType];
+
+/**
+ * Data type list.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
+ */
+export declare const OA_DATA_TYPE_LIST: OADataType[];
 
 /**
  * Data format.
  * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
  */
 export declare const OADataFormat: {
+  // number
   INT32: 'int32';
   INT64: 'int64';
   FLOAT: 'float';
   DOUBLE: 'double';
-  PASSWORD: 'password';
+  // date and time
+  DATE: 'date';
+  DATE_TIME: 'date-time';
+  TIME: 'time';
+  DURATION: 'duration';
+  // binary
+  BYTE: 'byte';
   BINARY: 'binary';
+  // identifiers and network
+  EMAIL: 'email';
+  IDN_EMAIL: 'idn-email';
+  UUID: 'uuid';
+  HOSTNAME: 'hostname';
+  IDN_HOSTNAME: 'idn-hostname';
+  IPV4: 'ipv4';
+  IPV6: 'ipv6';
+  URI: 'uri';
+  URI_REFERENCE: 'uri-reference';
+  IRI: 'iri';
+  IRI_REFERENCE: 'iri-reference';
+  // extra
+  PASSWORD: 'password';
+  REGEX: 'regex';
+  JSON_POINTER: 'json-pointer';
+  RELATIVE_JSON_POINTER: 'relative-json-pointer';
 };
 
+/**
+ * Data format.
+ * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
+ */
 export type OADataFormat = (typeof OADataFormat)[keyof typeof OADataFormat];
 
 /**
@@ -275,6 +395,9 @@ export type OAOperationObject = {
   requestBody?: OARequestBodyObject | OAReferenceObject;
   responses?: OAResponsesObject;
   callbacks?: OACallbacksObject;
+  deprecated?: boolean;
+  security?: OASecurityRequirementObject[];
+  servers?: OAServerObject[];
 };
 
 /**
@@ -307,6 +430,10 @@ export declare const OAMediaType: {
   MULTIPART_FORM_DATA: 'multipart/form-data';
 };
 
+/**
+ * Media type.
+ * https://spec.openapis.org/oas/v3.1.0#media-types
+ */
 export type OAMediaType = (typeof OAMediaType)[keyof typeof OAMediaType];
 
 /**
@@ -333,7 +460,7 @@ export type OAResponseObject = {
  * https://spec.openapis.org/oas/v3.1.0#media-type-object
  */
 export type OAMediaTypeObject = {
-  schema?: OASchemaObject;
+  schema?: OABooleanSchema | OASchemaObject | OAReferenceObject;
   example?: unknown;
   examples?: OAExamplesObject;
   encoding?: OAPropertiesEncodingObject;
@@ -366,7 +493,10 @@ export type OAEncodingObject = {
  * Header Object.
  * https://spec.openapis.org/oas/v3.1.0#header-object
  */
-export type OAHeaderObject = Omit<OAParameterObject, 'name' | 'in'>;
+export type OAHeaderObject = Omit<
+  OAParameterObject,
+  'name' | 'in' | 'allowEmptyValue'
+>;
 
 /**
  * Link Object.
@@ -386,7 +516,7 @@ export type OALinkObject = {
  * https://spec.openapis.org/oas/v3.1.0#components-object
  */
 export type OAComponentsObject = {
-  schemas?: {[name: string]: OASchemaObject | undefined};
+  schemas?: {[name: string]: OABooleanSchema | OASchemaObject | undefined};
   responses?: {
     [name: string]: OAResponseObject | OAReferenceObject | undefined;
   };
@@ -443,6 +573,10 @@ export declare const OASecuritySchemeType: {
   OPEN_ID_CONNECT: 'openIdConnect';
 };
 
+/**
+ * Security Scheme Type.
+ * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ */
 export type OASecuritySchemeType =
   (typeof OASecuritySchemeType)[keyof typeof OASecuritySchemeType];
 
@@ -456,6 +590,10 @@ export declare const OAApiKeyLocation: {
   COOKIE: 'cookie';
 };
 
+/**
+ * Api Key Location.
+ * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ */
 export type OAApiKeyLocation =
   (typeof OAApiKeyLocation)[keyof typeof OAApiKeyLocation];
 
@@ -475,8 +613,8 @@ export type OAOAuthFlowsObject = {
  * https://spec.openapis.org/oas/v3.1.0#oauth-flow-object
  */
 export type OAOAuthFlowObject = {
-  authorizationUrl: string;
-  tokenUrl: string;
+  authorizationUrl?: string;
+  tokenUrl?: string;
   refreshUrl?: string;
   scopes: {[name: string]: string | undefined};
 };
@@ -500,6 +638,59 @@ export type OATagObject = {
 };
 
 /**
+ * Definitions Object.
+ * https://json-schema.org/draft/2020-12/json-schema-core#name-schema-re-use-with-defs
+ */
+export type OADefinitionsObject = {
+  [name: string]: OABooleanSchema | OASchemaObject | OAReferenceObject;
+};
+
+/**
+ * Dependent schemas object.
+ * https://json-schema.org/draft/2020-12/json-schema-core#name-dependentschemas
+ */
+export type OADependentSchemasObject = {
+  [key: string]: OABooleanSchema | OASchemaObject | OAReferenceObject;
+};
+
+/**
+ * Dependent required object.
+ * https://json-schema.org/draft/2020-12/json-schema-validation#name-dependentrequired
+ */
+export type OADependentRequiredObject = {
+  [key: string]: string[] | undefined;
+};
+
+/**
+ * Pattern properties object.
+ * https://json-schema.org/draft/2020-12/json-schema-core#name-patternproperties
+ */
+export type OAPatternPropertiesObject = {
+  [pattern: string]: OABooleanSchema | OASchemaObject | OAReferenceObject;
+};
+
+/**
+ * Access mode.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ */
+export declare const OAAccessMode: {
+  READ: 'read';
+  WRITE: 'write';
+};
+
+/**
+ * Access mode.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ */
+export type OAAccessMode = (typeof OAAccessMode)[keyof typeof OAAccessMode];
+
+/**
+ * Access mode list.
+ * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ */
+export declare const ACCESS_MODE_LIST: OAAccessMode[];
+
+/**
  * Server Variables Object.
  * (non-spec type)
  */
@@ -512,7 +703,11 @@ export type OAServerVariablesObject = {
  * (non-spec type)
  */
 export type OASchemaPropertiesObject = {
-  [name: string]: OASchemaObject | OAReferenceObject | undefined;
+  [name: string]:
+    | OABooleanSchema
+    | OASchemaObject
+    | OAReferenceObject
+    | undefined;
 };
 
 /**

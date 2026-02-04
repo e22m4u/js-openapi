@@ -1,10 +1,10 @@
-import {OADocumentObject} from './document-specification.js';
+import {OADocumentObject} from '../oa-specification.js';
 
 /**
  * Validate shallow OADocumentObject.
  *
  * @param documentObject
  */
-export declare function validateShallowOADocumentObject(
+export declare function validateShallowOADocument(
   documentObject: OADocumentObject,
 ): void;

@@ -1,10 +1,46 @@
 import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {normalizePath} from './utils/normalize-path.js';
-import {OAComponentRegistry} from './oa-component-registry.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
-import {validateShallowOADocumentObject} from './document-validators.js';
-import {OPENAPI_VERSION, OAOperationMethod} from './document-specification.js';
+import {validateShallowOADocument} from './oa-document-object/index.js';
+import {OPENAPI_VERSION, OAOperationMethod} from './oa-specification.js';
+
+/**
+ * Component type.
+ */
+export const OAComponentType = {
+  SCHEMA: 'schema',
+  RESPONSE: 'response',
+  PARAMETER: 'parameter',
+  EXAMPLE: 'example',
+  REQUEST_BODY: 'requestBody',
+  HEADER: 'header',
+  SECURITY_SCHEME: 'securityScheme',
+  LINK: 'link',
+  CALLBACK: 'callback',
+  PATH_ITEM: 'pathItem',
+};
+
+/**
+ * Component types.
+ */
+export const OA_COMPONENT_TYPES = Object.values(OAComponentType);
+
+/**
+ * Component type to components key map.
+ */
+export const OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP = {
+  [OAComponentType.SCHEMA]: 'schemas',
+  [OAComponentType.RESPONSE]: 'responses',
+  [OAComponentType.PARAMETER]: 'parameters',
+  [OAComponentType.EXAMPLE]: 'examples',
+  [OAComponentType.REQUEST_BODY]: 'requestBodies',
+  [OAComponentType.HEADER]: 'headers',
+  [OAComponentType.SECURITY_SCHEME]: 'securitySchemes',
+  [OAComponentType.LINK]: 'links',
+  [OAComponentType.CALLBACK]: 'callbacks',
+  [OAComponentType.PATH_ITEM]: 'pathItems',
+};
 
 /**
  * OpenAPI Document builder.
@@ -87,9 +123,138 @@ export class OADocumentBuilder extends Service {
       }
       // поверхностная проверка свойств документа
       // выполняется после установки значений по умолчанию
-      validateShallowOADocumentObject(document);
+      validateShallowOADocument(document);
       this._document = document;
     }
+  }
+
+  /**
+   * Define component.
+   *
+   * @param {string} type
+   * @param {object} definition
+   * @returns {this}
+   */
+  defineComponent(type, definition) {
+    // type
+    if (!OA_COMPONENT_TYPES.includes(type)) {
+      throw new InvalidArgumentError(
+        'Components type %v is not supported.',
+        type,
+      );
+    }
+    // definition
+    if (
+      !definition ||
+      typeof definition !== 'object' ||
+      Array.isArray(definition)
+    ) {
+      throw new InvalidArgumentError(
+        'Component definition must be an Object, but %v was given.',
+        definition,
+      );
+    }
+    // definition.name
+    if (!definition.name || typeof definition.name !== 'string') {
+      throw new InvalidArgumentError(
+        'Property "name" must be a non-empty String, but %v was given.',
+        definition.name,
+      );
+    }
+    // definition[type]
+    const component = definition[type];
+    if (
+      !component ||
+      typeof component !== 'object' ||
+      Array.isArray(component)
+    ) {
+      throw new InvalidArgumentError(
+        'Property %v must be an Object, but %v was given.',
+        type,
+        component,
+      );
+    }
+    // components key
+    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!key) {
+      throw new InvalidArgumentError(
+        'Component type %v does not have a reference to the components key.',
+        type,
+      );
+    }
+    this._document.components = this._document.components || {};
+    this._document.components[key] = this._document.components[key] || {};
+    this._document.components[key][definition.name] =
+      structuredClone(component);
+    return this;
+  }
+
+  /**
+   * Has component.
+   *
+   * @param {string} type
+   * @param {string} name
+   * @returns {boolean}
+   */
+  hasComponent(type, name) {
+    // name
+    if (!name || typeof name !== 'string') {
+      throw new InvalidArgumentError(
+        'Parameter "name" must be a non-empty String, but %v was given.',
+        name,
+      );
+    }
+    // components key
+    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!key) {
+      throw new InvalidArgumentError(
+        'Component type %v does not have a reference to the components key.',
+        type,
+      );
+    }
+    return Boolean(
+      this._document.components &&
+      this._document.components[key] &&
+      this._document.components[key][name],
+    );
+  }
+
+  /**
+   * Get component.
+   *
+   * @param {string} type
+   * @param {string} name
+   * @returns {object}
+   */
+  getComponent(type, name) {
+    // name
+    if (!name || typeof name !== 'string') {
+      throw new InvalidArgumentError(
+        'Parameter "name" must be a non-empty String, but %v was given.',
+        name,
+      );
+    }
+    // components key
+    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!key) {
+      throw new InvalidArgumentError(
+        'Component type %v does not have a reference to the components key.',
+        type,
+      );
+    }
+    const component =
+      this._document &&
+      this._document.components &&
+      this._document.components[key] &&
+      this._document.components[key][name];
+    if (!component) {
+      throw new InvalidArgumentError(
+        'Component "#/components/%s/%s" does not exist.',
+        key,
+        name,
+      );
+    }
+    return component;
   }
 
   /**
@@ -99,8 +264,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineSchemaComponent(schemaDef) {
-    this.getService(OAComponentRegistry).defineSchema(schemaDef);
-    return this;
+    return this.defineComponent(OAComponentType.SCHEMA, schemaDef);
   }
 
   /**
@@ -110,8 +274,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineResponseComponent(responseDef) {
-    this.getService(OAComponentRegistry).defineResponse(responseDef);
-    return this;
+    return this.defineComponent(OAComponentType.RESPONSE, responseDef);
   }
 
   /**
@@ -121,8 +284,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineParameterComponent(parameterDef) {
-    this.getService(OAComponentRegistry).defineParameter(parameterDef);
-    return this;
+    return this.defineComponent(OAComponentType.PARAMETER, parameterDef);
   }
 
   /**
@@ -132,8 +294,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineExampleComponent(exampleDef) {
-    this.getService(OAComponentRegistry).defineExample(exampleDef);
-    return this;
+    return this.defineComponent(OAComponentType.EXAMPLE, exampleDef);
   }
 
   /**
@@ -143,8 +304,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineRequestBodyComponent(requestBodyDef) {
-    this.getService(OAComponentRegistry).defineRequestBody(requestBodyDef);
-    return this;
+    return this.defineComponent(OAComponentType.REQUEST_BODY, requestBodyDef);
   }
 
   /**
@@ -154,8 +314,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineHeaderComponent(headerDef) {
-    this.getService(OAComponentRegistry).defineHeader(headerDef);
-    return this;
+    return this.defineComponent(OAComponentType.HEADER, headerDef);
   }
 
   /**
@@ -165,10 +324,10 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineSecuritySchemeComponent(securitySchemeDef) {
-    this.getService(OAComponentRegistry).defineSecurityScheme(
+    return this.defineComponent(
+      OAComponentType.SECURITY_SCHEME,
       securitySchemeDef,
     );
-    return this;
   }
 
   /**
@@ -178,8 +337,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineLinkComponent(linkDef) {
-    this.getService(OAComponentRegistry).defineLink(linkDef);
-    return this;
+    return this.defineComponent(OAComponentType.LINK, linkDef);
   }
 
   /**
@@ -189,8 +347,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   defineCallbackComponent(callbackDef) {
-    this.getService(OAComponentRegistry).defineCallback(callbackDef);
-    return this;
+    return this.defineComponent(OAComponentType.CALLBACK, callbackDef);
   }
 
   /**
@@ -200,8 +357,7 @@ export class OADocumentBuilder extends Service {
    * @returns {this}
    */
   definePathItemComponent(pathItemDef) {
-    this.getService(OAComponentRegistry).definePathItem(pathItemDef);
-    return this;
+    return this.defineComponent(OAComponentType.PATH_ITEM, pathItemDef);
   }
 
   /**
@@ -279,24 +435,7 @@ export class OADocumentBuilder extends Service {
    * @returns {object}
    */
   build() {
-    const doc = structuredClone(this._document);
-    // внедрение зарегистрированных компонентов
-    // в компоненты текущего документа
-    const compsMap = this.getService(OAComponentRegistry).getComponentsObject();
-    doc.components = doc.components || {};
-    Object.keys(compsMap).forEach(compsKey => {
-      const compsNames = Object.keys(compsMap[compsKey]);
-      if (compsNames.length) {
-        doc.components[compsKey] = doc.components[compsKey] || {};
-        compsNames.forEach(compName => {
-          doc.components[compsKey][compName] = compsMap[compsKey][compName];
-        });
-      }
-    });
-    if (!Object.keys(doc.components).length) {
-      delete doc.components;
-    }
-    return doc;
+    return structuredClone(this._document);
   }
 
   /**

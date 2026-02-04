@@ -10,6 +10,7 @@ JavaScript модуль для создания
 - [Работа с компонентами](#работа-с-компонентами)
 - [Содержимое запросов и ответов](#содержимое-запросов-и-ответов)
 - [Группировка маршрутов](#группировка-маршрутов)
+- [Проверка данных](#проверка-данных)
 - [Тесты](#тесты)
 - [Лицензия](#лицензия)
 
@@ -379,6 +380,123 @@ adminScope.defineOperation({
     },
   },
 });
+```
+
+## Проверка данных
+
+Проверка данных с помощью объекта схемы.
+
+```js
+import {OADataType, validateDataWithOpenApiSchema} from '@e22m4u/js-openapi';
+
+const schema = {
+  type: OADataType.OBJECT,
+  properties: {
+    name: {type: OADataType.STRING},
+    age: {type: OADataType.NUMBER},
+  },
+};
+
+const data = {
+  name: 'Fedor',
+  age: 'invalid',
+};
+
+validateDataWithOpenApiSchema(data, schema);
+// OADataValidationError:
+// Value at "/age" must be Number, but String was given.
+```
+
+Отключение выброса ошибки для ручной обработки результата.
+
+```js
+const result = validateDataWithOpenApiSchema(data, schema, {
+  silent: true, // <= бесшумный режим
+});
+console.log(result);
+// {
+//   isValid: false,
+//   value: 'invalid',
+//   valueUri: '/age',
+//   schemaUri: '/properties/age',
+//   reason: 'Value at "/age" must be Number, but String was given.',
+// }
+```
+
+Проверка данных с приведением типов.
+
+```js
+import {OADataType, validateDataWithOpenApiSchema} from '@e22m4u/js-openapi';
+
+const schema = {
+  type: OADataType.OBJECT,
+  properties: {
+    phone: {type: OADataType.STRING},
+    quantity: {type: OADataType.INTEGER},
+    featured: {type: OADataType.BOOLEAN},
+  },
+};
+
+const data = {
+  phone: 88005553535, // приводится к строке
+  quantity: '3',      // приводится к целому числу
+  featured: 'true'    // приводится к логическому значению
+};
+
+const result = validateDataWithOpenApiSchema(data, schema, {
+  coerceTypes: true, // <= приведение типов
+});
+console.log(result);
+// {
+//   isValid: true,
+//   value: {
+//     phone: '88005553535',
+//     quantity: 3,
+//     featured: true
+//   }
+// }
+```
+
+Проверка данных с разбором JSON.
+
+```js
+import {OADataType, validateDataWithOpenApiSchema} from '@e22m4u/js-openapi';
+
+const schema = {
+  type: OADataType.ARRAY,
+  prefixItems: [
+    {type: OADataType.INTEGER},
+    {type: OADataType.BOOLEAN},
+    {type: OADataType.ARRAY},
+    {type: OADataType.OBJECT},
+  ],
+};
+
+const data = [
+  '123',       // приводится к целому числу
+  'true',      // приводится к логическому значению
+  '[1, 2, 3]', // приводится к массиву
+  '{"where": {"id": 10}, "include": "user"}', // приводится к объекту
+];
+
+const result = validateDataWithOpenApiSchema(data, schema, {
+  parseJson: true, // <= разбор JSON
+});
+console.log(result);
+// {
+//   isValid: true,
+//   value: [
+//     123,
+//     true,
+//     [1, 2, 3],
+//     {
+//       where: {
+//         id: 10,
+//       },
+//       include: 'user'
+//     }
+//   ]
+// }
 ```
 
 ## Тесты

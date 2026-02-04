@@ -1,6 +1,9 @@
+export * from './errors/index.js';
+export * from './data-type/index.js';
+export * from './oa-specification.js';
 export * from './oa-document-scope.js';
+export * from './json-pointer/index.js';
 export * from './oa-document-builder.js';
-export * from './oa-component-registry.js';
-export * from './document-specification.js';
-
-export * from './utils/oa-ref.js';
+export * from './data-validation/index.js';
+export * from './oa-document-object/index.js';
+export * from './oa-reference-object/index.js';

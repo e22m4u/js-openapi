@@ -1,4 +1,4 @@
-import {OAReferenceObject} from '../document-specification.js';
+import {OAReferenceObject} from '../oa-specification.js';
 
 export declare const oaSchemaRef: (name: string) => OAReferenceObject;
 export declare const oaResponseRef: (name: string) => OAReferenceObject;
