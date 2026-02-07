@@ -52,7 +52,7 @@ export class OADocumentScope {
     if (options.pathPrefix !== undefined) {
       if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Property "pathPrefix" must be a non-empty String, ' +
+          'Option "pathPrefix" must be a non-empty String, ' +
             'but %v was given.',
           options.pathPrefix,
         );
@@ -62,14 +62,15 @@ export class OADocumentScope {
     if (options.tags !== undefined) {
       if (!Array.isArray(options.tags)) {
         throw new InvalidArgumentError(
-          'Property "tags" must be an Array, but %v was given.',
+          'Option "tags" must be an Array, but %v was given.',
           options.tags,
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element "tags[%d]" must be a non-empty String, but %v was given.',
+            'Element %v at the option "tags" must be a non-empty String, ' +
+              'but %v was given.',
             index,
             tag,
           );

@@ -1,6 +1,7 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {escapeJsonPointer} from '../json-pointer/index.js';
 import {isOAReferenceObject} from '../oa-reference-object/is-oa-reference-object.js';
+import {validateShallowOACallbackObject} from './validate-shallow-oa-callback-object.js';
 import {validateShallowOAReferenceObject} from './validate-shallow-oa-reference-object.js';
 
 /**
@@ -34,7 +35,7 @@ export function validateShallowOACallbacksObject(
     Array.isArray(oaCallbacksObject)
   ) {
     throw new InvalidArgumentError(
-      'Callback Object at %v must be an Object, but %v was given.',
+      'Callbacks Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaCallbacksObject,
     );
@@ -70,7 +71,7 @@ export function validateShallowOACallbacksObject(
         sourceUri: `${sourceUri}/${escapeJsonPointer(oaCallbackId)}`,
       });
     } else {
-      validateShallowOACallbacksObject(oaCallbackObject, {
+      validateShallowOACallbackObject(oaCallbackObject, {
         sourceUri: `${sourceUri}/${escapeJsonPointer(oaCallbackId)}`,
       });
     }
