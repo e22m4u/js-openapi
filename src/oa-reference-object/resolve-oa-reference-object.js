@@ -7,8 +7,7 @@ import {resolveJsonPointer} from '../json-pointer/index.js';
  * документа `options.rootDocument`. Утилита находит и возвращает узел, на который
  * указывает `$ref`.
  *
- * - Поддерживает только локальные ссылки, начинающиеся с `#`.
- * - Нет поддержки $dynamicRef, $anchor и $id.
+ * Поддерживает только локальные ссылки, начинающиеся с `#`.
  *
  * @param {object} referenceObj
  * @param {object} [options]
@@ -94,15 +93,6 @@ export function resolveOAReferenceObject(referenceObj, options = {}) {
     throw new InvalidArgumentError(
       'Relative reference is not supported, but %v was given.',
       refUri,
-    );
-  }
-  // $dynamicRef
-  if (referenceObj.$dynamicRef) {
-    // поддержка $dynamicRef требует реализации динамической области
-    // видимости с отслеживанием стека вызовов при обходе схемы,
-    // но данная утилитарная функция выполняется без контекста
-    throw new InvalidArgumentError(
-      'Schema keyword "$dynamicRef" is not supported.',
     );
   }
   // если объект ссылки не имеет свойств

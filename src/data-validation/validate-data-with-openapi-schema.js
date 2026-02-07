@@ -1,17 +1,13 @@
+import {ACCESS_MODE_LIST} from '../constants.js';
 import {countUnicode} from '../utils/count-unicode.js';
 import {toSpacedJson} from '../utils/to-spaced-json.js';
 import {toPascalCase} from '../utils/to-pascal-case.js';
 import {OADataValidationError} from '../errors/index.js';
 import {inferOpenApiDataType} from '../data-type/index.js';
 import {format, InvalidArgumentError} from '@e22m4u/js-format';
+import {OADataType, OAAccessMode} from '../oa-specification.js';
 import {resolveOAReferenceObject} from '../oa-reference-object/index.js';
 import {OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP} from './data-format-validator-map.js';
-
-import {
-  OADataType,
-  OAAccessMode,
-  ACCESS_MODE_LIST,
-} from '../oa-specification.js';
 
 /**
  * Регулярное выражение для целых чисел в формате JSON.
@@ -32,6 +28,7 @@ export const JSON_NUMBER_REGEXP = /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/;
  */
 const UNSUPPORTED_SCHEMA_KEYWORDS = [
   'nullable', // удалено в 3.1.0
+  '$dynamicRef',
   'contentEncoding',
   'contentMediaType',
   'contentSchema',
@@ -295,16 +292,16 @@ function _validate(data, schema, options) {
   ) {
     data = _coerceType(data, schema.type);
   }
-  // если текущая схема содержит свойство "$ref" или "$dynamicRef",
-  // то выполняется извлечение целевой схемы и проверка данных
-  // согласно извлеченной схемы
-  if (schema.$ref !== undefined || schema.$dynamicRef !== undefined) {
+  // если текущая схема содержит свойство "$ref",
+  // то выполняется извлечение целевой схемы
+  // и проверка данных
+  if (schema.$ref !== undefined) {
     const resSchema = resolveOAReferenceObject(schema, {
       rootDocument: options.rootDocument,
     });
     const result = _validate(data, resSchema, {
       ...options,
-      schemaSourceUri: schema.$ref || schema.$dynamicRef,
+      schemaSourceUri: schema.$ref,
     });
     if (!result.isValid) {
       return result;

@@ -14,6 +14,6 @@ describe('isOAReferenceObject', function () {
     expect(isOAReferenceObject(undefined)).to.be.false;
     expect(isOAReferenceObject(null)).to.be.false;
     expect(isOAReferenceObject({$ref: '123'})).to.be.true;
-    expect(isOAReferenceObject({$dynamicRef: '123'})).to.be.true;
+    expect(isOAReferenceObject({$dynamicRef: '123'})).to.be.false;
   });
 });

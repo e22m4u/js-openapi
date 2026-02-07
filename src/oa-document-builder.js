@@ -2,7 +2,7 @@ import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {normalizePath} from './utils/normalize-path.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
-import {validateShallowOADocument} from './oa-document-object/index.js';
+import {validateShallowOADocumentObject} from './oa-document-object/index.js';
 import {OPENAPI_VERSION, OAOperationMethod} from './oa-specification.js';
 
 /**
@@ -123,7 +123,7 @@ export class OADocumentBuilder extends Service {
       }
       // поверхностная проверка свойств документа
       // выполняется после установки значений по умолчанию
-      validateShallowOADocument(document);
+      validateShallowOADocumentObject(document, {sourceUri: 'document'});
       this._document = document;
     }
   }

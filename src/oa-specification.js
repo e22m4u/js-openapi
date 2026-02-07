@@ -61,12 +61,6 @@ export const OADataType = {
 };
 
 /**
- * Data type list.
- * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
- */
-export const OA_DATA_TYPE_LIST = Object.values(OADataType);
-
-/**
  * Data format.
  * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
  */
@@ -145,9 +139,3 @@ export const OAAccessMode = {
   READ: 'read',
   WRITE: 'write',
 };
-
-/**
- * Access mode list.
- * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
- */
-export const ACCESS_MODE_LIST = Object.values(OAAccessMode);

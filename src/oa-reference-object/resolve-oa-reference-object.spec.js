@@ -220,14 +220,4 @@ describe('resolveOAReferenceObject', function () {
       });
     });
   });
-
-  describe('$dynamicRef', function () {
-    it('should throw an error when a dynamic reference is provided', function () {
-      const throwable = () =>
-        resolveOAReferenceObject({$dynamicRef: '#meta'}, {rootDocument: {}});
-      expect(throwable).to.throw(
-        'Schema keyword "$dynamicRef" is not supported.',
-      );
-    });
-  });
 });

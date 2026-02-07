@@ -7,7 +7,7 @@
 export declare const OPENAPI_VERSION: '3.1.0';
 
 /**
- * Document object.
+ * Document Object.
  * https://spec.openapis.org/oas/v3.1.0#openapi-object
  */
 export type OADocumentObject = {
@@ -301,12 +301,6 @@ export declare const OADataType: {
  * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
  */
 export type OADataType = (typeof OADataType)[keyof typeof OADataType];
-
-/**
- * Data type list.
- * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.2.1
- */
-export declare const OA_DATA_TYPE_LIST: OADataType[];
 
 /**
  * Data format.
@@ -628,7 +622,7 @@ export type OASecurityRequirementObject = {
 };
 
 /**
- * Tag object.
+ * Tag Object.
  * https://spec.openapis.org/oas/v3.1.0#tag-object
  */
 export type OATagObject = {
@@ -685,10 +679,12 @@ export declare const OAAccessMode: {
 export type OAAccessMode = (typeof OAAccessMode)[keyof typeof OAAccessMode];
 
 /**
- * Access mode list.
- * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-readonly-and-writeonly
+ * Webhooks Object.
+ * https://spec.openapis.org/oas/v3.1.0#oasWebhooks
  */
-export declare const ACCESS_MODE_LIST: OAAccessMode[];
+export type OAWebhooksObject = {
+  [name: string]: OAPathItemObject | OAReferenceObject | undefined;
+};
 
 /**
  * Server Variables Object.
@@ -708,14 +704,6 @@ export type OASchemaPropertiesObject = {
     | OASchemaObject
     | OAReferenceObject
     | undefined;
-};
-
-/**
- * Webhooks Object.
- * (non-spec type)
- */
-export type OAWebhooksObject = {
-  [name: string]: OAPathItemObject | OAReferenceObject | undefined;
 };
 
 /**

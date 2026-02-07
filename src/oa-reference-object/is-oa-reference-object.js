@@ -6,7 +6,7 @@
  */
 export function isOAReferenceObject(value) {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
-    if (value.$ref !== undefined || value.$dynamicRef !== undefined) {
+    if (value.$ref !== undefined) {
       return true;
     }
   }
