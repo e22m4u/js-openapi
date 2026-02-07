@@ -3,7 +3,11 @@ import {isOAReferenceObject} from '../oa-reference-object/index.js';
 import {validateShallowOAServerObject} from './validate-shallow-oa-server-object.js';
 import {validateShallowOAParameterObject} from './validate-shallow-oa-parameter-object.js';
 import {validateShallowOAReferenceObject} from './validate-shallow-oa-reference-object.js';
+import {validateShallowOAResponsesObject} from './validate-shallow-oa-responses-object.js';
+import {validateShallowOACallbacksObject} from './validate-shallow-oa-callbacks-object.js';
+import {validateShallowOARequestBodyObject} from './validate-shallow-oa-request-body-object.js';
 import {validateShallowOASecurityRequirementObject} from './validate-shallow-oa-security-requirement-object.js';
+import {validateShallowOAExternalDocumentationObject} from './validate-shallow-oa-external-documentation-object.js';
 
 /**
  * Operation Object Keywords.
@@ -55,7 +59,7 @@ export function validateShallowOAOperationObject(
     Array.isArray(oaOperationObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Operation Object at %v must be an Object, but %v was given.',
+      'Operation Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaOperationObject,
     );
@@ -127,6 +131,10 @@ export function validateShallowOAOperationObject(
         oaOperationObject.externalDocs,
       );
     }
+    validateShallowOAExternalDocumentationObject(
+      oaOperationObject.externalDocs,
+      {sourceUri: `${sourceUri}/externalDocs`},
+    );
   }
   // operationId
   if (oaOperationObject.operationId !== undefined) {
@@ -159,7 +167,7 @@ export function validateShallowOAOperationObject(
         Array.isArray(oaParameterObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/parameters`,
           oaParameterObject,
@@ -189,6 +197,15 @@ export function validateShallowOAOperationObject(
         oaOperationObject.requestBody,
       );
     }
+    if (isOAReferenceObject(oaOperationObject.requestBody)) {
+      validateShallowOAReferenceObject(oaOperationObject.requestBody, {
+        sourceUri: `${sourceUri}/requestBody`,
+      });
+    } else {
+      validateShallowOARequestBodyObject(oaOperationObject.requestBody, {
+        sourceUri: `${sourceUri}/requestBody`,
+      });
+    }
   }
   // responses
   if (oaOperationObject.responses !== undefined) {
@@ -203,6 +220,9 @@ export function validateShallowOAOperationObject(
         oaOperationObject.responses,
       );
     }
+    validateShallowOAResponsesObject(oaOperationObject.responses, {
+      sourceUri: `${sourceUri}/responses`,
+    });
   }
   // callbacks
   if (oaOperationObject.callbacks !== undefined) {
@@ -217,6 +237,9 @@ export function validateShallowOAOperationObject(
         oaOperationObject.callbacks,
       );
     }
+    validateShallowOACallbacksObject(oaOperationObject.callbacks, {
+      sourceUri: `${sourceUri}/callbacks`,
+    });
   }
   // deprecated
   if (oaOperationObject.deprecated !== undefined) {
@@ -245,7 +268,7 @@ export function validateShallowOAOperationObject(
         Array.isArray(oaSecurityRequirementObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/security`,
           oaSecurityRequirementObject,
@@ -273,7 +296,7 @@ export function validateShallowOAOperationObject(
         Array.isArray(oaServerObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/servers`,
           oaServerObject,

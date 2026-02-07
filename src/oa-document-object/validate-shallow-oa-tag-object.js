@@ -1,4 +1,5 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
+import {validateShallowOAExternalDocumentationObject} from './validate-shallow-oa-external-documentation-object.js';
 
 /**
  * Tag Object Keywords.
@@ -34,7 +35,7 @@ export function validateShallowOATagObject(oaTagObject, options = {}) {
     Array.isArray(oaTagObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Tag Object at %v must be an Object, but %v was given.',
+      'Tag Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaTagObject,
     );
@@ -80,5 +81,8 @@ export function validateShallowOATagObject(oaTagObject, options = {}) {
         oaTagObject.externalDocs,
       );
     }
+    validateShallowOAExternalDocumentationObject(oaTagObject.externalDocs, {
+      sourceUri: `${sourceUri}/externalDocs`,
+    });
   }
 }

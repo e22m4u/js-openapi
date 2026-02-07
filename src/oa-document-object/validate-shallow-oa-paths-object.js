@@ -30,7 +30,7 @@ export function validateShallowOAPathsObject(oaPathsObject, options = {}) {
     Array.isArray(oaPathsObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Paths Object at %v must be an Object, ' + 'but %v was given.',
+      'Paths Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaPathsObject,
     );
@@ -40,7 +40,7 @@ export function validateShallowOAPathsObject(oaPathsObject, options = {}) {
     if (oaPathName.startsWith('x-')) {
       return;
     }
-    // path name
+    // key
     if (!oaPathName) {
       throw new InvalidArgumentError(
         'Key in %v must be a non-empty String, but %v was given.',
@@ -55,7 +55,19 @@ export function validateShallowOAPathsObject(oaPathsObject, options = {}) {
         oaPathName,
       );
     }
-    // path item object
+    // value
+    const oaPathItemObject = oaPathsObject[oaPathName];
+    if (
+      !oaPathItemObject ||
+      typeof oaPathItemObject !== 'object' ||
+      Array.isArray(oaPathItemObject)
+    ) {
+      throw new InvalidArgumentError(
+        'Value at %v must be an Object, but %v was given.',
+        `${sourceUri}/${escapeJsonPointer(oaPathName)}`,
+        oaPathItemObject,
+      );
+    }
     validateShallowOAPathItemObject(oaPathsObject[oaPathName], {
       sourceUri: `${sourceUri}/${escapeJsonPointer(oaPathName)}`,
     });

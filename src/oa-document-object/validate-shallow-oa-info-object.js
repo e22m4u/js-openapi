@@ -42,7 +42,7 @@ export function validateShallowOAInfoObject(oaInfoObject, options = {}) {
     Array.isArray(oaInfoObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Info Object at %v must be an Object, but %v was given.',
+      'Info Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaInfoObject,
     );

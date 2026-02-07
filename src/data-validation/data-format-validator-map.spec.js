@@ -16,6 +16,7 @@ import {
   validateDoubleFormat,
   validateDateTimeFormat,
   validateHostnameFormat,
+  validatePasswordFormat,
 } from './data-format-validators.js';
 
 describe('OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP', function () {
@@ -34,6 +35,7 @@ describe('OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP', function () {
       [OADataFormat.IPV4]: validateIpv4Format,
       [OADataFormat.IPV6]: validateIpv6Format,
       [OADataFormat.URI]: validateUriFormat,
+      [OADataFormat.PASSWORD]: validatePasswordFormat,
     });
   });
 });

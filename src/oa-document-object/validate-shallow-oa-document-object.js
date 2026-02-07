@@ -5,6 +5,7 @@ import {validateShallowOAPathsObject} from './validate-shallow-oa-paths-object.j
 import {validateShallowOAServerObject} from './validate-shallow-oa-server-object.js';
 import {validateShallowOAWebhooksObject} from './validate-shallow-oa-webhooks-object.js';
 import {validateShallowOASecurityRequirementObject} from './validate-shallow-oa-security-requirement-object.js';
+import {validateShallowOAExternalDocumentationObject} from './validate-shallow-oa-external-documentation-object.js';
 
 /**
  * Document Object Keywords.
@@ -54,7 +55,7 @@ export function validateShallowOADocumentObject(
     Array.isArray(oaDocumentObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Document Object at %v must be an Object, but %v was given.',
+      'Document Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaDocumentObject,
     );
@@ -129,7 +130,7 @@ export function validateShallowOADocumentObject(
         Array.isArray(oaServerObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/servers`,
           oaServerObject,
@@ -205,7 +206,7 @@ export function validateShallowOADocumentObject(
         Array.isArray(oaSecurityRequirementObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/security`,
           oaSecurityRequirementObject,
@@ -233,7 +234,7 @@ export function validateShallowOADocumentObject(
         Array.isArray(oaTagObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/tags`,
           oaTagObject,
@@ -257,5 +258,9 @@ export function validateShallowOADocumentObject(
         oaDocumentObject.externalDocs,
       );
     }
+    validateShallowOAExternalDocumentationObject(
+      oaDocumentObject.externalDocs,
+      {sourceUri: `${sourceUri}/externalDocs`},
+    );
   }
 }

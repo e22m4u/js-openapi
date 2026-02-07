@@ -14,6 +14,7 @@ import {
   validateDoubleFormat,
   validateDateTimeFormat,
   validateHostnameFormat,
+  validatePasswordFormat,
 } from './data-format-validators.js';
 
 /**
@@ -33,4 +34,5 @@ export const OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP = {
   [OADataFormat.IPV4]: validateIpv4Format,
   [OADataFormat.IPV6]: validateIpv6Format,
   [OADataFormat.URI]: validateUriFormat,
+  [OADataFormat.PASSWORD]: validatePasswordFormat,
 };

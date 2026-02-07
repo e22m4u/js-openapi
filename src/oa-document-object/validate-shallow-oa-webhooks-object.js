@@ -1,6 +1,8 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {escapeJsonPointer} from '../json-pointer/index.js';
+import {isOAReferenceObject} from '../oa-reference-object/is-oa-reference-object.js';
 import {validateShallowOAPathItemObject} from './validate-shallow-oa-path-item-object.js';
+import {validateShallowOAReferenceObject} from './validate-shallow-oa-reference-object.js';
 
 /**
  * Validate shallow OAWebhooksObject.
@@ -33,7 +35,7 @@ export function validateShallowOAWebhooksObject(
     Array.isArray(oaWebhooksObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Webhooks Object at %v must be an Object, ' + 'but %v was given.',
+      'Webhooks Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaWebhooksObject,
     );
@@ -43,17 +45,35 @@ export function validateShallowOAWebhooksObject(
     if (oaWebhookName.startsWith('x-')) {
       return;
     }
-    // webhook name
+    // key
     if (!oaWebhookName) {
       throw new InvalidArgumentError(
-        'Webhook name at %v must be a non-empty String, but %v was given.',
+        'Key in %v must be a non-empty String, but %v was given.',
         sourceUri,
         oaWebhookName,
       );
     }
-    // path item object
-    validateShallowOAPathItemObject(oaWebhooksObject[oaWebhookName], {
-      sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`,
-    });
+    // value
+    const oaPathItemObject = oaWebhooksObject[oaWebhookName];
+    if (
+      !oaPathItemObject ||
+      typeof oaPathItemObject !== 'object' ||
+      Array.isArray(oaPathItemObject)
+    ) {
+      throw new InvalidArgumentError(
+        'Value at %v must be an Object, but %v was given.',
+        `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`,
+        oaPathItemObject,
+      );
+    }
+    if (isOAReferenceObject(oaPathItemObject)) {
+      validateShallowOAReferenceObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`,
+      });
+    } else {
+      validateShallowOAPathItemObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`,
+      });
+    }
   });
 }

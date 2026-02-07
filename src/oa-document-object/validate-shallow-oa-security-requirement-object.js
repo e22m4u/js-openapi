@@ -32,18 +32,13 @@ export function validateShallowOASecurityRequirementObject(
     Array.isArray(oaSecurityRequirementObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Security Requirement Object at %v must be an Object, ' +
-        'but %v was given.',
+      'Security Requirement Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaSecurityRequirementObject,
     );
   }
   Object.keys(oaSecurityRequirementObject).forEach(oaSchemeName => {
-    // extension
-    if (oaSchemeName.startsWith('x-')) {
-      return;
-    }
-    // scheme name
+    // key
     if (!oaSchemeName) {
       throw new InvalidArgumentError(
         'Key in %v must be a non-empty String, but %v was given.',
@@ -51,23 +46,22 @@ export function validateShallowOASecurityRequirementObject(
         oaSchemeName,
       );
     }
-    // scopes
-    const oaScopes = oaSecurityRequirementObject[oaSchemeName];
-    if (!Array.isArray(oaScopes)) {
+    // value
+    const oaSecurityScopes = oaSecurityRequirementObject[oaSchemeName];
+    if (!Array.isArray(oaSecurityScopes)) {
       throw new InvalidArgumentError(
         'Value at %v must be an Array, but %v was given.',
         `${sourceUri}/${escapeJsonPointer(oaSchemeName)}`,
-        oaScopes,
+        oaSecurityScopes,
       );
     }
-    oaScopes.forEach((oaScope, index) => {
-      // scope
-      if (!oaScope || typeof oaScope !== 'string') {
+    oaSecurityScopes.forEach((oaSecurityScope, index) => {
+      if (!oaSecurityScope || typeof oaSecurityScope !== 'string') {
         throw new InvalidArgumentError(
           'Element %v at %v must be a non-empty String, but %v was given.',
           index,
           `${sourceUri}/${escapeJsonPointer(oaSchemeName)}`,
-          oaScope,
+          oaSecurityScope,
         );
       }
     });

@@ -34,7 +34,7 @@ export function validateShallowOAServerObject(oaServerObject, options = {}) {
     Array.isArray(oaServerObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Server Object at %v must be an Object, but %v was given.',
+      'Server Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaServerObject,
     );

@@ -37,7 +37,7 @@ export function validateShallowOAReferenceObject(
     Array.isArray(oaReferenceObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Reference Object at %v must be an Object, but %v was given.',
+      'Reference Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaReferenceObject,
     );

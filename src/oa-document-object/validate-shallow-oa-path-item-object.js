@@ -56,7 +56,7 @@ export function validateShallowOAPathItemObject(
     Array.isArray(oaPathItemObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Path Item Object at %v must be an Object, but %v was given.',
+      'Path Item Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaPathItemObject,
     );
@@ -143,7 +143,7 @@ export function validateShallowOAPathItemObject(
         Array.isArray(oaServerObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/servers`,
           oaServerObject,
@@ -171,7 +171,7 @@ export function validateShallowOAPathItemObject(
         Array.isArray(oaParameterObject)
       ) {
         throw new InvalidArgumentError(
-          'Element %d at %v must be an Object, but %v was given.',
+          'Element %v at %v must be an Object, but %v was given.',
           index,
           `${sourceUri}/parameters`,
           oaParameterObject,

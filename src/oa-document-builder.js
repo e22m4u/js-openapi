@@ -2,8 +2,12 @@ import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {normalizePath} from './utils/normalize-path.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
-import {validateShallowOADocumentObject} from './oa-document-object/index.js';
 import {OPENAPI_VERSION, OAOperationMethod} from './oa-specification.js';
+
+import {
+  validateShallowOADocumentObject,
+  validateShallowOAOperationObject,
+} from './oa-document-object/index.js';
 
 /**
  * Component type.
@@ -25,6 +29,11 @@ export const OAComponentType = {
  * Component types.
  */
 export const OA_COMPONENT_TYPES = Object.values(OAComponentType);
+
+/**
+ * Component name RegExp.
+ */
+export const COMPONENT_NAME_REGEX = /^[a-zA-Z0-9.\-_]+$/;
 
 /**
  * Component type to components key map.
@@ -82,7 +91,7 @@ export class OADocumentBuilder extends Service {
         Array.isArray(document)
       ) {
         throw new InvalidArgumentError(
-          'OpenAPI Document Object must be an Object, but %v was given.',
+          'Document Object must be an Object, but %v was given.',
           document,
         );
       }
@@ -107,7 +116,7 @@ export class OADocumentBuilder extends Service {
         Array.isArray(document.info)
       ) {
         throw new InvalidArgumentError(
-          'Property "info" must be an Object, but %v was given.',
+          'Keyword "info" must be an Object, but %v was given.',
           document.info,
         );
       }
@@ -157,7 +166,13 @@ export class OADocumentBuilder extends Service {
     // definition.name
     if (!definition.name || typeof definition.name !== 'string') {
       throw new InvalidArgumentError(
-        'Property "name" must be a non-empty String, but %v was given.',
+        'Keyword "name" must be a non-empty String, but %v was given.',
+        definition.name,
+      );
+    }
+    if (!COMPONENT_NAME_REGEX.test(definition.name)) {
+      throw new InvalidArgumentError(
+        'Component name %v contains invalid characters.',
         definition.name,
       );
     }
@@ -169,7 +184,7 @@ export class OADocumentBuilder extends Service {
       Array.isArray(component)
     ) {
       throw new InvalidArgumentError(
-        'Property %v must be an Object, but %v was given.',
+        'Keyword %v must be an Object, but %v was given.',
         type,
         component,
       );
@@ -379,20 +394,14 @@ export class OADocumentBuilder extends Service {
     // path
     if (!operationDef.path || typeof operationDef.path !== 'string') {
       throw new InvalidArgumentError(
-        'Property "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a non-empty String, but %v was given.',
         operationDef.path,
       );
     }
     // method
-    if (!operationDef.method || typeof operationDef.method !== 'string') {
-      throw new InvalidArgumentError(
-        'Property "method" must be a non-empty String, but %v was given.',
-        operationDef.method,
-      );
-    }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
       throw new InvalidArgumentError(
-        'Property "method" must be one of values: %l, but %v was given.',
+        'Keyword "method" must be one of values: %l, but %v was given.',
         Object.values(OAOperationMethod),
       );
     }
@@ -403,10 +412,13 @@ export class OADocumentBuilder extends Service {
       Array.isArray(operationDef.operation)
     ) {
       throw new InvalidArgumentError(
-        'Property "operation" must be an Object, but %v was given.',
+        'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation,
       );
     }
+    validateShallowOAOperationObject(operationDef.operation, {
+      sourceUri: 'operation',
+    });
     const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};

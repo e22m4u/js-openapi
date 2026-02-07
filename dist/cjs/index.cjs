@@ -22,6 +22,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   ACCESS_MODE_LIST: () => ACCESS_MODE_LIST,
+  COMPONENT_NAME_REGEX: () => COMPONENT_NAME_REGEX,
   JSON_INTEGER_REGEXP: () => JSON_INTEGER_REGEXP,
   JSON_NUMBER_REGEXP: () => JSON_NUMBER_REGEXP,
   OAAccessMode: () => OAAccessMode,
@@ -71,13 +72,20 @@ __export(index_exports, {
   validateInt64Format: () => validateInt64Format,
   validateIpv4Format: () => validateIpv4Format,
   validateIpv6Format: () => validateIpv6Format,
+  validatePasswordFormat: () => validatePasswordFormat,
+  validateShallowOACallbackObject: () => validateShallowOACallbackObject,
+  validateShallowOACallbacksObject: () => validateShallowOACallbacksObject,
   validateShallowOADocumentObject: () => validateShallowOADocumentObject,
+  validateShallowOAExternalDocumentationObject: () => validateShallowOAExternalDocumentationObject,
   validateShallowOAInfoObject: () => validateShallowOAInfoObject,
   validateShallowOAOperationObject: () => validateShallowOAOperationObject,
   validateShallowOAParameterObject: () => validateShallowOAParameterObject,
   validateShallowOAPathItemObject: () => validateShallowOAPathItemObject,
   validateShallowOAPathsObject: () => validateShallowOAPathsObject,
   validateShallowOAReferenceObject: () => validateShallowOAReferenceObject,
+  validateShallowOARequestBodyObject: () => validateShallowOARequestBodyObject,
+  validateShallowOAResponseObject: () => validateShallowOAResponseObject,
+  validateShallowOAResponsesObject: () => validateShallowOAResponsesObject,
   validateShallowOASecurityRequirementObject: () => validateShallowOASecurityRequirementObject,
   validateShallowOAServerObject: () => validateShallowOAServerObject,
   validateShallowOATagObject: () => validateShallowOATagObject,
@@ -226,7 +234,7 @@ function inferOpenApiDataType(data, returnJsTypeOnFail = false) {
 __name(inferOpenApiDataType, "inferOpenApiDataType");
 
 // src/oa-document-scope.js
-var import_js_format20 = require("@e22m4u/js-format");
+var import_js_format26 = require("@e22m4u/js-format");
 
 // src/utils/join-path.js
 function joinPath(...segments) {
@@ -289,13 +297,16 @@ function toPascalCase(input) {
 __name(toPascalCase, "toPascalCase");
 
 // src/oa-document-builder.js
-var import_js_format19 = require("@e22m4u/js-format");
+var import_js_format25 = require("@e22m4u/js-format");
 var import_js_service = require("@e22m4u/js-service");
 
 // src/oa-document-object/validate-shallow-oa-tag-object.js
+var import_js_format4 = require("@e22m4u/js-format");
+
+// src/oa-document-object/validate-shallow-oa-external-documentation-object.js
 var import_js_format3 = require("@e22m4u/js-format");
-var OA_TAG_OBJECT_KEYWORDS = ["name", "description", "externalDocs"];
-function validateShallowOATagObject(oaTagObject, options = {}) {
+var OA_DOCUMENTATION_OBJECT_KEYWORDS = ["description", "url"];
+function validateShallowOAExternalDocumentationObject(oaExternalDocumentationObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
     throw new import_js_format3.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
@@ -311,15 +322,15 @@ function validateShallowOATagObject(oaTagObject, options = {}) {
     }
   }
   const sourceUri = options.sourceUri || "";
-  if (!oaTagObject || typeof oaTagObject !== "object" || Array.isArray(oaTagObject)) {
+  if (!oaExternalDocumentationObject || typeof oaExternalDocumentationObject !== "object" || Array.isArray(oaExternalDocumentationObject)) {
     throw new import_js_format3.InvalidArgumentError(
-      "OpenAPI Tag Object at %v must be an Object, but %v was given.",
+      "External Documentation Object at %v must be an Object, but %v was given.",
       sourceUri,
-      oaTagObject
+      oaExternalDocumentationObject
     );
   }
-  Object.keys(oaTagObject).forEach((keyword) => {
-    if (!/^x-/.test(keyword) && !OA_TAG_OBJECT_KEYWORDS.includes(keyword)) {
+  Object.keys(oaExternalDocumentationObject).forEach((keyword) => {
+    if (!/^x-/.test(keyword) && !OA_DOCUMENTATION_OBJECT_KEYWORDS.includes(keyword)) {
       throw new import_js_format3.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
@@ -327,8 +338,61 @@ function validateShallowOATagObject(oaTagObject, options = {}) {
       );
     }
   });
-  if (!oaTagObject.name || typeof oaTagObject.name !== "string") {
+  if (oaExternalDocumentationObject.description !== void 0) {
+    if (typeof oaExternalDocumentationObject.description !== "string") {
+      throw new import_js_format3.InvalidArgumentError(
+        'Keyword "description" at %v must be a String, but %v was given.',
+        sourceUri,
+        oaExternalDocumentationObject.description
+      );
+    }
+  }
+  if (!oaExternalDocumentationObject.url || typeof oaExternalDocumentationObject.url !== "string") {
     throw new import_js_format3.InvalidArgumentError(
+      'Keyword "url" at %v must be a non-empty String, but %v was given.',
+      sourceUri,
+      oaExternalDocumentationObject.url
+    );
+  }
+}
+__name(validateShallowOAExternalDocumentationObject, "validateShallowOAExternalDocumentationObject");
+
+// src/oa-document-object/validate-shallow-oa-tag-object.js
+var OA_TAG_OBJECT_KEYWORDS = ["name", "description", "externalDocs"];
+function validateShallowOATagObject(oaTagObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format4.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format4.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaTagObject || typeof oaTagObject !== "object" || Array.isArray(oaTagObject)) {
+    throw new import_js_format4.InvalidArgumentError(
+      "Tag Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaTagObject
+    );
+  }
+  Object.keys(oaTagObject).forEach((keyword) => {
+    if (!/^x-/.test(keyword) && !OA_TAG_OBJECT_KEYWORDS.includes(keyword)) {
+      throw new import_js_format4.InvalidArgumentError(
+        "Keyword %v at %v is not supported.",
+        keyword,
+        sourceUri
+      );
+    }
+  });
+  if (!oaTagObject.name || typeof oaTagObject.name !== "string") {
+    throw new import_js_format4.InvalidArgumentError(
       'Keyword "name" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaTagObject.name
@@ -336,7 +400,7 @@ function validateShallowOATagObject(oaTagObject, options = {}) {
   }
   if (oaTagObject.description !== void 0) {
     if (typeof oaTagObject.description !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format4.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaTagObject.description
@@ -345,18 +409,21 @@ function validateShallowOATagObject(oaTagObject, options = {}) {
   }
   if (oaTagObject.externalDocs !== void 0) {
     if (!oaTagObject.externalDocs || typeof oaTagObject.externalDocs !== "object" || Array.isArray(oaTagObject.externalDocs)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format4.InvalidArgumentError(
         'Keyword "externalDocs" at %v must be an Object, but %v was given.',
         sourceUri,
         oaTagObject.externalDocs
       );
     }
+    validateShallowOAExternalDocumentationObject(oaTagObject.externalDocs, {
+      sourceUri: `${sourceUri}/externalDocs`
+    });
   }
 }
 __name(validateShallowOATagObject, "validateShallowOATagObject");
 
 // src/oa-document-object/validate-shallow-oa-info-object.js
-var import_js_format4 = require("@e22m4u/js-format");
+var import_js_format5 = require("@e22m4u/js-format");
 var OA_INFO_OBJECT_KEYWORDS = [
   "title",
   "summary",
@@ -368,14 +435,14 @@ var OA_INFO_OBJECT_KEYWORDS = [
 ];
 function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format4.InvalidArgumentError(
+    throw new import_js_format5.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -383,15 +450,15 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaInfoObject || typeof oaInfoObject !== "object" || Array.isArray(oaInfoObject)) {
-    throw new import_js_format4.InvalidArgumentError(
-      "OpenAPI Info Object at %v must be an Object, but %v was given.",
+    throw new import_js_format5.InvalidArgumentError(
+      "Info Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaInfoObject
     );
   }
   Object.keys(oaInfoObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_INFO_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -399,7 +466,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
     }
   });
   if (!oaInfoObject.title || typeof oaInfoObject.title !== "string") {
-    throw new import_js_format4.InvalidArgumentError(
+    throw new import_js_format5.InvalidArgumentError(
       'Keyword "title" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaInfoObject.title
@@ -407,7 +474,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   if (oaInfoObject.summary !== void 0) {
     if (typeof oaInfoObject.summary !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "summary" at %v must be a String, but %v was given.',
         sourceUri,
         oaInfoObject.summary
@@ -416,7 +483,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   if (oaInfoObject.description !== void 0) {
     if (typeof oaInfoObject.description !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaInfoObject.description
@@ -425,7 +492,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   if (oaInfoObject.termsOfService !== void 0) {
     if (typeof oaInfoObject.termsOfService !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "termsOfService" at %v must be a String, but %v was given.',
         sourceUri,
         oaInfoObject.termsOfService
@@ -434,7 +501,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   if (oaInfoObject.contact !== void 0) {
     if (!oaInfoObject.contact || typeof oaInfoObject.contact !== "object" || Array.isArray(oaInfoObject.contact)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "contact" at %v must be an Object, but %v was given.',
         sourceUri,
         oaInfoObject.contact
@@ -443,7 +510,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
   }
   if (oaInfoObject.license !== void 0) {
     if (!oaInfoObject.license || typeof oaInfoObject.license !== "object" || Array.isArray(oaInfoObject.license)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "license" at %v must be an Object, but %v was given.',
         sourceUri,
         oaInfoObject.license
@@ -451,7 +518,7 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
     }
   }
   if (!oaInfoObject.version || typeof oaInfoObject.version !== "string") {
-    throw new import_js_format4.InvalidArgumentError(
+    throw new import_js_format5.InvalidArgumentError(
       'Keyword "version" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaInfoObject.version
@@ -461,13 +528,13 @@ function validateShallowOAInfoObject(oaInfoObject, options = {}) {
 __name(validateShallowOAInfoObject, "validateShallowOAInfoObject");
 
 // src/oa-document-object/validate-shallow-oa-paths-object.js
-var import_js_format16 = require("@e22m4u/js-format");
+var import_js_format21 = require("@e22m4u/js-format");
 
 // src/json-pointer/escape-json-pointer.js
-var import_js_format5 = require("@e22m4u/js-format");
+var import_js_format6 = require("@e22m4u/js-format");
 function escapeJsonPointer(jsonPointer) {
   if (typeof jsonPointer !== "string") {
-    throw new import_js_format5.InvalidArgumentError(
+    throw new import_js_format6.InvalidArgumentError(
       'Parameter "jsonPointer" must be a String, but %v was given.',
       jsonPointer
     );
@@ -477,17 +544,17 @@ function escapeJsonPointer(jsonPointer) {
 __name(escapeJsonPointer, "escapeJsonPointer");
 
 // src/json-pointer/resolve-json-pointer.js
-var import_js_format6 = require("@e22m4u/js-format");
+var import_js_format7 = require("@e22m4u/js-format");
 var ARRAY_INDEX_PATTERN = /^(0|[1-9][0-9]*)$/;
 function resolveJsonPointer(document, pointer) {
   if (!document || typeof document !== "object") {
-    throw new import_js_format6.InvalidArgumentError(
+    throw new import_js_format7.InvalidArgumentError(
       'Parameter "document" must be an Object or an Array, but %v was given.',
       document
     );
   }
   if (typeof pointer !== "string") {
-    throw new import_js_format6.InvalidArgumentError(
+    throw new import_js_format7.InvalidArgumentError(
       "JSON pointer must be a String, but %v was given.",
       pointer
     );
@@ -496,7 +563,7 @@ function resolveJsonPointer(document, pointer) {
     return document;
   }
   if (!pointer.startsWith("/")) {
-    throw new import_js_format6.InvalidArgumentError(
+    throw new import_js_format7.InvalidArgumentError(
       'JSON pointer must start with a forward slash "/", but %v was given.',
       pointer
     );
@@ -512,7 +579,7 @@ function resolveJsonPointer(document, pointer) {
       current = current[segment];
     } else {
       const currentPointer = "/" + pathParts.slice(0, i + 1).join("/");
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         "Unable to resolve %v in the given document.",
         currentPointer
       );
@@ -523,10 +590,10 @@ function resolveJsonPointer(document, pointer) {
 __name(resolveJsonPointer, "resolveJsonPointer");
 
 // src/json-pointer/unescape-json-pointer.js
-var import_js_format7 = require("@e22m4u/js-format");
+var import_js_format8 = require("@e22m4u/js-format");
 function unescapeJsonPointer(jsonPointer) {
   if (typeof jsonPointer !== "string") {
-    throw new import_js_format7.InvalidArgumentError(
+    throw new import_js_format8.InvalidArgumentError(
       'Parameter "jsonPointer" must be a String, but %v was given.',
       jsonPointer
     );
@@ -536,13 +603,13 @@ function unescapeJsonPointer(jsonPointer) {
 __name(unescapeJsonPointer, "unescapeJsonPointer");
 
 // src/oa-document-object/validate-shallow-oa-path-item-object.js
-var import_js_format15 = require("@e22m4u/js-format");
+var import_js_format20 = require("@e22m4u/js-format");
 
 // src/oa-reference-object/oa-ref.js
-var import_js_format8 = require("@e22m4u/js-format");
+var import_js_format9 = require("@e22m4u/js-format");
 function oaRef(name, segment) {
   if (!name || typeof name !== "string") {
-    throw new import_js_format8.InvalidArgumentError(
+    throw new import_js_format9.InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
       name
     );
@@ -573,23 +640,23 @@ function isOAReferenceObject(value) {
 __name(isOAReferenceObject, "isOAReferenceObject");
 
 // src/oa-reference-object/resolve-oa-reference-object.js
-var import_js_format9 = require("@e22m4u/js-format");
+var import_js_format10 = require("@e22m4u/js-format");
 function resolveOAReferenceObject(referenceObj, options = {}) {
   if (!referenceObj || typeof referenceObj !== "object" || Array.isArray(referenceObj)) {
-    throw new import_js_format9.InvalidArgumentError(
+    throw new import_js_format10.InvalidArgumentError(
       'Parameter "referenceObj" must be an Object, but %v was given.',
       referenceObj
     );
   }
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format9.InvalidArgumentError(
+    throw new import_js_format10.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.rootDocument !== void 0) {
     if (!options.rootDocument || typeof options.rootDocument !== "object") {
-      throw new import_js_format9.InvalidArgumentError(
+      throw new import_js_format10.InvalidArgumentError(
         'Option "rootDocument" must be an Object or an Array, but %v was given.',
         options.rootDocument
       );
@@ -597,7 +664,7 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
   }
   if (referenceObj.$ref !== void 0) {
     if (!referenceObj.$ref || typeof referenceObj.$ref !== "string") {
-      throw new import_js_format9.InvalidArgumentError(
+      throw new import_js_format10.InvalidArgumentError(
         'Schema keyword "$ref" must be a non-empty String, but %v was given.',
         referenceObj.$ref
       );
@@ -605,7 +672,7 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
     const refUri = referenceObj.$ref;
     if (refUri.startsWith("#")) {
       if (!options.rootDocument) {
-        throw new import_js_format9.InvalidArgumentError(
+        throw new import_js_format10.InvalidArgumentError(
           'Option "rootDocument" is required to resolve the same-document reference (URI starts with "#").'
         );
       }
@@ -614,41 +681,41 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
       } else if (refUri.startsWith("#/")) {
         return resolveJsonPointer(options.rootDocument, refUri.substring(1));
       }
-      throw new import_js_format9.InvalidArgumentError(
+      throw new import_js_format10.InvalidArgumentError(
         "Anchor reference is not supported, but %v was given.",
         refUri
       );
     }
     if (refUri.startsWith("http://") || refUri.startsWith("https://")) {
-      throw new import_js_format9.InvalidArgumentError(
+      throw new import_js_format10.InvalidArgumentError(
         "External resource is not supported, but %v was given.",
         refUri
       );
     }
-    throw new import_js_format9.InvalidArgumentError(
+    throw new import_js_format10.InvalidArgumentError(
       "Relative reference is not supported, but %v was given.",
       refUri
     );
   }
-  throw new import_js_format9.InvalidArgumentError(
+  throw new import_js_format10.InvalidArgumentError(
     "Reference object does not have reference properties."
   );
 }
 __name(resolveOAReferenceObject, "resolveOAReferenceObject");
 
 // src/oa-document-object/validate-shallow-oa-server-object.js
-var import_js_format10 = require("@e22m4u/js-format");
+var import_js_format11 = require("@e22m4u/js-format");
 var OA_SERVER_OBJECT_KEYWORDS = ["url", "description", "variables"];
 function validateShallowOAServerObject(oaServerObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format10.InvalidArgumentError(
+    throw new import_js_format11.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format10.InvalidArgumentError(
+      throw new import_js_format11.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -656,15 +723,15 @@ function validateShallowOAServerObject(oaServerObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaServerObject || typeof oaServerObject !== "object" || Array.isArray(oaServerObject)) {
-    throw new import_js_format10.InvalidArgumentError(
-      "OpenAPI Server Object at %v must be an Object, but %v was given.",
+    throw new import_js_format11.InvalidArgumentError(
+      "Server Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaServerObject
     );
   }
   Object.keys(oaServerObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_SERVER_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format10.InvalidArgumentError(
+      throw new import_js_format11.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -672,7 +739,7 @@ function validateShallowOAServerObject(oaServerObject, options = {}) {
     }
   });
   if (!oaServerObject.url || typeof oaServerObject.url !== "string") {
-    throw new import_js_format10.InvalidArgumentError(
+    throw new import_js_format11.InvalidArgumentError(
       'Keyword "url" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaServerObject.url
@@ -680,7 +747,7 @@ function validateShallowOAServerObject(oaServerObject, options = {}) {
   }
   if (oaServerObject.description !== void 0) {
     if (typeof oaServerObject.description !== "string") {
-      throw new import_js_format10.InvalidArgumentError(
+      throw new import_js_format11.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaServerObject.description
@@ -689,7 +756,7 @@ function validateShallowOAServerObject(oaServerObject, options = {}) {
   }
   if (oaServerObject.variables !== void 0) {
     if (!oaServerObject.variables || typeof oaServerObject.variables !== "object" || Array.isArray(oaServerObject.variables)) {
-      throw new import_js_format10.InvalidArgumentError(
+      throw new import_js_format11.InvalidArgumentError(
         'Keyword "variables" at %v must be an Object, but %v was given.',
         sourceUri,
         oaServerObject.variables
@@ -700,10 +767,10 @@ function validateShallowOAServerObject(oaServerObject, options = {}) {
 __name(validateShallowOAServerObject, "validateShallowOAServerObject");
 
 // src/oa-document-object/validate-shallow-oa-operation-object.js
-var import_js_format14 = require("@e22m4u/js-format");
+var import_js_format19 = require("@e22m4u/js-format");
 
 // src/oa-document-object/validate-shallow-oa-parameter-object.js
-var import_js_format11 = require("@e22m4u/js-format");
+var import_js_format12 = require("@e22m4u/js-format");
 var OA_PARAMETER_OBJECT_KEYWORDS = [
   "name",
   "in",
@@ -721,14 +788,14 @@ var OA_PARAMETER_OBJECT_KEYWORDS = [
 ];
 function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format11.InvalidArgumentError(
+    throw new import_js_format12.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -736,15 +803,15 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaParameterObject || typeof oaParameterObject !== "object" || Array.isArray(oaParameterObject)) {
-    throw new import_js_format11.InvalidArgumentError(
-      "OpenAPI Parameter Object at %v must be an Object, but %v was given.",
+    throw new import_js_format12.InvalidArgumentError(
+      "Parameter Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaParameterObject
     );
   }
   Object.keys(oaParameterObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_PARAMETER_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -752,14 +819,14 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
     }
   });
   if (!oaParameterObject.name || typeof oaParameterObject.name !== "string") {
-    throw new import_js_format11.InvalidArgumentError(
+    throw new import_js_format12.InvalidArgumentError(
       'Keyword "name" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaParameterObject.name
     );
   }
   if (!OA_PARAMETER_LOCATION_LIST.includes(oaParameterObject.in)) {
-    throw new import_js_format11.InvalidArgumentError(
+    throw new import_js_format12.InvalidArgumentError(
       'Keyword "in" at %v must be one of values: %l, but %v was given.',
       sourceUri,
       OA_PARAMETER_LOCATION_LIST,
@@ -768,7 +835,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.description !== void 0) {
     if (typeof oaParameterObject.description !== "string") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaParameterObject.description
@@ -777,7 +844,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.required !== void 0) {
     if (typeof oaParameterObject.required !== "boolean") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "required" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaParameterObject.required
@@ -786,7 +853,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.in === OAParameterLocation.PATH) {
     if (oaParameterObject.required !== true) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "required" at %v must be true when "in" is "path", but %v was given.',
         sourceUri,
         oaParameterObject.required
@@ -795,7 +862,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.deprecated !== void 0) {
     if (typeof oaParameterObject.deprecated !== "boolean") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "deprecated" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaParameterObject.deprecated
@@ -804,7 +871,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.allowEmptyValue !== void 0) {
     if (typeof oaParameterObject.allowEmptyValue !== "boolean") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "allowEmptyValue" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaParameterObject.allowEmptyValue
@@ -813,7 +880,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.style !== void 0) {
     if (!OA_PARAMETER_STYLE_LIST.includes(oaParameterObject.style)) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "style" at %v must be one of values: %l, but %v was given.',
         sourceUri,
         OA_PARAMETER_STYLE_LIST,
@@ -823,7 +890,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.explode !== void 0) {
     if (typeof oaParameterObject.explode !== "boolean") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "explode" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaParameterObject.explode
@@ -832,7 +899,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.allowReserved !== void 0) {
     if (typeof oaParameterObject.allowReserved !== "boolean") {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "allowReserved" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaParameterObject.allowReserved
@@ -841,7 +908,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.schema !== void 0) {
     if (typeof oaParameterObject.schema !== "boolean" && (!oaParameterObject.schema || typeof oaParameterObject.schema !== "object" || Array.isArray(oaParameterObject.schema))) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "schema" at %v must be a Boolean or an Object, but %v was given.',
         sourceUri,
         oaParameterObject.schema
@@ -850,7 +917,7 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.content !== void 0) {
     if (!oaParameterObject.content || typeof oaParameterObject.content !== "object" || Array.isArray(oaParameterObject.content)) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "content" at %v must be an Object, but %v was given.',
         sourceUri,
         oaParameterObject.content
@@ -859,29 +926,41 @@ function validateShallowOAParameterObject(oaParameterObject, options = {}) {
   }
   if (oaParameterObject.examples !== void 0) {
     if (!oaParameterObject.examples || typeof oaParameterObject.examples !== "object" || Array.isArray(oaParameterObject.examples)) {
-      throw new import_js_format11.InvalidArgumentError(
+      throw new import_js_format12.InvalidArgumentError(
         'Keyword "examples" at %v must be an Object, but %v was given.',
         sourceUri,
         oaParameterObject.examples
       );
     }
   }
+  if (oaParameterObject.schema === void 0 && oaParameterObject.content === void 0) {
+    throw new import_js_format12.InvalidArgumentError(
+      'Parameter Object at %v must contain either "schema" or "content" keyword.',
+      sourceUri
+    );
+  }
+  if (oaParameterObject.schema !== void 0 && oaParameterObject.content !== void 0) {
+    throw new import_js_format12.InvalidArgumentError(
+      'Parameter Object at %v cannot contain both "schema" and "content" keywords.',
+      sourceUri
+    );
+  }
 }
 __name(validateShallowOAParameterObject, "validateShallowOAParameterObject");
 
 // src/oa-document-object/validate-shallow-oa-reference-object.js
-var import_js_format12 = require("@e22m4u/js-format");
+var import_js_format13 = require("@e22m4u/js-format");
 var OA_REFERENCE_OBJECT_KEYWORDS = ["$ref", "summary", "description"];
 function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format12.InvalidArgumentError(
+    throw new import_js_format13.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format12.InvalidArgumentError(
+      throw new import_js_format13.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -889,15 +968,15 @@ function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaReferenceObject || typeof oaReferenceObject !== "object" || Array.isArray(oaReferenceObject)) {
-    throw new import_js_format12.InvalidArgumentError(
-      "OpenAPI Reference Object at %v must be an Object, but %v was given.",
+    throw new import_js_format13.InvalidArgumentError(
+      "Reference Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaReferenceObject
     );
   }
   Object.keys(oaReferenceObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_REFERENCE_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format12.InvalidArgumentError(
+      throw new import_js_format13.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -905,7 +984,7 @@ function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
     }
   });
   if (typeof oaReferenceObject.$ref !== "string") {
-    throw new import_js_format12.InvalidArgumentError(
+    throw new import_js_format13.InvalidArgumentError(
       'Keyword "$ref" at %v must be a String, but %v was given.',
       sourceUri,
       oaReferenceObject.$ref
@@ -913,7 +992,7 @@ function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
   }
   if (oaReferenceObject.summary !== void 0) {
     if (typeof oaReferenceObject.summary !== "string") {
-      throw new import_js_format12.InvalidArgumentError(
+      throw new import_js_format13.InvalidArgumentError(
         'Keyword "summary" at %v must be a String, but %v was given.',
         sourceUri,
         oaReferenceObject.summary
@@ -922,7 +1001,7 @@ function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
   }
   if (oaReferenceObject.description !== void 0) {
     if (typeof oaReferenceObject.description !== "string") {
-      throw new import_js_format12.InvalidArgumentError(
+      throw new import_js_format13.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaReferenceObject.description
@@ -932,18 +1011,274 @@ function validateShallowOAReferenceObject(oaReferenceObject, options = {}) {
 }
 __name(validateShallowOAReferenceObject, "validateShallowOAReferenceObject");
 
-// src/oa-document-object/validate-shallow-oa-security-requirement-object.js
-var import_js_format13 = require("@e22m4u/js-format");
-function validateShallowOASecurityRequirementObject(oaSecurityRequirementObject, options = {}) {
+// src/oa-document-object/validate-shallow-oa-responses-object.js
+var import_js_format15 = require("@e22m4u/js-format");
+
+// src/oa-document-object/validate-shallow-oa-response-object.js
+var import_js_format14 = require("@e22m4u/js-format");
+var OA_RESPONSE_OBJECT_KEYWORDS = [
+  "description",
+  "headers",
+  "content",
+  "links"
+];
+function validateShallowOAResponseObject(oaResponseObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format13.InvalidArgumentError(
+    throw new import_js_format14.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format13.InvalidArgumentError(
+      throw new import_js_format14.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaResponseObject || typeof oaResponseObject !== "object" || Array.isArray(oaResponseObject)) {
+    throw new import_js_format14.InvalidArgumentError(
+      "Response Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaResponseObject
+    );
+  }
+  Object.keys(oaResponseObject).forEach((keyword) => {
+    if (!/^x-/.test(keyword) && !OA_RESPONSE_OBJECT_KEYWORDS.includes(keyword)) {
+      throw new import_js_format14.InvalidArgumentError(
+        "Keyword %v at %v is not supported.",
+        keyword,
+        sourceUri
+      );
+    }
+  });
+  if (!oaResponseObject.description || typeof oaResponseObject.description !== "string") {
+    throw new import_js_format14.InvalidArgumentError(
+      'Keyword "description" at %v must be a non-empty String, but %v was given.',
+      sourceUri,
+      oaResponseObject.description
+    );
+  }
+  if (oaResponseObject.headers !== void 0) {
+    if (!oaResponseObject.headers || typeof oaResponseObject.headers !== "object" || Array.isArray(oaResponseObject.headers)) {
+      throw new import_js_format14.InvalidArgumentError(
+        'Keyword "headers" at %v must be an Object, but %v was given.',
+        sourceUri,
+        oaResponseObject.headers
+      );
+    }
+  }
+  if (oaResponseObject.content !== void 0) {
+    if (!oaResponseObject.content || typeof oaResponseObject.content !== "object" || Array.isArray(oaResponseObject.content)) {
+      throw new import_js_format14.InvalidArgumentError(
+        'Keyword "content" at %v must be an Object, but %v was given.',
+        sourceUri,
+        oaResponseObject.content
+      );
+    }
+  }
+  if (oaResponseObject.links !== void 0) {
+    if (!oaResponseObject.links || typeof oaResponseObject.links !== "object" || Array.isArray(oaResponseObject.links)) {
+      throw new import_js_format14.InvalidArgumentError(
+        'Keyword "links" at %v must be an Object, but %v was given.',
+        sourceUri,
+        oaResponseObject.links
+      );
+    }
+  }
+}
+__name(validateShallowOAResponseObject, "validateShallowOAResponseObject");
+
+// src/oa-document-object/validate-shallow-oa-responses-object.js
+function validateShallowOAResponsesObject(oaResponsesObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format15.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format15.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaResponsesObject || typeof oaResponsesObject !== "object" || Array.isArray(oaResponsesObject)) {
+    throw new import_js_format15.InvalidArgumentError(
+      "Responses Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaResponsesObject
+    );
+  }
+  Object.keys(oaResponsesObject).forEach((oaStatusCode) => {
+    if (oaStatusCode.startsWith("x-")) {
+      return;
+    }
+    if (oaStatusCode !== "default" && !/^[1-5][0-9]{2}$/.test(oaStatusCode)) {
+      throw new import_js_format15.InvalidArgumentError(
+        'Key in %v must be "default" or a HTTP status code, but %v was given.',
+        sourceUri,
+        oaStatusCode
+      );
+    }
+    const oaResponseObject = oaResponsesObject[oaStatusCode];
+    if (!oaResponseObject || typeof oaResponseObject !== "object" || Array.isArray(oaResponseObject)) {
+      throw new import_js_format15.InvalidArgumentError(
+        "Value at %v must be an Object, but %v was given.",
+        `${sourceUri}/${oaStatusCode}`,
+        oaResponseObject
+      );
+    }
+    if (isOAReferenceObject(oaResponseObject)) {
+      validateShallowOAReferenceObject(oaResponseObject, {
+        sourceUri: `${sourceUri}/${oaStatusCode}`
+      });
+    } else {
+      validateShallowOAResponseObject(oaResponseObject, {
+        sourceUri: `${sourceUri}/${oaStatusCode}`
+      });
+    }
+  });
+}
+__name(validateShallowOAResponsesObject, "validateShallowOAResponsesObject");
+
+// src/oa-document-object/validate-shallow-oa-callbacks-object.js
+var import_js_format16 = require("@e22m4u/js-format");
+function validateShallowOACallbacksObject(oaCallbacksObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format16.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format16.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaCallbacksObject || typeof oaCallbacksObject !== "object" || Array.isArray(oaCallbacksObject)) {
+    throw new import_js_format16.InvalidArgumentError(
+      "Callback Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaCallbacksObject
+    );
+  }
+  Object.keys(oaCallbacksObject).forEach((oaCallbackId) => {
+    if (oaCallbackId.startsWith("x-")) {
+      return;
+    }
+    if (!oaCallbackId) {
+      throw new import_js_format16.InvalidArgumentError(
+        "Key in %v must be a non-empty String, but %v was given.",
+        sourceUri,
+        oaCallbackId
+      );
+    }
+    const oaCallbackObject = oaCallbacksObject[oaCallbackId];
+    if (!oaCallbackObject || typeof oaCallbackObject !== "object" || Array.isArray(oaCallbackObject)) {
+      throw new import_js_format16.InvalidArgumentError(
+        "Value at %v must be an Object, but %v was given.",
+        `${sourceUri}/${escapeJsonPointer(oaCallbackId)}`,
+        oaCallbackObject
+      );
+    }
+    if (isOAReferenceObject(oaCallbackObject)) {
+      validateShallowOAReferenceObject(oaCallbackObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaCallbackId)}`
+      });
+    } else {
+      validateShallowOACallbacksObject(oaCallbackObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaCallbackId)}`
+      });
+    }
+  });
+}
+__name(validateShallowOACallbacksObject, "validateShallowOACallbacksObject");
+
+// src/oa-document-object/validate-shallow-oa-request-body-object.js
+var import_js_format17 = require("@e22m4u/js-format");
+var OA_REQUEST_BODY_OBJECT_KEYWORDS = ["description", "content", "required"];
+function validateShallowOARequestBodyObject(oaRequestBodyObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format17.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format17.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaRequestBodyObject || typeof oaRequestBodyObject !== "object" || Array.isArray(oaRequestBodyObject)) {
+    throw new import_js_format17.InvalidArgumentError(
+      "Request Body Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaRequestBodyObject
+    );
+  }
+  Object.keys(oaRequestBodyObject).forEach((keyword) => {
+    if (!/^x-/.test(keyword) && !OA_REQUEST_BODY_OBJECT_KEYWORDS.includes(keyword)) {
+      throw new import_js_format17.InvalidArgumentError(
+        "Keyword %v at %v is not supported.",
+        keyword,
+        sourceUri
+      );
+    }
+  });
+  if (oaRequestBodyObject.description !== void 0) {
+    if (typeof oaRequestBodyObject.description !== "string") {
+      throw new import_js_format17.InvalidArgumentError(
+        'Keyword "description" at %v must be a String, but %v was given.',
+        sourceUri,
+        oaRequestBodyObject.description
+      );
+    }
+  }
+  if (!oaRequestBodyObject.content || typeof oaRequestBodyObject.content !== "object" || Array.isArray(oaRequestBodyObject.content)) {
+    throw new import_js_format17.InvalidArgumentError(
+      'Keyword "content" at %v must be an Object, but %v was given.',
+      sourceUri,
+      oaRequestBodyObject.content
+    );
+  }
+  if (oaRequestBodyObject.required !== void 0) {
+    if (typeof oaRequestBodyObject.required !== "boolean") {
+      throw new import_js_format17.InvalidArgumentError(
+        'Keyword "required" at %v must be a Boolean, but %v was given.',
+        sourceUri,
+        oaRequestBodyObject.required
+      );
+    }
+  }
+}
+__name(validateShallowOARequestBodyObject, "validateShallowOARequestBodyObject");
+
+// src/oa-document-object/validate-shallow-oa-security-requirement-object.js
+var import_js_format18 = require("@e22m4u/js-format");
+function validateShallowOASecurityRequirementObject(oaSecurityRequirementObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format18.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format18.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -951,38 +1286,35 @@ function validateShallowOASecurityRequirementObject(oaSecurityRequirementObject,
   }
   const sourceUri = options.sourceUri || "";
   if (!oaSecurityRequirementObject || typeof oaSecurityRequirementObject !== "object" || Array.isArray(oaSecurityRequirementObject)) {
-    throw new import_js_format13.InvalidArgumentError(
-      "OpenAPI Security Requirement Object at %v must be an Object, but %v was given.",
+    throw new import_js_format18.InvalidArgumentError(
+      "Security Requirement Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaSecurityRequirementObject
     );
   }
   Object.keys(oaSecurityRequirementObject).forEach((oaSchemeName) => {
-    if (oaSchemeName.startsWith("x-")) {
-      return;
-    }
     if (!oaSchemeName) {
-      throw new import_js_format13.InvalidArgumentError(
+      throw new import_js_format18.InvalidArgumentError(
         "Key in %v must be a non-empty String, but %v was given.",
         sourceUri,
         oaSchemeName
       );
     }
-    const oaScopes = oaSecurityRequirementObject[oaSchemeName];
-    if (!Array.isArray(oaScopes)) {
-      throw new import_js_format13.InvalidArgumentError(
+    const oaSecurityScopes = oaSecurityRequirementObject[oaSchemeName];
+    if (!Array.isArray(oaSecurityScopes)) {
+      throw new import_js_format18.InvalidArgumentError(
         "Value at %v must be an Array, but %v was given.",
         `${sourceUri}/${escapeJsonPointer(oaSchemeName)}`,
-        oaScopes
+        oaSecurityScopes
       );
     }
-    oaScopes.forEach((oaScope, index) => {
-      if (!oaScope || typeof oaScope !== "string") {
-        throw new import_js_format13.InvalidArgumentError(
+    oaSecurityScopes.forEach((oaSecurityScope, index) => {
+      if (!oaSecurityScope || typeof oaSecurityScope !== "string") {
+        throw new import_js_format18.InvalidArgumentError(
           "Element %v at %v must be a non-empty String, but %v was given.",
           index,
           `${sourceUri}/${escapeJsonPointer(oaSchemeName)}`,
-          oaScope
+          oaSecurityScope
         );
       }
     });
@@ -1007,14 +1339,14 @@ var OA_OPERATION_OBJECT_KEYWORDS = [
 ];
 function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format14.InvalidArgumentError(
+    throw new import_js_format19.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -1022,15 +1354,15 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaOperationObject || typeof oaOperationObject !== "object" || Array.isArray(oaOperationObject)) {
-    throw new import_js_format14.InvalidArgumentError(
-      "OpenAPI Operation Object at %v must be an Object, but %v was given.",
+    throw new import_js_format19.InvalidArgumentError(
+      "Operation Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaOperationObject
     );
   }
   Object.keys(oaOperationObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_OPERATION_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -1039,7 +1371,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   });
   if (oaOperationObject.tags !== void 0) {
     if (!Array.isArray(oaOperationObject.tags)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "tags" at %v must be an Array, but %v was given.',
         sourceUri,
         oaOperationObject.tags
@@ -1047,7 +1379,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
     }
     oaOperationObject.tags.forEach((oaTagName, index) => {
       if (!oaTagName || typeof oaTagName !== "string") {
-        throw new import_js_format14.InvalidArgumentError(
+        throw new import_js_format19.InvalidArgumentError(
           "Element %v at %v must be a non-empty String, but %v was given.",
           index,
           `${sourceUri}/tags`,
@@ -1058,7 +1390,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.summary !== void 0) {
     if (typeof oaOperationObject.summary !== "string") {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "summary" at %v must be a String, but %v was given.',
         sourceUri,
         oaOperationObject.summary
@@ -1067,7 +1399,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.description !== void 0) {
     if (typeof oaOperationObject.description !== "string") {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaOperationObject.description
@@ -1076,16 +1408,20 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.externalDocs !== void 0) {
     if (!oaOperationObject.externalDocs || typeof oaOperationObject.externalDocs !== "object" || Array.isArray(oaOperationObject.externalDocs)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "externalDocs" at %v must be an Object, but %v was given.',
         sourceUri,
         oaOperationObject.externalDocs
       );
     }
+    validateShallowOAExternalDocumentationObject(
+      oaOperationObject.externalDocs,
+      { sourceUri: `${sourceUri}/externalDocs` }
+    );
   }
   if (oaOperationObject.operationId !== void 0) {
     if (!oaOperationObject.operationId || typeof oaOperationObject.operationId !== "string") {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "operationId" at %v must be a non-empty String, but %v was given.',
         sourceUri,
         oaOperationObject.operationId
@@ -1094,7 +1430,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.parameters !== void 0) {
     if (!Array.isArray(oaOperationObject.parameters)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "parameters" at %v must be an Array, but %v was given.',
         sourceUri,
         oaOperationObject.parameters
@@ -1102,8 +1438,8 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
     }
     oaOperationObject.parameters.forEach((oaParameterObject, index) => {
       if (!oaParameterObject || typeof oaParameterObject !== "object" || Array.isArray(oaParameterObject)) {
-        throw new import_js_format14.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format19.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/parameters`,
           oaParameterObject
@@ -1122,34 +1458,49 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.requestBody !== void 0) {
     if (!oaOperationObject.requestBody || typeof oaOperationObject.requestBody !== "object" || Array.isArray(oaOperationObject.requestBody)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "requestBody" at %v must be an Object, but %v was given.',
         sourceUri,
         oaOperationObject.requestBody
       );
     }
+    if (isOAReferenceObject(oaOperationObject.requestBody)) {
+      validateShallowOAReferenceObject(oaOperationObject.requestBody, {
+        sourceUri: `${sourceUri}/requestBody`
+      });
+    } else {
+      validateShallowOARequestBodyObject(oaOperationObject.requestBody, {
+        sourceUri: `${sourceUri}/requestBody`
+      });
+    }
   }
   if (oaOperationObject.responses !== void 0) {
     if (!oaOperationObject.responses || typeof oaOperationObject.responses !== "object" || Array.isArray(oaOperationObject.responses)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "responses" at %v must be an Object, but %v was given.',
         sourceUri,
         oaOperationObject.responses
       );
     }
+    validateShallowOAResponsesObject(oaOperationObject.responses, {
+      sourceUri: `${sourceUri}/responses`
+    });
   }
   if (oaOperationObject.callbacks !== void 0) {
     if (!oaOperationObject.callbacks || typeof oaOperationObject.callbacks !== "object" || Array.isArray(oaOperationObject.callbacks)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "callbacks" at %v must be an Object, but %v was given.',
         sourceUri,
         oaOperationObject.callbacks
       );
     }
+    validateShallowOACallbacksObject(oaOperationObject.callbacks, {
+      sourceUri: `${sourceUri}/callbacks`
+    });
   }
   if (oaOperationObject.deprecated !== void 0) {
     if (typeof oaOperationObject.deprecated !== "boolean") {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "deprecated" at %v must be a Boolean, but %v was given.',
         sourceUri,
         oaOperationObject.deprecated
@@ -1158,7 +1509,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.security !== void 0) {
     if (!Array.isArray(oaOperationObject.security)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "security" at %v must be an Array, but %v was given.',
         sourceUri,
         oaOperationObject.security
@@ -1166,8 +1517,8 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
     }
     oaOperationObject.security.forEach((oaSecurityRequirementObject, index) => {
       if (!oaSecurityRequirementObject || typeof oaSecurityRequirementObject !== "object" || Array.isArray(oaSecurityRequirementObject)) {
-        throw new import_js_format14.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format19.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/security`,
           oaSecurityRequirementObject
@@ -1180,7 +1531,7 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
   }
   if (oaOperationObject.servers !== void 0) {
     if (!Array.isArray(oaOperationObject.servers)) {
-      throw new import_js_format14.InvalidArgumentError(
+      throw new import_js_format19.InvalidArgumentError(
         'Keyword "servers" at %v must be an Array, but %v was given.',
         sourceUri,
         oaOperationObject.servers
@@ -1188,8 +1539,8 @@ function validateShallowOAOperationObject(oaOperationObject, options = {}) {
     }
     oaOperationObject.servers.forEach((oaServerObject, index) => {
       if (!oaServerObject || typeof oaServerObject !== "object" || Array.isArray(oaServerObject)) {
-        throw new import_js_format14.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format19.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/servers`,
           oaServerObject
@@ -1221,14 +1572,14 @@ var OA_PATH_ITEM_OBJECT_KEYWORDS = [
 ];
 function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format15.InvalidArgumentError(
+    throw new import_js_format20.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -1236,15 +1587,15 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaPathItemObject || typeof oaPathItemObject !== "object" || Array.isArray(oaPathItemObject)) {
-    throw new import_js_format15.InvalidArgumentError(
-      "OpenAPI Path Item Object at %v must be an Object, but %v was given.",
+    throw new import_js_format20.InvalidArgumentError(
+      "Path Item Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaPathItemObject
     );
   }
   Object.keys(oaPathItemObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_PATH_ITEM_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -1253,7 +1604,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   });
   if (oaPathItemObject.$ref !== void 0) {
     if (typeof oaPathItemObject.$ref !== "string") {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Keyword "$ref" at %v must be a String, but %v was given.',
         sourceUri,
         oaPathItemObject.$ref
@@ -1262,7 +1613,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   }
   if (oaPathItemObject.summary !== void 0) {
     if (typeof oaPathItemObject.summary !== "string") {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Keyword "summary" at %v must be a String, but %v was given.',
         sourceUri,
         oaPathItemObject.summary
@@ -1271,7 +1622,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   }
   if (oaPathItemObject.description !== void 0) {
     if (typeof oaPathItemObject.description !== "string") {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Keyword "description" at %v must be a String, but %v was given.',
         sourceUri,
         oaPathItemObject.description
@@ -1282,7 +1633,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
     (keyword) => {
       if (oaPathItemObject[keyword] !== void 0) {
         if (!oaPathItemObject[keyword] || typeof oaPathItemObject[keyword] !== "object" || Array.isArray(oaPathItemObject[keyword])) {
-          throw new import_js_format15.InvalidArgumentError(
+          throw new import_js_format20.InvalidArgumentError(
             "Keyword %v at %v must be an Object, but %v was given.",
             keyword,
             sourceUri,
@@ -1297,7 +1648,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   );
   if (oaPathItemObject.servers !== void 0) {
     if (!Array.isArray(oaPathItemObject.servers)) {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Keyword "servers" at %v must be an Array, but %v was given.',
         sourceUri,
         oaPathItemObject.servers
@@ -1305,8 +1656,8 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
     }
     oaPathItemObject.servers.forEach((oaServerObject, index) => {
       if (!oaServerObject || typeof oaServerObject !== "object" || Array.isArray(oaServerObject)) {
-        throw new import_js_format15.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format20.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/servers`,
           oaServerObject
@@ -1319,7 +1670,7 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
   }
   if (oaPathItemObject.parameters !== void 0) {
     if (!Array.isArray(oaPathItemObject.parameters)) {
-      throw new import_js_format15.InvalidArgumentError(
+      throw new import_js_format20.InvalidArgumentError(
         'Keyword "parameters" at %v must be an Array, but %v was given.',
         sourceUri,
         oaPathItemObject.parameters
@@ -1327,8 +1678,8 @@ function validateShallowOAPathItemObject(oaPathItemObject, options = {}) {
     }
     oaPathItemObject.parameters.forEach((oaParameterObject, index) => {
       if (!oaParameterObject || typeof oaParameterObject !== "object" || Array.isArray(oaParameterObject)) {
-        throw new import_js_format15.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format20.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/parameters`,
           oaParameterObject
@@ -1351,14 +1702,14 @@ __name(validateShallowOAPathItemObject, "validateShallowOAPathItemObject");
 // src/oa-document-object/validate-shallow-oa-paths-object.js
 function validateShallowOAPathsObject(oaPathsObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format16.InvalidArgumentError(
+    throw new import_js_format21.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format16.InvalidArgumentError(
+      throw new import_js_format21.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -1366,8 +1717,8 @@ function validateShallowOAPathsObject(oaPathsObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaPathsObject || typeof oaPathsObject !== "object" || Array.isArray(oaPathsObject)) {
-    throw new import_js_format16.InvalidArgumentError(
-      "OpenAPI Paths Object at %v must be an Object, but %v was given.",
+    throw new import_js_format21.InvalidArgumentError(
+      "Paths Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaPathsObject
     );
@@ -1377,17 +1728,25 @@ function validateShallowOAPathsObject(oaPathsObject, options = {}) {
       return;
     }
     if (!oaPathName) {
-      throw new import_js_format16.InvalidArgumentError(
+      throw new import_js_format21.InvalidArgumentError(
         "Key in %v must be a non-empty String, but %v was given.",
         sourceUri,
         oaPathName
       );
     }
     if (!oaPathName.startsWith("/")) {
-      throw new import_js_format16.InvalidArgumentError(
+      throw new import_js_format21.InvalidArgumentError(
         'Key in %v must start with "/", but %v was given.',
         sourceUri,
         oaPathName
+      );
+    }
+    const oaPathItemObject = oaPathsObject[oaPathName];
+    if (!oaPathItemObject || typeof oaPathItemObject !== "object" || Array.isArray(oaPathItemObject)) {
+      throw new import_js_format21.InvalidArgumentError(
+        "Value at %v must be an Object, but %v was given.",
+        `${sourceUri}/${escapeJsonPointer(oaPathName)}`,
+        oaPathItemObject
       );
     }
     validateShallowOAPathItemObject(oaPathsObject[oaPathName], {
@@ -1397,21 +1756,78 @@ function validateShallowOAPathsObject(oaPathsObject, options = {}) {
 }
 __name(validateShallowOAPathsObject, "validateShallowOAPathsObject");
 
-// src/oa-document-object/validate-shallow-oa-document-object.js
-var import_js_format18 = require("@e22m4u/js-format");
-
-// src/oa-document-object/validate-shallow-oa-webhooks-object.js
-var import_js_format17 = require("@e22m4u/js-format");
-function validateShallowOAWebhooksObject(oaWebhooksObject, options = {}) {
+// src/oa-document-object/validate-shallow-oa-callback-object.js
+var import_js_format22 = require("@e22m4u/js-format");
+function validateShallowOACallbackObject(oaCallbackObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format17.InvalidArgumentError(
+    throw new import_js_format22.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format17.InvalidArgumentError(
+      throw new import_js_format22.InvalidArgumentError(
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
+      );
+    }
+  }
+  const sourceUri = options.sourceUri || "";
+  if (!oaCallbackObject || typeof oaCallbackObject !== "object" || Array.isArray(oaCallbackObject)) {
+    throw new import_js_format22.InvalidArgumentError(
+      "Callback Object at %v must be an Object, but %v was given.",
+      sourceUri,
+      oaCallbackObject
+    );
+  }
+  Object.keys(oaCallbackObject).forEach((oaRuntimeExpression) => {
+    if (oaRuntimeExpression.startsWith("x-")) {
+      return;
+    }
+    if (!oaRuntimeExpression) {
+      throw new import_js_format22.InvalidArgumentError(
+        "Key in %v must be a non-empty String, but %v was given.",
+        sourceUri,
+        oaRuntimeExpression
+      );
+    }
+    const oaPathItemObject = oaCallbackObject[oaRuntimeExpression];
+    if (!oaPathItemObject || typeof oaPathItemObject !== "object" || Array.isArray(oaPathItemObject)) {
+      throw new import_js_format22.InvalidArgumentError(
+        "Value at %v must be an Object, but %v was given.",
+        `${sourceUri}/${escapeJsonPointer(oaRuntimeExpression)}`,
+        oaPathItemObject
+      );
+    }
+    if (isOAReferenceObject(oaPathItemObject)) {
+      validateShallowOAReferenceObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaRuntimeExpression)}`
+      });
+    } else {
+      validateShallowOAPathItemObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaRuntimeExpression)}`
+      });
+    }
+  });
+}
+__name(validateShallowOACallbackObject, "validateShallowOACallbackObject");
+
+// src/oa-document-object/validate-shallow-oa-document-object.js
+var import_js_format24 = require("@e22m4u/js-format");
+
+// src/oa-document-object/validate-shallow-oa-webhooks-object.js
+var import_js_format23 = require("@e22m4u/js-format");
+function validateShallowOAWebhooksObject(oaWebhooksObject, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new import_js_format23.InvalidArgumentError(
+      'Parameter "options" must be an Object, but %v was given.',
+      options
+    );
+  }
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
+      throw new import_js_format23.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -1419,8 +1835,8 @@ function validateShallowOAWebhooksObject(oaWebhooksObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaWebhooksObject || typeof oaWebhooksObject !== "object" || Array.isArray(oaWebhooksObject)) {
-    throw new import_js_format17.InvalidArgumentError(
-      "OpenAPI Webhooks Object at %v must be an Object, but %v was given.",
+    throw new import_js_format23.InvalidArgumentError(
+      "Webhooks Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaWebhooksObject
     );
@@ -1430,15 +1846,29 @@ function validateShallowOAWebhooksObject(oaWebhooksObject, options = {}) {
       return;
     }
     if (!oaWebhookName) {
-      throw new import_js_format17.InvalidArgumentError(
-        "Webhook name at %v must be a non-empty String, but %v was given.",
+      throw new import_js_format23.InvalidArgumentError(
+        "Key in %v must be a non-empty String, but %v was given.",
         sourceUri,
         oaWebhookName
       );
     }
-    validateShallowOAPathItemObject(oaWebhooksObject[oaWebhookName], {
-      sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`
-    });
+    const oaPathItemObject = oaWebhooksObject[oaWebhookName];
+    if (!oaPathItemObject || typeof oaPathItemObject !== "object" || Array.isArray(oaPathItemObject)) {
+      throw new import_js_format23.InvalidArgumentError(
+        "Value at %v must be an Object, but %v was given.",
+        `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`,
+        oaPathItemObject
+      );
+    }
+    if (isOAReferenceObject(oaPathItemObject)) {
+      validateShallowOAReferenceObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`
+      });
+    } else {
+      validateShallowOAPathItemObject(oaPathItemObject, {
+        sourceUri: `${sourceUri}/${escapeJsonPointer(oaWebhookName)}`
+      });
+    }
   });
 }
 __name(validateShallowOAWebhooksObject, "validateShallowOAWebhooksObject");
@@ -1458,14 +1888,14 @@ var OA_DOCUMENT_OBJECT_KEYWORDS = [
 ];
 function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format18.InvalidArgumentError(
+    throw new import_js_format24.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.sourceUri !== void 0) {
     if (typeof options.sourceUri !== "string") {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Option "sourceUri" must be a String, but %v was given.',
         options.sourceUri
       );
@@ -1473,15 +1903,15 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   const sourceUri = options.sourceUri || "";
   if (!oaDocumentObject || typeof oaDocumentObject !== "object" || Array.isArray(oaDocumentObject)) {
-    throw new import_js_format18.InvalidArgumentError(
-      "OpenAPI Document Object at %v must be an Object, but %v was given.",
+    throw new import_js_format24.InvalidArgumentError(
+      "Document Object at %v must be an Object, but %v was given.",
       sourceUri,
       oaDocumentObject
     );
   }
   Object.keys(oaDocumentObject).forEach((keyword) => {
     if (!/^x-/.test(keyword) && !OA_DOCUMENT_OBJECT_KEYWORDS.includes(keyword)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         "Keyword %v at %v is not supported.",
         keyword,
         sourceUri
@@ -1489,14 +1919,14 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
     }
   });
   if (!oaDocumentObject.openapi || typeof oaDocumentObject.openapi !== "string") {
-    throw new import_js_format18.InvalidArgumentError(
+    throw new import_js_format24.InvalidArgumentError(
       'Keyword "openapi" at %v must be a non-empty String, but %v was given.',
       sourceUri,
       oaDocumentObject.openapi
     );
   }
   if (!oaDocumentObject.info || typeof oaDocumentObject.info !== "object" || Array.isArray(oaDocumentObject.info)) {
-    throw new import_js_format18.InvalidArgumentError(
+    throw new import_js_format24.InvalidArgumentError(
       'Keyword "info" at %v must be an Object, but %v was given.',
       sourceUri,
       oaDocumentObject.info
@@ -1507,7 +1937,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   });
   if (oaDocumentObject.jsonSchemaDialect !== void 0) {
     if (!oaDocumentObject.jsonSchemaDialect || typeof oaDocumentObject.jsonSchemaDialect !== "string") {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "jsonSchemaDialect" at %v must be a non-empty String, but %v was given.',
         sourceUri,
         oaDocumentObject.jsonSchemaDialect
@@ -1516,7 +1946,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.servers !== void 0) {
     if (!Array.isArray(oaDocumentObject.servers)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "servers" at %v must be an Array, but %v was given.',
         sourceUri,
         oaDocumentObject.servers
@@ -1524,8 +1954,8 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
     }
     oaDocumentObject.servers.forEach((oaServerObject, index) => {
       if (!oaServerObject || typeof oaServerObject !== "object" || Array.isArray(oaServerObject)) {
-        throw new import_js_format18.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format24.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/servers`,
           oaServerObject
@@ -1538,7 +1968,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.paths !== void 0) {
     if (!oaDocumentObject.paths || typeof oaDocumentObject.paths !== "object" || Array.isArray(oaDocumentObject.paths)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "paths" at %v must be an Object, but %v was given.',
         sourceUri,
         oaDocumentObject.paths
@@ -1550,7 +1980,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.webhooks !== void 0) {
     if (!oaDocumentObject.webhooks || typeof oaDocumentObject.webhooks !== "object" || Array.isArray(oaDocumentObject.webhooks)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "webhooks" at %v must be an Object, but %v was given.',
         sourceUri,
         oaDocumentObject.webhooks
@@ -1562,7 +1992,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.components !== void 0) {
     if (!oaDocumentObject.components || typeof oaDocumentObject.components !== "object" || Array.isArray(oaDocumentObject.components)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "components" at %v must be an Object, but %v was given.',
         sourceUri,
         oaDocumentObject.components
@@ -1571,7 +2001,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.security !== void 0) {
     if (!Array.isArray(oaDocumentObject.security)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "security" at %v must be an Array, but %v was given.',
         sourceUri,
         oaDocumentObject.security
@@ -1579,8 +2009,8 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
     }
     oaDocumentObject.security.forEach((oaSecurityRequirementObject, index) => {
       if (!oaSecurityRequirementObject || typeof oaSecurityRequirementObject !== "object" || Array.isArray(oaSecurityRequirementObject)) {
-        throw new import_js_format18.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format24.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/security`,
           oaSecurityRequirementObject
@@ -1593,7 +2023,7 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.tags !== void 0) {
     if (!Array.isArray(oaDocumentObject.tags)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "tags" at %v must be an Array, but %v was given.',
         sourceUri,
         oaDocumentObject.tags
@@ -1601,8 +2031,8 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
     }
     oaDocumentObject.tags.forEach((oaTagObject, index) => {
       if (!oaTagObject || typeof oaTagObject !== "object" || Array.isArray(oaTagObject)) {
-        throw new import_js_format18.InvalidArgumentError(
-          "Element %d at %v must be an Object, but %v was given.",
+        throw new import_js_format24.InvalidArgumentError(
+          "Element %v at %v must be an Object, but %v was given.",
           index,
           `${sourceUri}/tags`,
           oaTagObject
@@ -1615,12 +2045,16 @@ function validateShallowOADocumentObject(oaDocumentObject, options = {}) {
   }
   if (oaDocumentObject.externalDocs !== void 0) {
     if (!oaDocumentObject.externalDocs || typeof oaDocumentObject.externalDocs !== "object" || Array.isArray(oaDocumentObject.externalDocs)) {
-      throw new import_js_format18.InvalidArgumentError(
+      throw new import_js_format24.InvalidArgumentError(
         'Keyword "externalDocs" at %v must be an Object, but %v was given.',
         sourceUri,
         oaDocumentObject.externalDocs
       );
     }
+    validateShallowOAExternalDocumentationObject(
+      oaDocumentObject.externalDocs,
+      { sourceUri: `${sourceUri}/externalDocs` }
+    );
   }
 }
 __name(validateShallowOADocumentObject, "validateShallowOADocumentObject");
@@ -1639,6 +2073,7 @@ var OAComponentType = {
   PATH_ITEM: "pathItem"
 };
 var OA_COMPONENT_TYPES = Object.values(OAComponentType);
+var COMPONENT_NAME_REGEX = /^[a-zA-Z0-9.\-_]+$/;
 var OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP = {
   [OAComponentType.SCHEMA]: "schemas",
   [OAComponentType.RESPONSE]: "responses",
@@ -1683,8 +2118,8 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     if (document !== void 0) {
       if (!document || typeof document !== "object" || Array.isArray(document)) {
-        throw new import_js_format19.InvalidArgumentError(
-          "OpenAPI Document Object must be an Object, but %v was given.",
+        throw new import_js_format25.InvalidArgumentError(
+          "Document Object must be an Object, but %v was given.",
           document
         );
       }
@@ -1696,8 +2131,8 @@ var OADocumentBuilder = class extends import_js_service.Service {
         document.info = this._document.info;
       }
       if (!document.info || typeof document.info !== "object" || Array.isArray(document.info)) {
-        throw new import_js_format19.InvalidArgumentError(
-          'Property "info" must be an Object, but %v was given.',
+        throw new import_js_format25.InvalidArgumentError(
+          'Keyword "info" must be an Object, but %v was given.',
           document.info
         );
       }
@@ -1720,34 +2155,40 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   defineComponent(type, definition) {
     if (!OA_COMPONENT_TYPES.includes(type)) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Components type %v is not supported.",
         type
       );
     }
     if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Component definition must be an Object, but %v was given.",
         definition
       );
     }
     if (!definition.name || typeof definition.name !== "string") {
-      throw new import_js_format19.InvalidArgumentError(
-        'Property "name" must be a non-empty String, but %v was given.',
+      throw new import_js_format25.InvalidArgumentError(
+        'Keyword "name" must be a non-empty String, but %v was given.',
+        definition.name
+      );
+    }
+    if (!COMPONENT_NAME_REGEX.test(definition.name)) {
+      throw new import_js_format25.InvalidArgumentError(
+        "Component name %v contains invalid characters.",
         definition.name
       );
     }
     const component = definition[type];
     if (!component || typeof component !== "object" || Array.isArray(component)) {
-      throw new import_js_format19.InvalidArgumentError(
-        "Property %v must be an Object, but %v was given.",
+      throw new import_js_format25.InvalidArgumentError(
+        "Keyword %v must be an Object, but %v was given.",
         type,
         component
       );
     }
     const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!key) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         type
       );
@@ -1766,14 +2207,14 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   hasComponent(type, name) {
     if (!name || typeof name !== "string") {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         'Parameter "name" must be a non-empty String, but %v was given.',
         name
       );
     }
     const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!key) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         type
       );
@@ -1791,21 +2232,21 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   getComponent(type, name) {
     if (!name || typeof name !== "string") {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         'Parameter "name" must be a non-empty String, but %v was given.',
         name
       );
     }
     const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!key) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         type
       );
     }
     const component = this._document && this._document.components && this._document.components[key] && this._document.components[key][name];
     if (!component) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         'Component "#/components/%s/%s" does not exist.',
         key,
         name
@@ -1913,35 +2354,32 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format19.InvalidArgumentError(
+      throw new import_js_format25.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (!operationDef.path || typeof operationDef.path !== "string") {
-      throw new import_js_format19.InvalidArgumentError(
-        'Property "path" must be a non-empty String, but %v was given.',
+      throw new import_js_format25.InvalidArgumentError(
+        'Keyword "path" must be a non-empty String, but %v was given.',
         operationDef.path
       );
     }
-    if (!operationDef.method || typeof operationDef.method !== "string") {
-      throw new import_js_format19.InvalidArgumentError(
-        'Property "method" must be a non-empty String, but %v was given.',
-        operationDef.method
-      );
-    }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format19.InvalidArgumentError(
-        'Property "method" must be one of values: %l, but %v was given.',
+      throw new import_js_format25.InvalidArgumentError(
+        'Keyword "method" must be one of values: %l, but %v was given.',
         Object.values(OAOperationMethod)
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format19.InvalidArgumentError(
-        'Property "operation" must be an Object, but %v was given.',
+      throw new import_js_format25.InvalidArgumentError(
+        'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
     }
+    validateShallowOAOperationObject(operationDef.operation, {
+      sourceUri: "operation"
+    });
     const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};
@@ -2010,20 +2448,20 @@ var OADocumentScope = class _OADocumentScope {
    */
   constructor(builder, options = {}) {
     if (!(builder instanceof OADocumentBuilder)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Parameter "builder" must be an instance of OADocumentBuilder, but %v was given.',
         builder
       );
     }
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
-        throw new import_js_format20.InvalidArgumentError(
+        throw new import_js_format26.InvalidArgumentError(
           'Property "pathPrefix" must be a non-empty String, but %v was given.',
           options.pathPrefix
         );
@@ -2031,14 +2469,14 @@ var OADocumentScope = class _OADocumentScope {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format20.InvalidArgumentError(
+        throw new import_js_format26.InvalidArgumentError(
           'Property "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format20.InvalidArgumentError(
+          throw new import_js_format26.InvalidArgumentError(
             'Element "tags[%d]" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2082,31 +2520,31 @@ var OADocumentScope = class _OADocumentScope {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (!operationDef.path || typeof operationDef.path !== "string") {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Property "path" must be a non-empty String, but %v was given.',
         operationDef.path
       );
     }
     if (!operationDef.method || typeof operationDef.method !== "string") {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Property "method" must be a non-empty String, but %v was given.',
         operationDef.method
       );
     }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Property "method" must be one of values: %l, but %v was given.',
         Object.values(OAOperationMethod)
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Property "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
@@ -2132,14 +2570,14 @@ var OADocumentScope = class _OADocumentScope {
    */
   createScope(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format20.InvalidArgumentError(
+      throw new import_js_format26.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
-        throw new import_js_format20.InvalidArgumentError(
+        throw new import_js_format26.InvalidArgumentError(
           'Property "pathPrefix" must be a non-empty String, but %v was given.',
           options.pathPrefix
         );
@@ -2147,14 +2585,14 @@ var OADocumentScope = class _OADocumentScope {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format20.InvalidArgumentError(
+        throw new import_js_format26.InvalidArgumentError(
           'Property "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format20.InvalidArgumentError(
+          throw new import_js_format26.InvalidArgumentError(
             'Element "tags[%d]" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2268,6 +2706,7 @@ var validateUriFormat = /* @__PURE__ */ __name((v) => {
     return false;
   }
 }, "validateUriFormat");
+var validatePasswordFormat = /* @__PURE__ */ __name(() => true, "validatePasswordFormat");
 
 // src/data-validation/data-format-validator-map.js
 var OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP = {
@@ -2283,11 +2722,12 @@ var OA_BUILT_IN_DATA_FORMAT_VALIDATOR_MAP = {
   [OADataFormat.HOSTNAME]: validateHostnameFormat,
   [OADataFormat.IPV4]: validateIpv4Format,
   [OADataFormat.IPV6]: validateIpv6Format,
-  [OADataFormat.URI]: validateUriFormat
+  [OADataFormat.URI]: validateUriFormat,
+  [OADataFormat.PASSWORD]: validatePasswordFormat
 };
 
 // src/data-validation/validate-data-with-openapi-schema.js
-var import_js_format21 = require("@e22m4u/js-format");
+var import_js_format27 = require("@e22m4u/js-format");
 var JSON_INTEGER_REGEXP = /^-?\d+$/;
 var JSON_NUMBER_REGEXP = /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/;
 var UNSUPPORTED_SCHEMA_KEYWORDS = [
@@ -2301,20 +2741,20 @@ var UNSUPPORTED_SCHEMA_KEYWORDS = [
 ];
 function validateDataWithOpenApiSchema(data, schema, options = {}) {
   if (schema === null || typeof schema !== "boolean" && typeof schema !== "object" || Array.isArray(schema)) {
-    throw new import_js_format21.InvalidArgumentError(
+    throw new import_js_format27.InvalidArgumentError(
       'Parameter "schema" must be a Boolean or an Object, but %v was given.',
       schema
     );
   }
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format21.InvalidArgumentError(
+    throw new import_js_format27.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.rootDocument !== void 0) {
     if (!options.rootDocument || typeof options.rootDocument !== "object" || Array.isArray(options.rootDocument)) {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "rootDocument" must be an Object, but %v was given.',
         options.rootDocument
       );
@@ -2322,7 +2762,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.required !== void 0) {
     if (typeof options.required !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "required" must be a Boolean, but %v was given.',
         options.required
       );
@@ -2330,7 +2770,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.coerceTypes !== void 0) {
     if (typeof options.coerceTypes !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "coerceTypes" must be a Boolean, but %v was given.',
         options.coerceTypes
       );
@@ -2338,7 +2778,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.applyDefaults !== void 0) {
     if (typeof options.applyDefaults !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "applyDefaults" must be a Boolean, but %v was given.',
         options.applyDefaults
       );
@@ -2346,7 +2786,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.stripUnknown !== void 0) {
     if (typeof options.stripUnknown !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "stripUnknown" must be a Boolean, but %v was given.',
         options.stripUnknown
       );
@@ -2354,7 +2794,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.dataSourceUri !== void 0) {
     if (!options.dataSourceUri || typeof options.dataSourceUri !== "string") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "dataSourceUri" must be a non-empty String, but %v was given.',
         options.dataSourceUri
       );
@@ -2362,7 +2802,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.schemaSourceUri !== void 0) {
     if (!options.schemaSourceUri || typeof options.schemaSourceUri !== "string") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "schemaSourceUri" must be a non-empty String, but %v was given.',
         options.schemaSourceUri
       );
@@ -2370,7 +2810,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.silent !== void 0) {
     if (typeof options.silent !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "silent" must be a Boolean, but %v was given.',
         options.silent
       );
@@ -2378,7 +2818,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.accessMode !== void 0) {
     if (!ACCESS_MODE_LIST.includes(options.accessMode)) {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         "Access mode %v is not supported.",
         options.accessMode
       );
@@ -2386,7 +2826,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.formatValidators !== void 0) {
     if (!options.formatValidators || typeof options.formatValidators !== "object" || Array.isArray(options.formatValidators)) {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "formatValidators" must be an Object, but %v was given.',
         options.formatValidators
       );
@@ -2394,7 +2834,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
     Object.keys(options.formatValidators).forEach((formatName) => {
       const formatValidator = options.formatValidators[formatName];
       if (formatValidator !== void 0 && typeof formatValidator !== "function") {
-        throw new import_js_format21.InvalidArgumentError(
+        throw new import_js_format27.InvalidArgumentError(
           "Format validator %v must be a Function, but %v was given.",
           formatName,
           formatValidator
@@ -2404,7 +2844,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
   }
   if (options.parseJson !== void 0) {
     if (typeof options.parseJson !== "boolean") {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Option "parseJson" must be a Boolean, but %v was given.',
         options.parseJson
       );
@@ -2416,7 +2856,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
       value: data,
       valueUri: options.dataSourceUri || "",
       schemaUri: options.schemaSourceUri || "",
-      reason: (0, import_js_format21.format)(
+      reason: (0, import_js_format27.format)(
         "Value at %v is required, but %v was given.",
         options.dataSourceUri || "",
         data
@@ -2451,7 +2891,7 @@ function validateDataWithOpenApiSchema(data, schema, options = {}) {
 __name(validateDataWithOpenApiSchema, "validateDataWithOpenApiSchema");
 function _validate(data, schema, options) {
   if (schema === null || typeof schema !== "boolean" && typeof schema !== "object" || Array.isArray(schema)) {
-    throw new import_js_format21.InvalidArgumentError(
+    throw new import_js_format27.InvalidArgumentError(
       "Schema at %v must be a Boolean or an Object, but %v was given.",
       options.schemaSourceUri,
       schema
@@ -2471,7 +2911,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v is rejected by the boolean schema at %v.",
           options.dataSourceUri,
           options.schemaSourceUri
@@ -2517,7 +2957,7 @@ function _validate(data, schema, options) {
   }
   UNSUPPORTED_SCHEMA_KEYWORDS.forEach((keyword) => {
     if (schema[keyword] !== void 0) {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         "Schema keyword %v is not supported.",
         keyword
       );
@@ -2529,7 +2969,7 @@ function _validate(data, schema, options) {
       value: data,
       valueUri: options.dataSourceUri,
       schemaUri: options.schemaSourceUri,
-      reason: (0, import_js_format21.format)(
+      reason: (0, import_js_format27.format)(
         "Value at %v is read-only and cannot be sent in a write context.",
         options.dataSourceUri
       )
@@ -2541,7 +2981,7 @@ function _validate(data, schema, options) {
       value: data,
       valueUri: options.dataSourceUri,
       schemaUri: options.schemaSourceUri,
-      reason: (0, import_js_format21.format)(
+      reason: (0, import_js_format27.format)(
         "Value at %v is write-only and cannot be present in a read context.",
         options.dataSourceUri
       )
@@ -2597,7 +3037,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must match exactly one of schemas at %v, but %d matched.",
           options.dataSourceUri,
           schemaUri,
@@ -2653,7 +3093,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must match at least one of schemas at %v, but 0 matched.",
           options.dataSourceUri,
           schemaUri
@@ -2672,7 +3112,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri + "/not",
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           'Value at %v must not match the "not" schema.',
           options.dataSourceUri
         )
@@ -2769,7 +3209,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be equal to constant %s, but %s was given.",
           options.dataSourceUri,
           toSpacedJson(schema.const, { truncate: 50 }),
@@ -2786,7 +3226,7 @@ function _validate(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be one of %s, but %s was given.",
           options.dataSourceUri,
           toSpacedJson(schema.enum, { truncate: 50 }),
@@ -2921,7 +3361,7 @@ function _validateType(data, expectedType, options) {
       value: data,
       valueUri: options.dataSourceUri,
       schemaUri: options.schemaSourceUri,
-      reason: (0, import_js_format21.format)(
+      reason: (0, import_js_format27.format)(
         "Value at %v must be %s, but %s was given.",
         options.dataSourceUri,
         allowedTypes.map((v) => toPascalCase(v)).join(" or "),
@@ -2947,7 +3387,7 @@ function _validateFormat(data, expectedFormat, validatorsMap, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must match format %v, but %s was given.",
           options.dataSourceUri,
           expectedFormat,
@@ -3016,7 +3456,7 @@ function _validateString(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "String at %v must be at least %d characters long, but %d was given.",
           options.dataSourceUri,
           schema.minLength,
@@ -3033,7 +3473,7 @@ function _validateString(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "String at %v must be at most %d characters long, but %d was given.",
           options.dataSourceUri,
           schema.maxLength,
@@ -3047,7 +3487,7 @@ function _validateString(data, schema, options) {
     try {
       regex = new RegExp(schema.pattern, "u");
     } catch {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         "Schema pattern %v at %v has an invalid expression.",
         schema.pattern,
         options.schemaSourceUri
@@ -3060,7 +3500,7 @@ function _validateString(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "String at %v must match pattern %v, but %s was given.",
           options.dataSourceUri,
           reString,
@@ -3085,7 +3525,7 @@ function _validateNumber(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be greater than or equal to %d, but %v was given.",
           options.dataSourceUri,
           schema.minimum,
@@ -3101,7 +3541,7 @@ function _validateNumber(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be less than or equal to %d, but %v was given.",
           options.dataSourceUri,
           schema.maximum,
@@ -3117,7 +3557,7 @@ function _validateNumber(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be greater than %d, but %v was given.",
           options.dataSourceUri,
           schema.exclusiveMinimum,
@@ -3133,7 +3573,7 @@ function _validateNumber(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be less than %d, but %v was given.",
           options.dataSourceUri,
           schema.exclusiveMaximum,
@@ -3144,7 +3584,7 @@ function _validateNumber(data, schema, options) {
   }
   if (typeof schema.multipleOf === "number") {
     if (schema.multipleOf <= 0) {
-      throw new import_js_format21.InvalidArgumentError(
+      throw new import_js_format27.InvalidArgumentError(
         'Schema keyword "multipleOf" must be a Number strictly greater than 0, but %v was given.',
         schema.multipleOf
       );
@@ -3157,7 +3597,7 @@ function _validateNumber(data, schema, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Value at %v must be a multiple of %v, but %v was given.",
           options.dataSourceUri,
           schema.multipleOf,
@@ -3228,7 +3668,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Array at %v must contain at least %d items, but %d was given.",
           options.dataSourceUri,
           schema.minItems,
@@ -3244,7 +3684,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Array at %v must contain at most %d items, but %d was given.",
           options.dataSourceUri,
           schema.maxItems,
@@ -3262,7 +3702,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
             value: data,
             valueUri: options.dataSourceUri,
             schemaUri: options.schemaSourceUri,
-            reason: (0, import_js_format21.format)(
+            reason: (0, import_js_format27.format)(
               "Array at %v must contain unique items, but items at index %d and %d are identical.",
               options.dataSourceUri,
               i,
@@ -3294,7 +3734,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri + "/contains",
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           'Array at %v must contain at least %d item(s) matching the "contains" schema, but %d was found.',
           options.dataSourceUri,
           minContains,
@@ -3309,7 +3749,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
           value: data,
           valueUri: options.dataSourceUri,
           schemaUri: options.schemaSourceUri + "/contains",
-          reason: (0, import_js_format21.format)(
+          reason: (0, import_js_format27.format)(
             'Array at %v must contain at most %d item(s) matching the "contains" schema, but %d was found.',
             options.dataSourceUri,
             schema.maxContains,
@@ -3336,7 +3776,7 @@ function _validateArray(data, schema, evaluatedIndexes, options) {
             value: data[i],
             valueUri: `${options.dataSourceUri}/${i}`,
             schemaUri: `${options.schemaSourceUri}/unevaluatedItems`,
-            reason: (0, import_js_format21.format)(
+            reason: (0, import_js_format27.format)(
               "Array at %v has unevaluated item at index %d, which is not allowed.",
               options.dataSourceUri,
               i
@@ -3387,7 +3827,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Object at %v must contain at most %d properties, but %d was given.",
           options.dataSourceUri,
           schema.maxProperties,
@@ -3404,7 +3844,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
         value: data,
         valueUri: options.dataSourceUri,
         schemaUri: options.schemaSourceUri,
-        reason: (0, import_js_format21.format)(
+        reason: (0, import_js_format27.format)(
           "Object at %v must contain at least %d properties, but %d was given.",
           options.dataSourceUri,
           schema.minProperties,
@@ -3430,7 +3870,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
           value: propValue,
           valueUri: `${options.dataSourceUri}/${propName}`,
           schemaUri: options.schemaSourceUri,
-          reason: (0, import_js_format21.format)(
+          reason: (0, import_js_format27.format)(
             "Property %v at %v is required, but %v was given.",
             propName,
             options.dataSourceUri,
@@ -3460,7 +3900,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
                 value: data[requiredProp],
                 valueUri: `${options.dataSourceUri}/${requiredProp}`,
                 schemaUri: options.schemaSourceUri,
-                reason: (0, import_js_format21.format)(
+                reason: (0, import_js_format27.format)(
                   "Property %v at %v is required because the property %v is present.",
                   requiredProp,
                   options.dataSourceUri,
@@ -3539,7 +3979,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
       try {
         regex = new RegExp(pattern, "u");
       } catch {
-        throw new import_js_format21.InvalidArgumentError(
+        throw new import_js_format27.InvalidArgumentError(
           "Property pattern %v at %v has an invalid expression.",
           pattern,
           options.schemaSourceUri
@@ -3583,7 +4023,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
           value: data[propName],
           valueUri: `${options.dataSourceUri}/${propName}`,
           schemaUri: `${options.schemaSourceUri}/additionalProperties`,
-          reason: (0, import_js_format21.format)(
+          reason: (0, import_js_format27.format)(
             "Property %v at %v is not allowed.",
             propName,
             options.dataSourceUri
@@ -3621,7 +4061,7 @@ function _validateObject(data, schema, evaluatedProperties, options) {
           value: data[propName],
           valueUri: `${options.dataSourceUri}/${propName}`,
           schemaUri: `${options.schemaSourceUri}/unevaluatedProperties`,
-          reason: (0, import_js_format21.format)(
+          reason: (0, import_js_format27.format)(
             "Property %v at %v is not evaluated and not allowed.",
             propName,
             options.dataSourceUri
@@ -3672,6 +4112,7 @@ __name(_validateObject, "_validateObject");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ACCESS_MODE_LIST,
+  COMPONENT_NAME_REGEX,
   JSON_INTEGER_REGEXP,
   JSON_NUMBER_REGEXP,
   OAAccessMode,
@@ -3721,13 +4162,20 @@ __name(_validateObject, "_validateObject");
   validateInt64Format,
   validateIpv4Format,
   validateIpv6Format,
+  validatePasswordFormat,
+  validateShallowOACallbackObject,
+  validateShallowOACallbacksObject,
   validateShallowOADocumentObject,
+  validateShallowOAExternalDocumentationObject,
   validateShallowOAInfoObject,
   validateShallowOAOperationObject,
   validateShallowOAParameterObject,
   validateShallowOAPathItemObject,
   validateShallowOAPathsObject,
   validateShallowOAReferenceObject,
+  validateShallowOARequestBodyObject,
+  validateShallowOAResponseObject,
+  validateShallowOAResponsesObject,
   validateShallowOASecurityRequirementObject,
   validateShallowOAServerObject,
   validateShallowOATagObject,

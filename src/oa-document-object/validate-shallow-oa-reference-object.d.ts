@@ -1,13 +1,13 @@
-import {OAPathsObject} from '../oa-specification.js';
+import {OAReferenceObject} from '../oa-specification.js';
 import {ShallowValidationOptions} from './types.js';
 
 /**
  * Validate shallow OAReferenceObject.
  *
- * @param oaPathsObject
+ * @param oaReferenceObject
  * @param options
  */
 export declare function validateShallowOAReferenceObject(
-  oaPathsObject: OAPathsObject,
+  oaReferenceObject: OAReferenceObject,
   options?: ShallowValidationOptions,
 ): void;

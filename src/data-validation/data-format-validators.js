@@ -215,3 +215,10 @@ export const validateUriFormat = v => {
     return false;
   }
 };
+
+/**
+ * Validate password format.
+ *
+ * @returns {boolean}
+ */
+export const validatePasswordFormat = () => true;

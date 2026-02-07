@@ -57,7 +57,7 @@ export function validateShallowOAParameterObject(
     Array.isArray(oaParameterObject)
   ) {
     throw new InvalidArgumentError(
-      'OpenAPI Parameter Object at %v must be an Object, but %v was given.',
+      'Parameter Object at %v must be an Object, but %v was given.',
       sourceUri,
       oaParameterObject,
     );
@@ -216,5 +216,28 @@ export function validateShallowOAParameterObject(
         oaParameterObject.examples,
       );
     }
+  }
+  // согласно спецификации OpenAPI 3.1.0 (и более ранних),
+  // параметр должен содержать либо "schema", либо "content",
+  // но не оба сразу
+  if (
+    oaParameterObject.schema === undefined &&
+    oaParameterObject.content === undefined
+  ) {
+    throw new InvalidArgumentError(
+      'Parameter Object at %v must contain ' +
+        'either "schema" or "content" keyword.',
+      sourceUri,
+    );
+  }
+  if (
+    oaParameterObject.schema !== undefined &&
+    oaParameterObject.content !== undefined
+  ) {
+    throw new InvalidArgumentError(
+      'Parameter Object at %v cannot contain ' +
+        'both "schema" and "content" keywords.',
+      sourceUri,
+    );
   }
 }
