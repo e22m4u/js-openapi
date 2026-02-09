@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {format} from '@e22m4u/js-format';
-import {OADocumentScope} from './oa-document-scope.js';
+import {OAOperationsScope} from './oa-operations-scope.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 
 import {
@@ -9,10 +9,10 @@ import {
   OAParameterLocation,
 } from './oa-specification.js';
 
-describe('OADocumentScope', function () {
+describe('OAOperationsScope', function () {
   describe('constructor', function () {
     it('should require the parameter "builder" to be an instance of OADocumentBuilder', function () {
-      const throwable = v => () => new OADocumentScope(v);
+      const throwable = v => () => new OAOperationsScope(v);
       const error = s =>
         format(
           'Parameter "builder" must be an instance of OADocumentBuilder, ' +
@@ -34,7 +34,7 @@ describe('OADocumentScope', function () {
 
     it('should require the parameter "option" to be an Object', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OADocumentScope(builder, v);
+      const throwable = v => () => new OAOperationsScope(builder, v);
       const error = s =>
         format('Parameter "options" must be an Object, but %s was given.', s);
       expect(throwable('str')).to.throw(error('"str"'));
@@ -52,7 +52,7 @@ describe('OADocumentScope', function () {
     it('should require the option "pathPrefix" to be a String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () =>
-        new OADocumentScope(builder, {pathPrefix: v});
+        new OAOperationsScope(builder, {pathPrefix: v});
       const error = s =>
         format('Option "pathPrefix" must be a String, but %s was given.', s);
       expect(throwable(10)).to.throw(error('10'));
@@ -69,7 +69,7 @@ describe('OADocumentScope', function () {
     it('should require the option "pathPrefix" to start with a forward slash', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () =>
-        new OADocumentScope(builder, {pathPrefix: v});
+        new OAOperationsScope(builder, {pathPrefix: v});
       const error = s =>
         format('Option "pathPrefix" must start with "/", but %s was given.', s);
       expect(throwable('path')).to.throw(error('"path"'));
@@ -80,7 +80,7 @@ describe('OADocumentScope', function () {
 
     it('should require the option "tags" to be an Array', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OADocumentScope(builder, {tags: v});
+      const throwable = v => () => new OAOperationsScope(builder, {tags: v});
       const error = s =>
         format('Option "tags" must be an Array, but %s was given.', s);
       expect(throwable('str')).to.throw(error('"str"'));
@@ -97,7 +97,7 @@ describe('OADocumentScope', function () {
 
     it('should require elements in the option "tags" to be a non-empty String', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OADocumentScope(builder, {tags: [v]});
+      const throwable = v => () => new OAOperationsScope(builder, {tags: [v]});
       const error = s =>
         format(
           'Element 0 in the option "tags" must be a non-empty String, ' +
@@ -117,25 +117,25 @@ describe('OADocumentScope', function () {
 
     it('should set a forward slash as the default path prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       expect(S.getPathPrefix()).to.be.eq('/');
     });
 
     it('should add the given path prefix to the scope state', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       expect(S.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should set an empty array as the default tags list', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       expect(S.getTags()).to.be.eql([]);
     });
 
     it('should deduplicate the given tags list', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'foo', 'bar']});
       expect(S.getTags()).to.be.eql(['foo', 'bar']);
     });
   });
@@ -143,7 +143,7 @@ describe('OADocumentScope', function () {
   describe('getBuilder', function () {
     it('should return an instance of the OADocumentBuilder', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       expect(S.getBuilder()).to.be.eql(builder);
     });
   });
@@ -151,13 +151,13 @@ describe('OADocumentScope', function () {
   describe('getPathPrefix', function () {
     it('should return a forward slash when no path prefix is specified', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       expect(S.getPathPrefix()).to.be.eq('/');
     });
 
     it('should return the current path prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       expect(S.getPathPrefix()).to.be.eq('/prefix');
     });
   });
@@ -165,13 +165,13 @@ describe('OADocumentScope', function () {
   describe('getTags', function () {
     it('should return an empty array when no tags are specified', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       expect(S.getTags()).to.be.eql([]);
     });
 
     it('should return a shallow copy of the current tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
       const res1 = S.getTags();
       const res2 = S.getTags();
       expect(res1).to.be.eql(['foo', 'bar']);
@@ -183,7 +183,7 @@ describe('OADocumentScope', function () {
     it('should require the parameter "operationDef" to be an Object', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.defineOperation(v);
       };
       const error = s =>
@@ -207,7 +207,7 @@ describe('OADocumentScope', function () {
     it('should require the keyword "path" to be a String', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
@@ -229,7 +229,7 @@ describe('OADocumentScope', function () {
     it('should require the keyword "path" to start with a forward slash', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
@@ -247,7 +247,7 @@ describe('OADocumentScope', function () {
     it('should require the keyword "method" to be a correct value', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.defineOperation({
           method: v,
           path: '/',
@@ -277,7 +277,7 @@ describe('OADocumentScope', function () {
     it('should require the keyword "operation" to be an Object', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.defineOperation({
           method: OAOperationMethod.GET,
           path: '/',
@@ -300,7 +300,7 @@ describe('OADocumentScope', function () {
 
     it('should define operation in the document builder', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       const operation = {
         parameters: [
           {
@@ -321,7 +321,7 @@ describe('OADocumentScope', function () {
 
     it('should add the path prefix to the operation path', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -333,7 +333,7 @@ describe('OADocumentScope', function () {
 
     it('should ignore the path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -345,7 +345,7 @@ describe('OADocumentScope', function () {
 
     it('should ignore the operation path with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/',
@@ -357,7 +357,7 @@ describe('OADocumentScope', function () {
 
     it('should add the scope tags to the operation object', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -369,7 +369,7 @@ describe('OADocumentScope', function () {
 
     it('should merge the operation tags with the scope tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo']});
+      const S = new OAOperationsScope(builder, {tags: ['foo']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -381,7 +381,7 @@ describe('OADocumentScope', function () {
 
     it('should ignore the scope tags existed in the operation object', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -393,7 +393,7 @@ describe('OADocumentScope', function () {
 
     it('should return itself', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder);
+      const S = new OAOperationsScope(builder);
       const res = S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -407,7 +407,7 @@ describe('OADocumentScope', function () {
     it('should require the parameter "option" to be an Object', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.createScope(v);
       };
       const error = s =>
@@ -427,7 +427,7 @@ describe('OADocumentScope', function () {
     it('should require the option "pathPrefix" to be a String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.createScope({pathPrefix: v});
       };
       const error = s =>
@@ -446,7 +446,7 @@ describe('OADocumentScope', function () {
     it('should require the option "pathPrefix" to start with a forward slash', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.createScope({pathPrefix: v});
       };
       const error = s =>
@@ -460,7 +460,7 @@ describe('OADocumentScope', function () {
     it('should require the option "tags" to be an Array', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.createScope({tags: v});
       };
       const error = s =>
@@ -480,7 +480,7 @@ describe('OADocumentScope', function () {
     it('should require elements in the option "tags" to be a non-empty String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OADocumentScope(builder);
+        const S = new OAOperationsScope(builder);
         S.createScope({tags: [v]});
       };
       const error = s =>
@@ -502,49 +502,49 @@ describe('OADocumentScope', function () {
 
     it('should add the current path prefix to the new scope', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       const res = S.createScope();
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should prepend the current path prefix to the new prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/a'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/a'});
       const res = S.createScope({pathPrefix: '/b'});
       expect(res.getPathPrefix()).to.be.eq('/a/b');
     });
 
     it('should ignore the current path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/'});
       const res = S.createScope({pathPrefix: '/prefix'});
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should ignore the new path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
       const res = S.createScope({pathPrefix: '/'});
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should add the current tags to the new scope', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
       const res = S.createScope();
       expect(res.getTags()).to.be.eql(['foo', 'bar']);
     });
 
     it('should merge the current tags with the new tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo']});
+      const S = new OAOperationsScope(builder, {tags: ['foo']});
       const res = S.createScope({tags: ['bar']});
       expect(res.getTags()).to.be.eql(['foo', 'bar']);
     });
 
     it('should ignore the current tags existed in the new tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OADocumentScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
       const res = S.createScope({tags: ['bar', 'baz']});
       expect(res.getTags()).to.be.eql(['foo', 'bar', 'baz']);
     });

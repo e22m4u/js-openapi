@@ -37,9 +37,9 @@ __export(index_exports, {
   OADataFormat: () => OADataFormat,
   OADataType: () => OADataType,
   OADocumentBuilder: () => OADocumentBuilder,
-  OADocumentScope: () => OADocumentScope,
   OAMediaType: () => OAMediaType,
   OAOperationMethod: () => OAOperationMethod,
+  OAOperationsScope: () => OAOperationsScope,
   OAParameterLocation: () => OAParameterLocation,
   OAParameterStyle: () => OAParameterStyle,
   OASecuritySchemeType: () => OASecuritySchemeType,
@@ -158,15 +158,87 @@ var OAAccessMode = {
   WRITE: "write"
 };
 
-// src/oa-document-scope.js
-var import_js_format4 = require("@e22m4u/js-format");
+// src/json-pointer/escape-json-pointer.js
+var import_js_format = require("@e22m4u/js-format");
+function escapeJsonPointer(jsonPointer) {
+  if (typeof jsonPointer !== "string") {
+    throw new import_js_format.InvalidArgumentError(
+      'Parameter "jsonPointer" must be a String, but %v was given.',
+      jsonPointer
+    );
+  }
+  return jsonPointer.replace(/~/g, "~0").replace(/\//g, "~1");
+}
+__name(escapeJsonPointer, "escapeJsonPointer");
+
+// src/json-pointer/resolve-json-pointer.js
+var import_js_format2 = require("@e22m4u/js-format");
+var ARRAY_INDEX_PATTERN = /^(0|[1-9][0-9]*)$/;
+function resolveJsonPointer(document, pointer) {
+  if (!document || typeof document !== "object") {
+    throw new import_js_format2.InvalidArgumentError(
+      'Parameter "document" must be an Object or an Array, but %v was given.',
+      document
+    );
+  }
+  if (typeof pointer !== "string") {
+    throw new import_js_format2.InvalidArgumentError(
+      "JSON pointer must be a String, but %v was given.",
+      pointer
+    );
+  }
+  if (pointer === "") {
+    return document;
+  }
+  if (!pointer.startsWith("/")) {
+    throw new import_js_format2.InvalidArgumentError(
+      'JSON pointer must start with "/", but %v was given.',
+      pointer
+    );
+  }
+  const pathParts = pointer.substring(1).split("/");
+  let current = document;
+  for (let i = 0, l = pathParts.length; i < l; i++) {
+    const part = pathParts[i];
+    const segment = unescapeJsonPointer(part);
+    if (current && typeof current === "object" && !Array.isArray(current) && Object.hasOwn(current, segment) && current[segment] !== void 0) {
+      current = current[segment];
+    } else if (Array.isArray(current) && ARRAY_INDEX_PATTERN.test(segment) && current[segment] !== void 0) {
+      current = current[segment];
+    } else {
+      const currentPointer = "/" + pathParts.slice(0, i + 1).join("/");
+      throw new import_js_format2.InvalidArgumentError(
+        "Unable to resolve %v in the given document.",
+        currentPointer
+      );
+    }
+  }
+  return current;
+}
+__name(resolveJsonPointer, "resolveJsonPointer");
+
+// src/json-pointer/unescape-json-pointer.js
+var import_js_format3 = require("@e22m4u/js-format");
+function unescapeJsonPointer(jsonPointer) {
+  if (typeof jsonPointer !== "string") {
+    throw new import_js_format3.InvalidArgumentError(
+      'Parameter "jsonPointer" must be a String, but %v was given.',
+      jsonPointer
+    );
+  }
+  return jsonPointer.replace(/~1/g, "/").replace(/~0/g, "~");
+}
+__name(unescapeJsonPointer, "unescapeJsonPointer");
+
+// src/oa-operations-scope.js
+var import_js_format6 = require("@e22m4u/js-format");
 
 // src/oa-document-builder.js
-var import_js_format3 = require("@e22m4u/js-format");
+var import_js_format5 = require("@e22m4u/js-format");
 var import_js_service = require("@e22m4u/js-service");
 
 // src/oa-document-object/validate-oa-document-object.js
-var import_js_format = require("@e22m4u/js-format");
+var import_js_format4 = require("@e22m4u/js-format");
 
 // src/ajv.js
 var import_ajv_formats = __toESM(require("ajv-formats"), 1);
@@ -1727,14 +1799,14 @@ ajv.getSchema(OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI);
 // src/oa-document-object/validate-oa-document-object.js
 function validateOADocumentObject(data, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format.InvalidArgumentError(
+    throw new import_js_format4.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.schemaUri !== void 0) {
     if (typeof options.schemaUri !== "string") {
-      throw new import_js_format.InvalidArgumentError(
+      throw new import_js_format4.InvalidArgumentError(
         'Option "schemaUri" must be a String, but %v was given.',
         options.schemaUri
       );
@@ -1742,7 +1814,7 @@ function validateOADocumentObject(data, options = {}) {
   }
   if (options.dataSourceUri !== void 0) {
     if (typeof options.dataSourceUri !== "string") {
-      throw new import_js_format.InvalidArgumentError(
+      throw new import_js_format4.InvalidArgumentError(
         'Option "dataSourceUri" must be a String, but %v was given.',
         options.dataSourceUri
       );
@@ -1754,7 +1826,7 @@ function validateOADocumentObject(data, options = {}) {
   const isValid = validate(data);
   if (!isValid) {
     const error = validate.errors[0];
-    throw new import_js_format.InvalidArgumentError(
+    throw new import_js_format4.InvalidArgumentError(
       "Value at %v %s.",
       options.dataSourceUri && error.instancePath ? [options.dataSourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : (options.dataSourceUri || "") + (error.instancePath || ""),
       error.message.replace(/'/g, '"')
@@ -1762,19 +1834,6 @@ function validateOADocumentObject(data, options = {}) {
   }
 }
 __name(validateOADocumentObject, "validateOADocumentObject");
-
-// src/json-pointer/escape-json-pointer.js
-var import_js_format2 = require("@e22m4u/js-format");
-function escapeJsonPointer(jsonPointer) {
-  if (typeof jsonPointer !== "string") {
-    throw new import_js_format2.InvalidArgumentError(
-      'Parameter "jsonPointer" must be a String, but %v was given.',
-      jsonPointer
-    );
-  }
-  return jsonPointer.replace(/~/g, "~0").replace(/\//g, "~1");
-}
-__name(escapeJsonPointer, "escapeJsonPointer");
 
 // src/oa-document-builder.js
 var OAComponentType = {
@@ -1846,7 +1905,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
       super();
       if (containerOrDocument !== void 0) {
         if (!containerOrDocument || typeof containerOrDocument !== "object" || Array.isArray(containerOrDocument)) {
-          throw new import_js_format3.InvalidArgumentError(
+          throw new import_js_format5.InvalidArgumentError(
             'Parameter "containerOrDocument" must be an Object, but %v was given.',
             containerOrDocument
           );
@@ -1856,7 +1915,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     if (document !== void 0) {
       if (!document || typeof document !== "object" || Array.isArray(document)) {
-        throw new import_js_format3.InvalidArgumentError(
+        throw new import_js_format5.InvalidArgumentError(
           'Parameter "document" must be an Object, but %v was given.',
           document
         );
@@ -1883,32 +1942,32 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   defineComponent(type, definition) {
     if (!OA_COMPONENT_TYPES.includes(type)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Components type %v is not supported.",
         type
       );
     }
     if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component definition must be an Object, but %v was given.",
         definition
       );
     }
     if (!definition.name || typeof definition.name !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "name" must be a non-empty String, but %v was given.',
         definition.name
       );
     }
     if (!OA_COMPONENT_NAME_REGEX.test(definition.name)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component name %v contains invalid characters.",
         definition.name
       );
     }
     const component = definition[type];
     if (!component || typeof component !== "object" || Array.isArray(component)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Keyword %v must be an Object, but %v was given.",
         type,
         component
@@ -1916,14 +1975,14 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         componentsKey
       );
     }
     const definitionName = OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP[type];
     if (!definitionName) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component type %v does not have a reference to the definition name.",
         definitionName
       );
@@ -1946,14 +2005,14 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   hasComponent(type, name) {
     if (!name || typeof name !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Parameter "name" must be a non-empty String, but %v was given.',
         name
       );
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         componentsKey
       );
@@ -1971,21 +2030,21 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   getComponent(type, name) {
     if (!name || typeof name !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Parameter "name" must be a non-empty String, but %v was given.',
         name
       );
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         type
       );
     }
     const component = this._document && this._document.components && this._document.components[componentsKey] && this._document.components[componentsKey][name];
     if (!component) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Component "#/components/%s/%s" does not exist.',
         componentsKey,
         name
@@ -2094,31 +2153,31 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (typeof operationDef.path !== "string") {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "path" must be a String, but %v was given.',
         operationDef.path
       );
     }
     if (!operationDef.path.startsWith("/")) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "method" must be one of the allowed values, but %v was given.',
         operationDef.method
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format3.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
@@ -2140,10 +2199,10 @@ var OADocumentBuilder = class extends import_js_service.Service {
    * Create scope.
    *
    * @param {object} [options]
-   * @returns {OADocumentScope}
+   * @returns {OAOperationsScope}
    */
   createScope(options) {
-    return new OADocumentScope(this, options);
+    return new OAOperationsScope(this, options);
   }
   /**
    * Build.
@@ -2164,10 +2223,10 @@ var OADocumentBuilder = class extends import_js_service.Service {
   }
 };
 
-// src/oa-document-scope.js
-var OADocumentScope = class _OADocumentScope {
+// src/oa-operations-scope.js
+var OAOperationsScope = class _OAOperationsScope {
   static {
-    __name(this, "OADocumentScope");
+    __name(this, "OAOperationsScope");
   }
   /**
    * Builder.
@@ -2193,26 +2252,26 @@ var OADocumentScope = class _OADocumentScope {
    */
   constructor(builder, options = {}) {
     if (!(builder instanceof OADocumentBuilder)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Parameter "builder" must be an instance of OADocumentBuilder, but %v was given.',
         builder
       );
     }
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (typeof options.pathPrefix !== "string") {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "pathPrefix" must be a String, but %v was given.',
           options.pathPrefix
         );
       }
       if (!options.pathPrefix.startsWith("/")) {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
@@ -2220,14 +2279,14 @@ var OADocumentScope = class _OADocumentScope {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format4.InvalidArgumentError(
+          throw new import_js_format6.InvalidArgumentError(
             'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2271,31 +2330,31 @@ var OADocumentScope = class _OADocumentScope {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (typeof operationDef.path !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "path" must be a String, but %v was given.',
         operationDef.path
       );
     }
     if (!operationDef.path.startsWith("/")) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "method" must be one of the allowed values, but %v was given.',
         operationDef.method
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
@@ -2324,24 +2383,24 @@ var OADocumentScope = class _OADocumentScope {
    * Create scope.
    *
    * @param {object} [options]
-   * @returns {OADocumentScope}
+   * @returns {OAOperationsScope}
    */
   createScope(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (typeof options.pathPrefix !== "string") {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "pathPrefix" must be a String, but %v was given.',
           options.pathPrefix
         );
       }
       if (!options.pathPrefix.startsWith("/")) {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
@@ -2349,14 +2408,14 @@ var OADocumentScope = class _OADocumentScope {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format4.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Option "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format4.InvalidArgumentError(
+          throw new import_js_format6.InvalidArgumentError(
             'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2372,71 +2431,12 @@ var OADocumentScope = class _OADocumentScope {
         fullPathPrefix += options.pathPrefix;
       }
     }
-    return new _OADocumentScope(this._builder, {
+    return new _OAOperationsScope(this._builder, {
       pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...options.tags || []]
     });
   }
 };
-
-// src/json-pointer/resolve-json-pointer.js
-var import_js_format5 = require("@e22m4u/js-format");
-var ARRAY_INDEX_PATTERN = /^(0|[1-9][0-9]*)$/;
-function resolveJsonPointer(document, pointer) {
-  if (!document || typeof document !== "object") {
-    throw new import_js_format5.InvalidArgumentError(
-      'Parameter "document" must be an Object or an Array, but %v was given.',
-      document
-    );
-  }
-  if (typeof pointer !== "string") {
-    throw new import_js_format5.InvalidArgumentError(
-      "JSON pointer must be a String, but %v was given.",
-      pointer
-    );
-  }
-  if (pointer === "") {
-    return document;
-  }
-  if (!pointer.startsWith("/")) {
-    throw new import_js_format5.InvalidArgumentError(
-      'JSON pointer must start with "/", but %v was given.',
-      pointer
-    );
-  }
-  const pathParts = pointer.substring(1).split("/");
-  let current = document;
-  for (let i = 0, l = pathParts.length; i < l; i++) {
-    const part = pathParts[i];
-    const segment = unescapeJsonPointer(part);
-    if (current && typeof current === "object" && !Array.isArray(current) && Object.hasOwn(current, segment) && current[segment] !== void 0) {
-      current = current[segment];
-    } else if (Array.isArray(current) && ARRAY_INDEX_PATTERN.test(segment) && current[segment] !== void 0) {
-      current = current[segment];
-    } else {
-      const currentPointer = "/" + pathParts.slice(0, i + 1).join("/");
-      throw new import_js_format5.InvalidArgumentError(
-        "Unable to resolve %v in the given document.",
-        currentPointer
-      );
-    }
-  }
-  return current;
-}
-__name(resolveJsonPointer, "resolveJsonPointer");
-
-// src/json-pointer/unescape-json-pointer.js
-var import_js_format6 = require("@e22m4u/js-format");
-function unescapeJsonPointer(jsonPointer) {
-  if (typeof jsonPointer !== "string") {
-    throw new import_js_format6.InvalidArgumentError(
-      'Parameter "jsonPointer" must be a String, but %v was given.',
-      jsonPointer
-    );
-  }
-  return jsonPointer.replace(/~1/g, "/").replace(/~0/g, "~");
-}
-__name(unescapeJsonPointer, "unescapeJsonPointer");
 
 // src/oa-reference-object/oa-ref.js
 var import_js_format7 = require("@e22m4u/js-format");
@@ -2549,9 +2549,9 @@ __name(resolveOAReferenceObject, "resolveOAReferenceObject");
   OADataFormat,
   OADataType,
   OADocumentBuilder,
-  OADocumentScope,
   OAMediaType,
   OAOperationMethod,
+  OAOperationsScope,
   OAParameterLocation,
   OAParameterStyle,
   OASecuritySchemeType,

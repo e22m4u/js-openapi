@@ -3,9 +3,9 @@ import {OAOperationMethod} from './oa-specification.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 
 /**
- * Document scope.
+ * Operations scope.
  */
-export class OADocumentScope {
+export class OAOperationsScope {
   /**
    * Builder.
    *
@@ -192,7 +192,7 @@ export class OADocumentScope {
    * Create scope.
    *
    * @param {object} [options]
-   * @returns {OADocumentScope}
+   * @returns {OAOperationsScope}
    */
   createScope(options = {}) {
     // options
@@ -243,7 +243,7 @@ export class OADocumentScope {
         fullPathPrefix += options.pathPrefix;
       }
     }
-    return new OADocumentScope(this._builder, {
+    return new OAOperationsScope(this._builder, {
       pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...(options.tags || [])],
     });
