@@ -4,6 +4,35 @@ import {OADocumentBuilder} from './oa-document-builder.js';
 
 /**
  * Operations scope.
+ *
+ * Предоставляет контекст для определения
+ * операций API с общими параметрами.
+ *
+ * - Общий префикс пути для всех операций в области.
+ * - Общие теги, применяемые ко всем операциям.
+ * - Возможность создания вложенных областей для иерархической организации.
+ *
+ * Пример:
+ * ```js
+ * // создание области
+ * const usersScope = builder.createScope({
+ *   pathPrefix: '/users',
+ *   tags: ['Users']
+ * });
+ *
+ * // GET "/users/{id}"
+ * usersScope.defineOperation({
+ *   path: '/{id}',
+ *   method: OAOperationMethod.GET,
+ *   operation: { ... }
+ * });
+ *
+ * // вложенная область "/users/admin"
+ * const adminScope = usersScope.createScope({
+ *   pathPrefix: '/admin',
+ *   tags: ['Admin']
+ * });
+ * ```
  */
 export class OAOperationsScope {
   /**
