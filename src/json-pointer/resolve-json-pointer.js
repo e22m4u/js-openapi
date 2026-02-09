@@ -37,7 +37,7 @@ export function resolveJsonPointer(document, pointer) {
   // в противном случае выбрасывается ошибка
   if (!pointer.startsWith('/')) {
     throw new InvalidArgumentError(
-      'JSON pointer must start with a forward slash "/", but %v was given.',
+      'JSON pointer must start with "/", but %v was given.',
       pointer,
     );
   }

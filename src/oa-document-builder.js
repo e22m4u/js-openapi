@@ -1,6 +1,5 @@
 import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
-import {normalizePath} from './utils/normalize-path.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
 import {validateOADocumentObject} from './oa-document-object/index.js';
 import {escapeJsonPointer} from './json-pointer/escape-json-pointer.js';
@@ -409,9 +408,15 @@ export class OADocumentBuilder extends Service {
       );
     }
     // path
-    if (!operationDef.path || typeof operationDef.path !== 'string') {
+    if (typeof operationDef.path !== 'string') {
       throw new InvalidArgumentError(
-        'Keyword "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a String, but %v was given.',
+        operationDef.path,
+      );
+    }
+    if (!operationDef.path.startsWith('/')) {
+      throw new InvalidArgumentError(
+        'Operation path must start with "/", but %v was given.',
         operationDef.path,
       );
     }
@@ -438,16 +443,14 @@ export class OADocumentBuilder extends Service {
       schemaUri: '#/$defs/operation',
       dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
     });
-    const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};
     }
-    if (!this._document.paths[normalizedPath]) {
-      this._document.paths[normalizedPath] = {};
+    if (!this._document.paths[operationDef.path]) {
+      this._document.paths[operationDef.path] = {};
     }
-    this._document.paths[normalizedPath][operationDef.method] = structuredClone(
-      operationDef.operation,
-    );
+    this._document.paths[operationDef.path][operationDef.method] =
+      structuredClone(operationDef.operation);
     return this;
   }
 

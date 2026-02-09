@@ -161,39 +161,6 @@ var OAAccessMode = {
 // src/oa-document-scope.js
 var import_js_format4 = require("@e22m4u/js-format");
 
-// src/utils/join-path.js
-function joinPath(...segments) {
-  const parts = segments.filter((seg) => seg != void 0 && String(seg) !== "");
-  if (parts.length === 0) {
-    return "/";
-  }
-  let joined = parts.join("/").replace(/\/+/g, "/");
-  const protocolRegex = /^([a-z][a-z0-9+.-]*):\//i;
-  const protocolMatch = joined.match(protocolRegex);
-  if (protocolMatch) {
-    joined = joined.replace(protocolRegex, "$1://");
-  } else {
-    if (!joined.startsWith("/")) {
-      joined = "/" + joined;
-    }
-  }
-  if (joined.length > 1 && joined.endsWith("/")) {
-    joined = joined.slice(0, -1);
-  }
-  return joined;
-}
-__name(joinPath, "joinPath");
-
-// src/utils/normalize-path.js
-function normalizePath(value, noStartingSlash = false) {
-  if (typeof value !== "string") {
-    return "/";
-  }
-  const res = value.trim().replace(/\/+/g, "/").replace(/(^\/|\/$)/g, "");
-  return noStartingSlash ? res : "/" + res;
-}
-__name(normalizePath, "normalizePath");
-
 // src/oa-document-builder.js
 var import_js_format3 = require("@e22m4u/js-format");
 var import_js_service = require("@e22m4u/js-service");
@@ -2132,9 +2099,15 @@ var OADocumentBuilder = class extends import_js_service.Service {
         operationDef
       );
     }
-    if (!operationDef.path || typeof operationDef.path !== "string") {
+    if (typeof operationDef.path !== "string") {
       throw new import_js_format3.InvalidArgumentError(
-        'Keyword "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a String, but %v was given.',
+        operationDef.path
+      );
+    }
+    if (!operationDef.path.startsWith("/")) {
+      throw new import_js_format3.InvalidArgumentError(
+        'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
@@ -2154,16 +2127,13 @@ var OADocumentBuilder = class extends import_js_service.Service {
       schemaUri: "#/$defs/operation",
       dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
     });
-    const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
       this._document.paths = {};
     }
-    if (!this._document.paths[normalizedPath]) {
-      this._document.paths[normalizedPath] = {};
+    if (!this._document.paths[operationDef.path]) {
+      this._document.paths[operationDef.path] = {};
     }
-    this._document.paths[normalizedPath][operationDef.method] = structuredClone(
-      operationDef.operation
-    );
+    this._document.paths[operationDef.path][operationDef.method] = structuredClone(operationDef.operation);
     return this;
   }
   /**
@@ -2235,9 +2205,15 @@ var OADocumentScope = class _OADocumentScope {
       );
     }
     if (options.pathPrefix !== void 0) {
-      if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
+      if (typeof options.pathPrefix !== "string") {
         throw new import_js_format4.InvalidArgumentError(
-          'Option "pathPrefix" must be a non-empty String, but %v was given.',
+          'Option "pathPrefix" must be a String, but %v was given.',
+          options.pathPrefix
+        );
+      }
+      if (!options.pathPrefix.startsWith("/")) {
+        throw new import_js_format4.InvalidArgumentError(
+          'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
       }
@@ -2252,7 +2228,7 @@ var OADocumentScope = class _OADocumentScope {
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
           throw new import_js_format4.InvalidArgumentError(
-            'Element %v at the option "tags" must be a non-empty String, but %v was given.',
+            'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
           );
@@ -2260,8 +2236,8 @@ var OADocumentScope = class _OADocumentScope {
       });
     }
     this._builder = builder;
-    this._pathPrefix = normalizePath(options.pathPrefix || "/");
-    this._tags = options.tags || [];
+    this._pathPrefix = options.pathPrefix || "/";
+    this._tags = [...new Set(options.tags || [])];
   }
   /**
    * Get builder.
@@ -2300,9 +2276,15 @@ var OADocumentScope = class _OADocumentScope {
         operationDef
       );
     }
-    if (!operationDef.path || typeof operationDef.path !== "string") {
+    if (typeof operationDef.path !== "string") {
       throw new import_js_format4.InvalidArgumentError(
-        'Keyword "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a String, but %v was given.',
+        operationDef.path
+      );
+    }
+    if (!operationDef.path.startsWith("/")) {
+      throw new import_js_format4.InvalidArgumentError(
+        'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
@@ -2318,8 +2300,15 @@ var OADocumentScope = class _OADocumentScope {
         operationDef.operation
       );
     }
-    const fullPath = joinPath(this._pathPrefix, operationDef.path);
-    const operation = structuredClone(operationDef.operation);
+    let fullPath = this._pathPrefix;
+    if (operationDef.path !== "/") {
+      if (fullPath === "/") {
+        fullPath = operationDef.path;
+      } else {
+        fullPath += operationDef.path;
+      }
+    }
+    const operation = { ...operationDef.operation };
     if (this._tags.length > 0) {
       operation.tags = [...this._tags, ...operation.tags || []];
       operation.tags = [...new Set(operation.tags)];
@@ -2345,9 +2334,15 @@ var OADocumentScope = class _OADocumentScope {
       );
     }
     if (options.pathPrefix !== void 0) {
-      if (!options.pathPrefix || typeof options.pathPrefix !== "string") {
+      if (typeof options.pathPrefix !== "string") {
         throw new import_js_format4.InvalidArgumentError(
-          'Option "pathPrefix" must be a non-empty String, but %v was given.',
+          'Option "pathPrefix" must be a String, but %v was given.',
+          options.pathPrefix
+        );
+      }
+      if (!options.pathPrefix.startsWith("/")) {
+        throw new import_js_format4.InvalidArgumentError(
+          'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
       }
@@ -2362,15 +2357,23 @@ var OADocumentScope = class _OADocumentScope {
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
           throw new import_js_format4.InvalidArgumentError(
-            'Element %v at "tags" must be a non-empty String, but %v was given.',
+            'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
           );
         }
       });
     }
+    let fullPathPrefix = this._pathPrefix;
+    if (options.pathPrefix && options.pathPrefix !== "/") {
+      if (fullPathPrefix === "/") {
+        fullPathPrefix = options.pathPrefix;
+      } else {
+        fullPathPrefix += options.pathPrefix;
+      }
+    }
     return new _OADocumentScope(this._builder, {
-      pathPrefix: joinPath(this._pathPrefix, options.pathPrefix),
+      pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...options.tags || []]
     });
   }
@@ -2397,7 +2400,7 @@ function resolveJsonPointer(document, pointer) {
   }
   if (!pointer.startsWith("/")) {
     throw new import_js_format5.InvalidArgumentError(
-      'JSON pointer must start with a forward slash "/", but %v was given.',
+      'JSON pointer must start with "/", but %v was given.',
       pointer
     );
   }

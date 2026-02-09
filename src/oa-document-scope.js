@@ -1,6 +1,5 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {OAOperationMethod} from './oa-specification.js';
-import {joinPath, normalizePath} from './utils/index.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 
 /**
@@ -50,10 +49,15 @@ export class OADocumentScope {
     }
     // options.pathPrefix
     if (options.pathPrefix !== undefined) {
-      if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
+      if (typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Option "pathPrefix" must be a non-empty String, ' +
-            'but %v was given.',
+          'Option "pathPrefix" must be a String, but %v was given.',
+          options.pathPrefix,
+        );
+      }
+      if (!options.pathPrefix.startsWith('/')) {
+        throw new InvalidArgumentError(
+          'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix,
         );
       }
@@ -69,7 +73,7 @@ export class OADocumentScope {
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element %v at the option "tags" must be a non-empty String, ' +
+            'Element %v in the option "tags" must be a non-empty String, ' +
               'but %v was given.',
             index,
             tag,
@@ -78,8 +82,8 @@ export class OADocumentScope {
       });
     }
     this._builder = builder;
-    this._pathPrefix = normalizePath(options.pathPrefix || '/');
-    this._tags = options.tags || [];
+    this._pathPrefix = options.pathPrefix || '/';
+    this._tags = [...new Set(options.tags || [])];
   }
 
   /**
@@ -127,9 +131,15 @@ export class OADocumentScope {
       );
     }
     // path
-    if (!operationDef.path || typeof operationDef.path !== 'string') {
+    if (typeof operationDef.path !== 'string') {
       throw new InvalidArgumentError(
-        'Keyword "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a String, but %v was given.',
+        operationDef.path,
+      );
+    }
+    if (!operationDef.path.startsWith('/')) {
+      throw new InvalidArgumentError(
+        'Operation path must start with "/", but %v was given.',
         operationDef.path,
       );
     }
@@ -151,14 +161,19 @@ export class OADocumentScope {
         operationDef.operation,
       );
     }
-    // склеивание пути
-    const fullPath = joinPath(this._pathPrefix, operationDef.path);
-    // создание копии схемы операции
+    let fullPath = this._pathPrefix;
+    if (operationDef.path !== '/') {
+      if (fullPath === '/') {
+        fullPath = operationDef.path;
+      } else {
+        fullPath += operationDef.path;
+      }
+    }
+    // создание поверхностной копии схемы операции
     // чтобы избежать мутации аргумента
-    const operation = structuredClone(operationDef.operation);
-    // объединение тегов текущей области
-    // с тегами текущей операции и удаление
-    // дубликатов
+    const operation = {...operationDef.operation};
+    // объединение тегов текущей области с тегами
+    // текущей операции и удаление дубликатов
     if (this._tags.length > 0) {
       operation.tags = [...this._tags, ...(operation.tags || [])];
       operation.tags = [...new Set(operation.tags)];
@@ -189,10 +204,15 @@ export class OADocumentScope {
     }
     // options.pathPrefix
     if (options.pathPrefix !== undefined) {
-      if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
+      if (typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Option "pathPrefix" must be a non-empty String, ' +
-            'but %v was given.',
+          'Option "pathPrefix" must be a String, but %v was given.',
+          options.pathPrefix,
+        );
+      }
+      if (!options.pathPrefix.startsWith('/')) {
+        throw new InvalidArgumentError(
+          'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix,
         );
       }
@@ -208,15 +228,23 @@ export class OADocumentScope {
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element %v at "tags" must be a non-empty String, but %v was given.',
+            'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag,
           );
         }
       });
     }
+    let fullPathPrefix = this._pathPrefix;
+    if (options.pathPrefix && options.pathPrefix !== '/') {
+      if (fullPathPrefix === '/') {
+        fullPathPrefix = options.pathPrefix;
+      } else {
+        fullPathPrefix += options.pathPrefix;
+      }
+    }
     return new OADocumentScope(this._builder, {
-      pathPrefix: joinPath(this._pathPrefix, options.pathPrefix),
+      pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...(options.tags || [])],
     });
   }
