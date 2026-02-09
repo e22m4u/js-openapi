@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "@e22m4u/js-format": "~0.3.2",
-    "@e22m4u/js-service": "~0.5.1"
+    "@e22m4u/js-service": "~0.5.1",
+    "ajv": "~8.17.1",
+    "ajv-formats": "~3.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "~20.3.1",

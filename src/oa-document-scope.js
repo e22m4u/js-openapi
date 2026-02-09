@@ -129,21 +129,15 @@ export class OADocumentScope {
     // path
     if (!operationDef.path || typeof operationDef.path !== 'string') {
       throw new InvalidArgumentError(
-        'Property "path" must be a non-empty String, but %v was given.',
+        'Keyword "path" must be a non-empty String, but %v was given.',
         operationDef.path,
       );
     }
     // method
-    if (!operationDef.method || typeof operationDef.method !== 'string') {
-      throw new InvalidArgumentError(
-        'Property "method" must be a non-empty String, but %v was given.',
-        operationDef.method,
-      );
-    }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
       throw new InvalidArgumentError(
-        'Property "method" must be one of values: %l, but %v was given.',
-        Object.values(OAOperationMethod),
+        'Keyword "method" must be one of the allowed values, but %v was given.',
+        operationDef.method,
       );
     }
     // operation
@@ -153,14 +147,14 @@ export class OADocumentScope {
       Array.isArray(operationDef.operation)
     ) {
       throw new InvalidArgumentError(
-        'Property "operation" must be an Object, but %v was given.',
+        'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation,
       );
     }
     // склеивание пути
     const fullPath = joinPath(this._pathPrefix, operationDef.path);
     // создание копии схемы операции
-    // чтобы избежать мутацию аргумента
+    // чтобы избежать мутации аргумента
     const operation = structuredClone(operationDef.operation);
     // объединение тегов текущей области
     // с тегами текущей операции и удаление
@@ -197,7 +191,7 @@ export class OADocumentScope {
     if (options.pathPrefix !== undefined) {
       if (!options.pathPrefix || typeof options.pathPrefix !== 'string') {
         throw new InvalidArgumentError(
-          'Property "pathPrefix" must be a non-empty String, ' +
+          'Option "pathPrefix" must be a non-empty String, ' +
             'but %v was given.',
           options.pathPrefix,
         );
@@ -207,14 +201,14 @@ export class OADocumentScope {
     if (options.tags !== undefined) {
       if (!Array.isArray(options.tags)) {
         throw new InvalidArgumentError(
-          'Property "tags" must be an Array, but %v was given.',
+          'Option "tags" must be an Array, but %v was given.',
           options.tags,
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== 'string') {
           throw new InvalidArgumentError(
-            'Element "tags[%d]" must be a non-empty String, but %v was given.',
+            'Element %v at "tags" must be a non-empty String, but %v was given.',
             index,
             tag,
           );

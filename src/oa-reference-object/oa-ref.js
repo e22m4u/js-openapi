@@ -1,5 +1,6 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {escapeJsonPointer} from '../json-pointer/index.js';
+import {OA_COMPONENT_NAME_REGEX} from '../oa-document-builder.js';
 
 /**
  * Create the Reference Object.
@@ -12,6 +13,12 @@ function oaRef(name, segment) {
   if (!name || typeof name !== 'string') {
     throw new InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
+      name,
+    );
+  }
+  if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+    throw new InvalidArgumentError(
+      'Component name %v contains invalid characters.',
       name,
     );
   }

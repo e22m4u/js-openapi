@@ -1,14 +1,14 @@
-// OpenApi version 3.1.0
-// https://spec.openapis.org/oas/v3.1.0
+// OpenApi version 3.1.2
+// https://spec.openapis.org/oas/v3.1.2
 
 /**
  * OpenAPI version.
  */
-export declare const OPENAPI_VERSION: '3.1.0';
+export declare const OPENAPI_VERSION: '3.1.2';
 
 /**
  * Document Object.
- * https://spec.openapis.org/oas/v3.1.0#openapi-object
+ * https://spec.openapis.org/oas/v3.1.2#openapi-object
  */
 export type OADocumentObject = {
   openapi: string;
@@ -25,7 +25,7 @@ export type OADocumentObject = {
 
 /**
  * Info Object.
- * https://spec.openapis.org/oas/v3.1.0#info-object
+ * https://spec.openapis.org/oas/v3.1.2#info-object
  */
 export type OAInfoObject = {
   title: string;
@@ -39,7 +39,7 @@ export type OAInfoObject = {
 
 /**
  * Contact Object.
- * https://spec.openapis.org/oas/v3.1.0#contact-object
+ * https://spec.openapis.org/oas/v3.1.2#contact-object
  */
 export type OAContactObject = {
   name?: string;
@@ -49,7 +49,7 @@ export type OAContactObject = {
 
 /**
  * License Object.
- * https://spec.openapis.org/oas/v3.1.0#license-object
+ * https://spec.openapis.org/oas/v3.1.2#license-object
  */
 export type OALicenseObject = {
   name: string;
@@ -59,7 +59,7 @@ export type OALicenseObject = {
 
 /**
  * Server Object.
- * https://spec.openapis.org/oas/v3.1.0#server-object
+ * https://spec.openapis.org/oas/v3.1.2#server-object
  */
 export type OAServerObject = {
   url: string;
@@ -69,7 +69,7 @@ export type OAServerObject = {
 
 /**
  * Server variable object.
- * https://spec.openapis.org/oas/v3.1.0#server-variable-object
+ * https://spec.openapis.org/oas/v3.1.2#server-variable-object
  */
 export type OAServerVariableObject = {
   enum?: string[];
@@ -79,7 +79,7 @@ export type OAServerVariableObject = {
 
 /**
  * Paths Object.
- * https://spec.openapis.org/oas/v3.1.0#paths-object
+ * https://spec.openapis.org/oas/v3.1.2#paths-object
  */
 export type OAPathsObject = {
   [path: string]: OAPathItemObject | undefined;
@@ -87,7 +87,7 @@ export type OAPathsObject = {
 
 /**
  * Path Item Object
- * https://spec.openapis.org/oas/v3.1.0#path-item-object
+ * https://spec.openapis.org/oas/v3.1.2#path-item-object
  */
 export type OAPathItemObject = {
   $ref?: string;
@@ -107,7 +107,7 @@ export type OAPathItemObject = {
 
 /**
  * Operation Method.
- * https://spec.openapis.org/oas/v3.1.0#path-item-object
+ * https://spec.openapis.org/oas/v3.1.2#path-item-object
  */
 export declare const OAOperationMethod: {
   GET: 'get';
@@ -122,14 +122,14 @@ export declare const OAOperationMethod: {
 
 /**
  * Operation Method.
- * https://spec.openapis.org/oas/v3.1.0#path-item-object
+ * https://spec.openapis.org/oas/v3.1.2#path-item-object
  */
 export type OAOperationMethod =
   (typeof OAOperationMethod)[keyof typeof OAOperationMethod];
 
 /**
  * Parameter Object.
- * https://spec.openapis.org/oas/v3.1.0#parameter-object
+ * https://spec.openapis.org/oas/v3.1.2#parameter-object
  */
 export type OAParameterObject = {
   name: string;
@@ -149,7 +149,7 @@ export type OAParameterObject = {
 
 /**
  * Parameter Location.
- * https://spec.openapis.org/oas/v3.1.0#parameter-locations
+ * https://spec.openapis.org/oas/v3.1.2#parameter-locations
  */
 export declare const OAParameterLocation: {
   QUERY: 'query';
@@ -160,14 +160,14 @@ export declare const OAParameterLocation: {
 
 /**
  * Parameter Location.
- * https://spec.openapis.org/oas/v3.1.0#parameter-locations
+ * https://spec.openapis.org/oas/v3.1.2#parameter-locations
  */
 export type OAParameterLocation =
   (typeof OAParameterLocation)[keyof typeof OAParameterLocation];
 
 /**
  * Parameter Style.
- * https://spec.openapis.org/oas/v3.1.0#style-values
+ * https://spec.openapis.org/oas/v3.1.2#style-values
  */
 export declare const OAParameterStyle: {
   MATRIX: 'matrix';
@@ -181,14 +181,14 @@ export declare const OAParameterStyle: {
 
 /**
  * Parameter Style.
- * https://spec.openapis.org/oas/v3.1.0#style-values
+ * https://spec.openapis.org/oas/v3.1.2#style-values
  */
 export type OAParameterStyle =
   (typeof OAParameterStyle)[keyof typeof OAParameterStyle];
 
 /**
  * Reference Object.
- * https://spec.openapis.org/oas/v3.1.0#reference-object
+ * https://spec.openapis.org/oas/v3.1.2#reference-object
  */
 export type OAReferenceObject = {
   $ref: string;
@@ -204,7 +204,7 @@ export type OABooleanSchema = boolean;
 
 /**
  * Schema Object.
- * https://spec.openapis.org/oas/v3.1.0#schema-object
+ * https://spec.openapis.org/oas/v3.1.2#schema-object
  * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-01
  * https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-01#name-table-of-contents-2
  */
@@ -304,7 +304,7 @@ export type OADataType = (typeof OADataType)[keyof typeof OADataType];
 
 /**
  * Data format.
- * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
+ * https://spec.openapis.org/oas/v3.1.2#dataTypeFormat
  */
 export declare const OADataFormat: {
   // number
@@ -341,13 +341,13 @@ export declare const OADataFormat: {
 
 /**
  * Data format.
- * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
+ * https://spec.openapis.org/oas/v3.1.2#dataTypeFormat
  */
 export type OADataFormat = (typeof OADataFormat)[keyof typeof OADataFormat];
 
 /**
  * Discriminator Object.
- * https://spec.openapis.org/oas/v3.1.0#discriminator-object
+ * https://spec.openapis.org/oas/v3.1.2#discriminator-object
  */
 export type OADiscriminatorObject = {
   propertyName: string;
@@ -356,7 +356,7 @@ export type OADiscriminatorObject = {
 
 /**
  * Xml Object.
- * https://spec.openapis.org/oas/v3.1.0#xml-object
+ * https://spec.openapis.org/oas/v3.1.2#xml-object
  */
 export type OAXmlObject = {
   name?: string;
@@ -368,7 +368,7 @@ export type OAXmlObject = {
 
 /**
  * External Documentation Object.
- * https://spec.openapis.org/oas/v3.1.0#external-documentation-object
+ * https://spec.openapis.org/oas/v3.1.2#external-documentation-object
  */
 export type OAExternalDocumentationObject = {
   description?: string;
@@ -377,7 +377,7 @@ export type OAExternalDocumentationObject = {
 
 /**
  * Operation Object.
- * https://spec.openapis.org/oas/v3.1.0#operation-object
+ * https://spec.openapis.org/oas/v3.1.2#operation-object
  */
 export type OAOperationObject = {
   tags?: string[];
@@ -396,7 +396,7 @@ export type OAOperationObject = {
 
 /**
  * Callback Object.
- * https://spec.openapis.org/oas/v3.1.0#callback-object
+ * https://spec.openapis.org/oas/v3.1.2#callback-object
  */
 export type OACallbackObject = {
   [expression: string]: OAPathItemObject | OAReferenceObject | undefined;
@@ -404,7 +404,7 @@ export type OACallbackObject = {
 
 /**
  * Request Body Object.
- * https://spec.openapis.org/oas/v3.1.0#request-body-object
+ * https://spec.openapis.org/oas/v3.1.2#request-body-object
  */
 export type OARequestBodyObject = {
   description?: string;
@@ -414,7 +414,7 @@ export type OARequestBodyObject = {
 
 /**
  * Media type.
- * https://spec.openapis.org/oas/v3.1.0#media-types
+ * https://spec.openapis.org/oas/v3.1.2#media-types
  */
 export declare const OAMediaType: {
   TEXT_PLAIN: 'text/plain';
@@ -426,13 +426,13 @@ export declare const OAMediaType: {
 
 /**
  * Media type.
- * https://spec.openapis.org/oas/v3.1.0#media-types
+ * https://spec.openapis.org/oas/v3.1.2#media-types
  */
 export type OAMediaType = (typeof OAMediaType)[keyof typeof OAMediaType];
 
 /**
  * Responses Object.
- * https://spec.openapis.org/oas/v3.1.0#responses-object
+ * https://spec.openapis.org/oas/v3.1.2#responses-object
  */
 export type OAResponsesObject = {
   [httpStatusCode: string]: OAResponseObject | OAReferenceObject | undefined;
@@ -440,7 +440,7 @@ export type OAResponsesObject = {
 
 /**
  * Response Object.
- * https://spec.openapis.org/oas/v3.1.0#response-object
+ * https://spec.openapis.org/oas/v3.1.2#response-object
  */
 export type OAResponseObject = {
   description: string;
@@ -451,7 +451,7 @@ export type OAResponseObject = {
 
 /**
  * Media Type Object.
- * https://spec.openapis.org/oas/v3.1.0#media-type-object
+ * https://spec.openapis.org/oas/v3.1.2#media-type-object
  */
 export type OAMediaTypeObject = {
   schema?: OABooleanSchema | OASchemaObject | OAReferenceObject;
@@ -462,7 +462,7 @@ export type OAMediaTypeObject = {
 
 /**
  * Example Object.
- * https://spec.openapis.org/oas/v3.1.0#example-object
+ * https://spec.openapis.org/oas/v3.1.2#example-object
  */
 export type OAExampleObject = {
   summary?: string;
@@ -473,7 +473,7 @@ export type OAExampleObject = {
 
 /**
  * Encoding Object.
- * https://spec.openapis.org/oas/v3.1.0#encoding-object
+ * https://spec.openapis.org/oas/v3.1.2#encoding-object
  */
 export type OAEncodingObject = {
   contentType?: string;
@@ -485,7 +485,7 @@ export type OAEncodingObject = {
 
 /**
  * Header Object.
- * https://spec.openapis.org/oas/v3.1.0#header-object
+ * https://spec.openapis.org/oas/v3.1.2#header-object
  */
 export type OAHeaderObject = Omit<
   OAParameterObject,
@@ -494,7 +494,7 @@ export type OAHeaderObject = Omit<
 
 /**
  * Link Object.
- * https://spec.openapis.org/oas/v3.1.0#link-object
+ * https://spec.openapis.org/oas/v3.1.2#link-object
  */
 export type OALinkObject = {
   operationRef?: string;
@@ -507,7 +507,7 @@ export type OALinkObject = {
 
 /**
  * Components Object.
- * https://spec.openapis.org/oas/v3.1.0#components-object
+ * https://spec.openapis.org/oas/v3.1.2#components-object
  */
 export type OAComponentsObject = {
   schemas?: {[name: string]: OABooleanSchema | OASchemaObject | undefined};
@@ -542,7 +542,7 @@ export type OAComponentsObject = {
 
 /**
  * Security Scheme Object.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export type OASecuritySchemeObject = {
   type: OASecuritySchemeType;
@@ -557,7 +557,7 @@ export type OASecuritySchemeObject = {
 
 /**
  * Security Scheme Type.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export declare const OASecuritySchemeType: {
   API_KEY: 'apiKey';
@@ -569,14 +569,14 @@ export declare const OASecuritySchemeType: {
 
 /**
  * Security Scheme Type.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export type OASecuritySchemeType =
   (typeof OASecuritySchemeType)[keyof typeof OASecuritySchemeType];
 
 /**
  * Api Key Location.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export declare const OAApiKeyLocation: {
   QUERY: 'query';
@@ -586,14 +586,14 @@ export declare const OAApiKeyLocation: {
 
 /**
  * Api Key Location.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export type OAApiKeyLocation =
   (typeof OAApiKeyLocation)[keyof typeof OAApiKeyLocation];
 
 /**
  * OAuth Flows Object.
- * https://spec.openapis.org/oas/v3.1.0#oauth-flows-object
+ * https://spec.openapis.org/oas/v3.1.2#oauth-flows-object
  */
 export type OAOAuthFlowsObject = {
   implicit?: OAOAuthFlowObject;
@@ -604,7 +604,7 @@ export type OAOAuthFlowsObject = {
 
 /**
  * OAuth Flow Object.
- * https://spec.openapis.org/oas/v3.1.0#oauth-flow-object
+ * https://spec.openapis.org/oas/v3.1.2#oauth-flow-object
  */
 export type OAOAuthFlowObject = {
   authorizationUrl?: string;
@@ -615,7 +615,7 @@ export type OAOAuthFlowObject = {
 
 /**
  * Security Requirement Object.
- * https://spec.openapis.org/oas/v3.1.0#security-requirement-object
+ * https://spec.openapis.org/oas/v3.1.2#security-requirement-object
  */
 export type OASecurityRequirementObject = {
   [name: string]: string[] | undefined;
@@ -623,7 +623,7 @@ export type OASecurityRequirementObject = {
 
 /**
  * Tag Object.
- * https://spec.openapis.org/oas/v3.1.0#tag-object
+ * https://spec.openapis.org/oas/v3.1.2#tag-object
  */
 export type OATagObject = {
   name: string;
@@ -680,7 +680,7 @@ export type OAAccessMode = (typeof OAAccessMode)[keyof typeof OAAccessMode];
 
 /**
  * Webhooks Object.
- * https://spec.openapis.org/oas/v3.1.0#oasWebhooks
+ * https://spec.openapis.org/oas/v3.1.2#oasWebhooks
  */
 export type OAWebhooksObject = {
   [name: string]: OAPathItemObject | OAReferenceObject | undefined;

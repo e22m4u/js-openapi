@@ -2,12 +2,9 @@ import {OADocumentScope} from './oa-document-scope.js';
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {normalizePath} from './utils/normalize-path.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
+import {validateOADocumentObject} from './oa-document-object/index.js';
+import {escapeJsonPointer} from './json-pointer/escape-json-pointer.js';
 import {OPENAPI_VERSION, OAOperationMethod} from './oa-specification.js';
-
-import {
-  validateShallowOADocumentObject,
-  validateShallowOAOperationObject,
-} from './oa-document-object/index.js';
 
 /**
  * Component type.
@@ -33,7 +30,7 @@ export const OA_COMPONENT_TYPES = Object.values(OAComponentType);
 /**
  * Component name RegExp.
  */
-export const COMPONENT_NAME_REGEX = /^[a-zA-Z0-9.\-_]+$/;
+export const OA_COMPONENT_NAME_REGEX = /^[a-zA-Z0-9.\-_]+$/;
 
 /**
  * Component type to components key map.
@@ -52,6 +49,23 @@ export const OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP = {
 };
 
 /**
+ * Component type to definition name map.
+ * "#/$defs/${name}"
+ */
+export const OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP = {
+  [OAComponentType.SCHEMA]: 'schema',
+  [OAComponentType.RESPONSE]: 'response-or-reference',
+  [OAComponentType.PARAMETER]: 'parameter-or-reference',
+  [OAComponentType.EXAMPLE]: 'example-or-reference',
+  [OAComponentType.REQUEST_BODY]: 'request-body-or-reference',
+  [OAComponentType.HEADER]: 'header-or-reference',
+  [OAComponentType.SECURITY_SCHEME]: 'security-scheme-or-reference',
+  [OAComponentType.LINK]: 'link-or-reference',
+  [OAComponentType.CALLBACK]: 'callbacks-or-reference',
+  [OAComponentType.PATH_ITEM]: 'path-item',
+};
+
+/**
  * OpenAPI Document builder.
  */
 export class OADocumentBuilder extends Service {
@@ -67,74 +81,62 @@ export class OADocumentBuilder extends Service {
       title: 'API Documentation',
       version: '0.0.1',
     },
+    components: {},
   };
 
   /**
    * Constructor.
    *
-   * @param {object} [containerOrDocument]
-   * @param {object} [document]
+   * @param {import('@e22m4u/js-service').ServiceContainer|import('./oa-document-builder.js').OADocumentInput} containerOrDocument
+   * @param {import('./oa-document-builder.js').OADocumentInput} document
    */
   constructor(containerOrDocument, document) {
     if (isServiceContainer(containerOrDocument)) {
       super(containerOrDocument);
     } else {
       super();
-      document = containerOrDocument;
+      // containerOrDocument
+      if (containerOrDocument !== undefined) {
+        if (
+          !containerOrDocument ||
+          typeof containerOrDocument !== 'object' ||
+          Array.isArray(containerOrDocument)
+        ) {
+          throw new InvalidArgumentError(
+            'Parameter "containerOrDocument" must be an Object, ' +
+              'but %v was given.',
+            containerOrDocument,
+          );
+        }
+      }
+      document = document === undefined ? containerOrDocument : document;
     }
+    // document
     if (document !== undefined) {
-      // если схема документа не является
-      // объектом, то выбрасывается ошибка
       if (
         !document ||
         typeof document !== 'object' ||
         Array.isArray(document)
       ) {
         throw new InvalidArgumentError(
-          'Document Object must be an Object, but %v was given.',
+          'Parameter "document" must be an Object, but %v was given.',
           document,
         );
       }
-      // чтобы избежать мутации аргумента,
-      // выполняется копирование документа
       document = structuredClone(document);
-      // если версия OpenAPI не определена,
-      // то устанавливается версия по умолчанию
-      if (!document.openapi) {
-        document.openapi = this._document.openapi;
-      }
-      // если Info Object не определен,
-      // то устанавливается значение по умолчанию
-      if (!document.info) {
-        document.info = this._document.info;
-      }
-      // если свойство "info" не является
-      // объектом, то выбрасывается ошибка
-      if (
-        !document.info ||
-        typeof document.info !== 'object' ||
-        Array.isArray(document.info)
-      ) {
-        throw new InvalidArgumentError(
-          'Keyword "info" must be an Object, but %v was given.',
-          document.info,
-        );
-      }
-      // если свойство "info.title" не определено,
-      // то устанавливается значение по умолчанию
-      if (!document.info.title) {
-        document.info.title = this._document.info.title;
-      }
-      // если свойство "info.version" не определено,
-      // то устанавливается значение по умолчанию
-      if (!document.info.version) {
-        document.info.version = this._document.info.version;
-      }
-      // поверхностная проверка свойств документа
-      // выполняется после установки значений по умолчанию
-      validateShallowOADocumentObject(document, {sourceUri: 'document'});
-      this._document = document;
+      this._document = {...this._document, ...document};
     }
+    // validate
+    validateOADocumentObject(this._document);
+  }
+
+  /**
+   * Get document object reference.
+   *
+   * @returns {import('./oa-specification.js').OADocumentObject}
+   */
+  getDocumentObjectRef() {
+    return this._document;
   }
 
   /**
@@ -170,7 +172,7 @@ export class OADocumentBuilder extends Service {
         definition.name,
       );
     }
-    if (!COMPONENT_NAME_REGEX.test(definition.name)) {
+    if (!OA_COMPONENT_NAME_REGEX.test(definition.name)) {
       throw new InvalidArgumentError(
         'Component name %v contains invalid characters.',
         definition.name,
@@ -190,16 +192,30 @@ export class OADocumentBuilder extends Service {
       );
     }
     // components key
-    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
-    if (!key) {
+    const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!componentsKey) {
       throw new InvalidArgumentError(
         'Component type %v does not have a reference to the components key.',
-        type,
+        componentsKey,
       );
     }
+    // definition name
+    const definitionName = OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP[type];
+    if (!definitionName) {
+      throw new InvalidArgumentError(
+        'Component type %v does not have a reference to the definition name.',
+        definitionName,
+      );
+    }
+    // validation
+    validateOADocumentObject(component, {
+      schemaUri: `#/$defs/${definitionName}`,
+      dataSourceUri: `/components/${componentsKey}/${escapeJsonPointer(definition.name)}`,
+    });
     this._document.components = this._document.components || {};
-    this._document.components[key] = this._document.components[key] || {};
-    this._document.components[key][definition.name] =
+    this._document.components[componentsKey] =
+      this._document.components[componentsKey] || {};
+    this._document.components[componentsKey][definition.name] =
       structuredClone(component);
     return this;
   }
@@ -220,17 +236,17 @@ export class OADocumentBuilder extends Service {
       );
     }
     // components key
-    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
-    if (!key) {
+    const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!componentsKey) {
       throw new InvalidArgumentError(
         'Component type %v does not have a reference to the components key.',
-        type,
+        componentsKey,
       );
     }
     return Boolean(
       this._document.components &&
-      this._document.components[key] &&
-      this._document.components[key][name],
+      this._document.components[componentsKey] &&
+      this._document.components[componentsKey][name],
     );
   }
 
@@ -250,8 +266,8 @@ export class OADocumentBuilder extends Service {
       );
     }
     // components key
-    const key = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
-    if (!key) {
+    const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
+    if (!componentsKey) {
       throw new InvalidArgumentError(
         'Component type %v does not have a reference to the components key.',
         type,
@@ -260,12 +276,12 @@ export class OADocumentBuilder extends Service {
     const component =
       this._document &&
       this._document.components &&
-      this._document.components[key] &&
-      this._document.components[key][name];
+      this._document.components[componentsKey] &&
+      this._document.components[componentsKey][name];
     if (!component) {
       throw new InvalidArgumentError(
         'Component "#/components/%s/%s" does not exist.',
-        key,
+        componentsKey,
         name,
       );
     }
@@ -379,6 +395,7 @@ export class OADocumentBuilder extends Service {
    * Define operation.
    *
    * @param {object} operationDef
+   * @returns {this}
    */
   defineOperation(operationDef) {
     if (
@@ -401,8 +418,8 @@ export class OADocumentBuilder extends Service {
     // method
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
       throw new InvalidArgumentError(
-        'Keyword "method" must be one of values: %l, but %v was given.',
-        Object.values(OAOperationMethod),
+        'Keyword "method" must be one of the allowed values, but %v was given.',
+        operationDef.method,
       );
     }
     // operation
@@ -416,8 +433,10 @@ export class OADocumentBuilder extends Service {
         operationDef.operation,
       );
     }
-    validateShallowOAOperationObject(operationDef.operation, {
-      sourceUri: 'operation',
+    // validation
+    validateOADocumentObject(operationDef.operation, {
+      schemaUri: '#/$defs/operation',
+      dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
     });
     const normalizedPath = normalizePath(operationDef.path);
     if (!this._document.paths) {
@@ -429,6 +448,7 @@ export class OADocumentBuilder extends Service {
     this._document.paths[normalizedPath][operationDef.method] = structuredClone(
       operationDef.operation,
     );
+    return this;
   }
 
   /**

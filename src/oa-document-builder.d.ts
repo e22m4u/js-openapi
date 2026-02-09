@@ -50,16 +50,15 @@ export declare const OA_COMPONENT_TYPES: OAComponentType[];
  * Component type to components key map.
  */
 export declare const OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP: {
-  [OAComponentType.SCHEMA]: 'schemas';
-  [OAComponentType.RESPONSE]: 'responses';
-  [OAComponentType.PARAMETER]: 'parameters';
-  [OAComponentType.EXAMPLE]: 'examples';
-  [OAComponentType.REQUEST_BODY]: 'requestBodies';
-  [OAComponentType.HEADER]: 'headers';
-  [OAComponentType.SECURITY_SCHEME]: 'securitySchemes';
-  [OAComponentType.LINK]: 'links';
-  [OAComponentType.CALLBACK]: 'callbacks';
-  [OAComponentType.PATH_ITEM]: 'pathItems';
+  [k in OAComponentType]: string | undefined;
+};
+
+/**
+ * Component type to definition name map.
+ * "#/$defs/${name}"
+ */
+export declare const OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP: {
+  [k in OAComponentType]: string | undefined;
 };
 
 /**
@@ -67,7 +66,7 @@ export declare const OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP: {
  */
 export type OASchemaComponentDefinition = {
   name: string;
-  schema: OASchemaObject;
+  schema: OASchemaObject | OAReferenceObject;
 };
 
 /**
@@ -139,7 +138,7 @@ export type OACallbackComponentDefinition = {
  */
 export type OAPathItemComponentDefinition = {
   name: string;
-  pathItem: OAPathItemObject | OAReferenceObject;
+  pathItem: OAPathItemObject;
 };
 
 /**
@@ -187,6 +186,121 @@ export declare class OADocumentBuilder extends Service {
   );
 
   /**
+   * Get document object reference.
+   */
+  getDocumentObjectRef(): OADocumentObject;
+
+  /**
+   * Define component (schema).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.SCHEMA,
+    definition: OASchemaComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (response).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.RESPONSE,
+    definition: OAResponseComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (parameter).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.PARAMETER,
+    definition: OAParameterComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (example).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.EXAMPLE,
+    definition: OAExampleComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (request body).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.REQUEST_BODY,
+    definition: OARequestBodyComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (header).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.HEADER,
+    definition: OAHeaderComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (security scheme).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.SECURITY_SCHEME,
+    definition: OASecuritySchemeComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (link).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.LINK,
+    definition: OALinkComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (callback).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.CALLBACK,
+    definition: OACallbackComponentDefinition,
+  ): this;
+
+  /**
+   * Define component (path item).
+   *
+   * @param type
+   * @param definition
+   */
+  defineComponent(
+    type: typeof OAComponentType.PATH_ITEM,
+    definition: OAPathItemComponentDefinition,
+  ): this;
+
+  /**
    * Define component.
    *
    * @param type
@@ -201,6 +315,116 @@ export declare class OADocumentBuilder extends Service {
    * @param name
    */
   hasComponent(type: OAComponentType, name: string): boolean;
+
+  /**
+   * Get component (schema).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.SCHEMA,
+    name: string,
+  ): OASchemaObject | OAReferenceObject;
+
+  /**
+   * Get component (response).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.RESPONSE,
+    name: string,
+  ): OAResponseObject | OAReferenceObject;
+
+  /**
+   * Get component (parameter).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.PARAMETER,
+    name: string,
+  ): OAParameterObject | OAReferenceObject;
+
+  /**
+   * Get component (example).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.EXAMPLE,
+    name: string,
+  ): OAExampleObject | OAReferenceObject;
+
+  /**
+   * Get component (request body).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.REQUEST_BODY,
+    name: string,
+  ): OARequestBodyObject | OAReferenceObject;
+
+  /**
+   * Get component (header).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.HEADER,
+    name: string,
+  ): OAHeaderObject | OAReferenceObject;
+
+  /**
+   * Get component (security scheme).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.SECURITY_SCHEME,
+    name: string,
+  ): OASecuritySchemeObject | OAReferenceObject;
+
+  /**
+   * Get component (link).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.LINK,
+    name: string,
+  ): OALinkObject | OAReferenceObject;
+
+  /**
+   * Get component (callback).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.CALLBACK,
+    name: string,
+  ): OACallbackObject | OAReferenceObject;
+
+  /**
+   * Get component (path item).
+   *
+   * @param type
+   * @param definition
+   */
+  getComponent(
+    type: typeof OAComponentType.PATH_ITEM,
+    name: string,
+  ): OAPathItemObject | OAReferenceObject;
 
   /**
    * Get component.

@@ -1,14 +1,14 @@
-// OpenApi version 3.1.0
-// https://spec.openapis.org/oas/v3.1.0
+// OpenApi version 3.1.2
+// https://spec.openapis.org/oas/v3.1.2
 
 /**
  * OpenAPI version.
  */
-export const OPENAPI_VERSION = '3.1.0';
+export const OPENAPI_VERSION = '3.1.2';
 
 /**
  * Operation Method.
- * https://spec.openapis.org/oas/v3.1.0#path-item-object
+ * https://spec.openapis.org/oas/v3.1.2#path-item-object
  */
 export const OAOperationMethod = {
   GET: 'get',
@@ -23,7 +23,7 @@ export const OAOperationMethod = {
 
 /**
  * Parameter Location.
- * https://spec.openapis.org/oas/v3.1.0#parameter-locations
+ * https://spec.openapis.org/oas/v3.1.2#parameter-locations
  */
 export const OAParameterLocation = {
   QUERY: 'query',
@@ -34,7 +34,7 @@ export const OAParameterLocation = {
 
 /**
  * Parameter Style.
- * https://spec.openapis.org/oas/v3.1.0#style-values
+ * https://spec.openapis.org/oas/v3.1.2#style-values
  */
 export const OAParameterStyle = {
   MATRIX: 'matrix',
@@ -62,7 +62,7 @@ export const OADataType = {
 
 /**
  * Data format.
- * https://spec.openapis.org/oas/v3.1.0#dataTypeFormat
+ * https://spec.openapis.org/oas/v3.1.2#dataTypeFormat
  */
 export const OADataFormat = {
   // number
@@ -99,7 +99,7 @@ export const OADataFormat = {
 
 /**
  * Media type.
- * https://spec.openapis.org/oas/v3.1.0#media-types
+ * https://spec.openapis.org/oas/v3.1.2#media-types
  */
 export const OAMediaType = {
   TEXT_PLAIN: 'text/plain',
@@ -111,7 +111,7 @@ export const OAMediaType = {
 
 /**
  * Security Scheme Type.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export const OASecuritySchemeType = {
   API_KEY: 'apiKey',
@@ -123,7 +123,7 @@ export const OASecuritySchemeType = {
 
 /**
  * Api Key Location.
- * https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+ * https://spec.openapis.org/oas/v3.1.2#security-scheme-object
  */
 export const OAApiKeyLocation = {
   QUERY: 'query',
