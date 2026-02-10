@@ -3,38 +3,37 @@ import {OAOperationMethod} from './oa-specification.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 
 /**
- * Operations scope.
+ * Operation group.
  *
- * Предоставляет контекст для определения
- * операций API с общими параметрами.
+ * Предоставляет группу операций API с общими параметрами.
  *
  * - Общий префикс пути для всех операций в области.
  * - Общие теги, применяемые ко всем операциям.
- * - Возможность создания вложенных областей для иерархической организации.
+ * - Возможность создания вложенных групп для иерархической организации.
  *
  * Пример:
  * ```js
- * // создание области
- * const usersScope = builder.createScope({
+ * // создание группы
+ * const usersOps = builder.createOperationGroup({
  *   pathPrefix: '/users',
  *   tags: ['Users']
  * });
  *
  * // GET "/users/{id}"
- * usersScope.defineOperation({
+ * usersOps.defineOperation({
  *   path: '/{id}',
  *   method: OAOperationMethod.GET,
  *   operation: { ... }
  * });
  *
- * // вложенная область "/users/admin"
- * const adminScope = usersScope.createScope({
+ * // вложенная группа "/users/admin"
+ * const adminOps = usersOps.createOperationGroup({
  *   pathPrefix: '/admin',
  *   tags: ['Admin']
  * });
  * ```
  */
-export class OAOperationsScope {
+export class OAOperationGroup {
   /**
    * Builder.
    *
@@ -218,12 +217,12 @@ export class OAOperationsScope {
   }
 
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param {object} [options]
-   * @returns {OAOperationsScope}
+   * @returns {OAOperationGroup}
    */
-  createScope(options = {}) {
+  createOperationGroup(options = {}) {
     // options
     if (!options || typeof options !== 'object' || Array.isArray(options)) {
       throw new InvalidArgumentError(
@@ -272,7 +271,7 @@ export class OAOperationsScope {
         fullPathPrefix += options.pathPrefix;
       }
     }
-    return new OAOperationsScope(this._builder, {
+    return new OAOperationGroup(this._builder, {
       pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...(options.tags || [])],
     });

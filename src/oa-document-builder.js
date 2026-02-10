@@ -1,5 +1,5 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
-import {OAOperationsScope} from './oa-operations-scope.js';
+import {OAOperationGroup} from './oa-operation-group.js';
 import {isServiceContainer, Service} from '@e22m4u/js-service';
 import {validateOADocumentObject} from './oa-document-object/index.js';
 import {escapeJsonPointer} from './json-pointer/escape-json-pointer.js';
@@ -455,13 +455,13 @@ export class OADocumentBuilder extends Service {
   }
 
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param {object} [options]
-   * @returns {OAOperationsScope}
+   * @returns {OAOperationGroup}
    */
-  createScope(options) {
-    return new OAOperationsScope(this, options);
+  createOperationGroup(options) {
+    return new OAOperationGroup(this, options);
   }
 
   /**

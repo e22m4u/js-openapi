@@ -2,9 +2,9 @@ import {Optional} from './types.js';
 import {Service, ServiceContainer} from '@e22m4u/js-service';
 
 import {
-  OAOperationsScope,
-  OAOperationsScopeOptions,
-} from './oa-operations-scope.js';
+  OAOperationGroup,
+  OAOperationGroupOptions,
+} from './oa-operation-group.js';
 
 import {
   OADocumentObject,
@@ -520,11 +520,11 @@ export declare class OADocumentBuilder extends Service {
   defineOperation(operationDef: OAOperationDefinition): this;
 
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param options
    */
-  createScope(options?: OAOperationsScopeOptions): OAOperationsScope;
+  createOperationGroup(options?: OAOperationGroupOptions): OAOperationGroup;
 
   /**
    * Build.

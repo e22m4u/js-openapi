@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {format} from '@e22m4u/js-format';
-import {OAOperationsScope} from './oa-operations-scope.js';
+import {OAOperationGroup} from './oa-operation-group.js';
 import {OADocumentBuilder} from './oa-document-builder.js';
 
 import {
@@ -9,10 +9,10 @@ import {
   OAParameterLocation,
 } from './oa-specification.js';
 
-describe('OAOperationsScope', function () {
+describe('OAOperationGroup', function () {
   describe('constructor', function () {
     it('should require the parameter "builder" to be an instance of OADocumentBuilder', function () {
-      const throwable = v => () => new OAOperationsScope(v);
+      const throwable = v => () => new OAOperationGroup(v);
       const error = s =>
         format(
           'Parameter "builder" must be an instance of OADocumentBuilder, ' +
@@ -34,7 +34,7 @@ describe('OAOperationsScope', function () {
 
     it('should require the parameter "option" to be an Object', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OAOperationsScope(builder, v);
+      const throwable = v => () => new OAOperationGroup(builder, v);
       const error = s =>
         format('Parameter "options" must be an Object, but %s was given.', s);
       expect(throwable('str')).to.throw(error('"str"'));
@@ -52,7 +52,7 @@ describe('OAOperationsScope', function () {
     it('should require the option "pathPrefix" to be a String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () =>
-        new OAOperationsScope(builder, {pathPrefix: v});
+        new OAOperationGroup(builder, {pathPrefix: v});
       const error = s =>
         format('Option "pathPrefix" must be a String, but %s was given.', s);
       expect(throwable(10)).to.throw(error('10'));
@@ -69,7 +69,7 @@ describe('OAOperationsScope', function () {
     it('should require the option "pathPrefix" to start with a forward slash', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () =>
-        new OAOperationsScope(builder, {pathPrefix: v});
+        new OAOperationGroup(builder, {pathPrefix: v});
       const error = s =>
         format('Option "pathPrefix" must start with "/", but %s was given.', s);
       expect(throwable('path')).to.throw(error('"path"'));
@@ -80,7 +80,7 @@ describe('OAOperationsScope', function () {
 
     it('should require the option "tags" to be an Array', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OAOperationsScope(builder, {tags: v});
+      const throwable = v => () => new OAOperationGroup(builder, {tags: v});
       const error = s =>
         format('Option "tags" must be an Array, but %s was given.', s);
       expect(throwable('str')).to.throw(error('"str"'));
@@ -97,7 +97,7 @@ describe('OAOperationsScope', function () {
 
     it('should require elements in the option "tags" to be a non-empty String', function () {
       const builder = new OADocumentBuilder();
-      const throwable = v => () => new OAOperationsScope(builder, {tags: [v]});
+      const throwable = v => () => new OAOperationGroup(builder, {tags: [v]});
       const error = s =>
         format(
           'Element 0 in the option "tags" must be a non-empty String, ' +
@@ -117,25 +117,25 @@ describe('OAOperationsScope', function () {
 
     it('should set a forward slash as the default path prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       expect(S.getPathPrefix()).to.be.eq('/');
     });
 
-    it('should add the given path prefix to the scope state', function () {
+    it('should add the given path prefix to the group state', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
       expect(S.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should set an empty array as the default tags list', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       expect(S.getTags()).to.be.eql([]);
     });
 
     it('should deduplicate the given tags list', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'foo', 'bar']});
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'foo', 'bar']});
       expect(S.getTags()).to.be.eql(['foo', 'bar']);
     });
   });
@@ -143,7 +143,7 @@ describe('OAOperationsScope', function () {
   describe('getBuilder', function () {
     it('should return an instance of the OADocumentBuilder', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       expect(S.getBuilder()).to.be.eql(builder);
     });
   });
@@ -151,13 +151,13 @@ describe('OAOperationsScope', function () {
   describe('getPathPrefix', function () {
     it('should return a forward slash when no path prefix is specified', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       expect(S.getPathPrefix()).to.be.eq('/');
     });
 
     it('should return the current path prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
       expect(S.getPathPrefix()).to.be.eq('/prefix');
     });
   });
@@ -165,13 +165,13 @@ describe('OAOperationsScope', function () {
   describe('getTags', function () {
     it('should return an empty array when no tags are specified', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       expect(S.getTags()).to.be.eql([]);
     });
 
     it('should return a shallow copy of the current tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'bar']});
       const res1 = S.getTags();
       const res2 = S.getTags();
       expect(res1).to.be.eql(['foo', 'bar']);
@@ -183,7 +183,7 @@ describe('OAOperationsScope', function () {
     it('should require the parameter "operationDef" to be an Object', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OAOperationsScope(builder);
+        const S = new OAOperationGroup(builder);
         S.defineOperation(v);
       };
       const error = s =>
@@ -207,7 +207,7 @@ describe('OAOperationsScope', function () {
     it('should require the keyword "path" to be a String', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OAOperationsScope(builder);
+        const S = new OAOperationGroup(builder);
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
@@ -229,7 +229,7 @@ describe('OAOperationsScope', function () {
     it('should require the keyword "path" to start with a forward slash', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OAOperationsScope(builder);
+        const S = new OAOperationGroup(builder);
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
@@ -247,7 +247,7 @@ describe('OAOperationsScope', function () {
     it('should require the keyword "method" to be a correct value', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OAOperationsScope(builder);
+        const S = new OAOperationGroup(builder);
         S.defineOperation({
           method: v,
           path: '/',
@@ -277,7 +277,7 @@ describe('OAOperationsScope', function () {
     it('should require the keyword "operation" to be an Object', function () {
       const throwable = v => () => {
         const builder = new OADocumentBuilder();
-        const S = new OAOperationsScope(builder);
+        const S = new OAOperationGroup(builder);
         S.defineOperation({
           method: OAOperationMethod.GET,
           path: '/',
@@ -300,7 +300,7 @@ describe('OAOperationsScope', function () {
 
     it('should define operation in the document builder', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       const operation = {
         parameters: [
           {
@@ -321,7 +321,7 @@ describe('OAOperationsScope', function () {
 
     it('should add the path prefix to the operation path', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -333,7 +333,7 @@ describe('OAOperationsScope', function () {
 
     it('should ignore the path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -345,7 +345,7 @@ describe('OAOperationsScope', function () {
 
     it('should ignore the operation path with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/',
@@ -355,9 +355,9 @@ describe('OAOperationsScope', function () {
       expect(res.paths['/prefix'].get).to.be.an('object');
     });
 
-    it('should add the scope tags to the operation object', function () {
+    it('should add the group tags to the operation object', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'bar']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -367,9 +367,9 @@ describe('OAOperationsScope', function () {
       expect(res.paths['/path'].get.tags).to.be.eql(['foo', 'bar']);
     });
 
-    it('should merge the operation tags with the scope tags', function () {
+    it('should merge the operation tags with the group tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo']});
+      const S = new OAOperationGroup(builder, {tags: ['foo']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -379,9 +379,9 @@ describe('OAOperationsScope', function () {
       expect(res.paths['/path'].get.tags).to.be.eql(['foo', 'bar']);
     });
 
-    it('should ignore the scope tags existed in the operation object', function () {
+    it('should ignore the group tags existed in the operation object', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'bar']});
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -393,7 +393,7 @@ describe('OAOperationsScope', function () {
 
     it('should return itself', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder);
+      const S = new OAOperationGroup(builder);
       const res = S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
@@ -403,12 +403,12 @@ describe('OAOperationsScope', function () {
     });
   });
 
-  describe('createScope', function () {
+  describe('createOperationGroup', function () {
     it('should require the parameter "option" to be an Object', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OAOperationsScope(builder);
-        S.createScope(v);
+        const S = new OAOperationGroup(builder);
+        S.createOperationGroup(v);
       };
       const error = s =>
         format('Parameter "options" must be an Object, but %s was given.', s);
@@ -427,8 +427,8 @@ describe('OAOperationsScope', function () {
     it('should require the option "pathPrefix" to be a String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OAOperationsScope(builder);
-        S.createScope({pathPrefix: v});
+        const S = new OAOperationGroup(builder);
+        S.createOperationGroup({pathPrefix: v});
       };
       const error = s =>
         format('Option "pathPrefix" must be a String, but %s was given.', s);
@@ -446,8 +446,8 @@ describe('OAOperationsScope', function () {
     it('should require the option "pathPrefix" to start with a forward slash', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OAOperationsScope(builder);
-        S.createScope({pathPrefix: v});
+        const S = new OAOperationGroup(builder);
+        S.createOperationGroup({pathPrefix: v});
       };
       const error = s =>
         format('Option "pathPrefix" must start with "/", but %s was given.', s);
@@ -460,8 +460,8 @@ describe('OAOperationsScope', function () {
     it('should require the option "tags" to be an Array', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OAOperationsScope(builder);
-        S.createScope({tags: v});
+        const S = new OAOperationGroup(builder);
+        S.createOperationGroup({tags: v});
       };
       const error = s =>
         format('Option "tags" must be an Array, but %s was given.', s);
@@ -480,8 +480,8 @@ describe('OAOperationsScope', function () {
     it('should require elements in the option "tags" to be a non-empty String', function () {
       const builder = new OADocumentBuilder();
       const throwable = v => () => {
-        const S = new OAOperationsScope(builder);
-        S.createScope({tags: [v]});
+        const S = new OAOperationGroup(builder);
+        S.createOperationGroup({tags: [v]});
       };
       const error = s =>
         format(
@@ -500,52 +500,52 @@ describe('OAOperationsScope', function () {
       throwable('str')();
     });
 
-    it('should add the current path prefix to the new scope', function () {
+    it('should add the current path prefix to the new group', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
-      const res = S.createScope();
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
+      const res = S.createOperationGroup();
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should prepend the current path prefix to the new prefix', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/a'});
-      const res = S.createScope({pathPrefix: '/b'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/a'});
+      const res = S.createOperationGroup({pathPrefix: '/b'});
       expect(res.getPathPrefix()).to.be.eq('/a/b');
     });
 
     it('should ignore the current path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/'});
-      const res = S.createScope({pathPrefix: '/prefix'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/'});
+      const res = S.createOperationGroup({pathPrefix: '/prefix'});
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
     it('should ignore the new path prefix with a forward slash only', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {pathPrefix: '/prefix'});
-      const res = S.createScope({pathPrefix: '/'});
+      const S = new OAOperationGroup(builder, {pathPrefix: '/prefix'});
+      const res = S.createOperationGroup({pathPrefix: '/'});
       expect(res.getPathPrefix()).to.be.eq('/prefix');
     });
 
-    it('should add the current tags to the new scope', function () {
+    it('should add the current tags to the new group', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
-      const res = S.createScope();
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'bar']});
+      const res = S.createOperationGroup();
       expect(res.getTags()).to.be.eql(['foo', 'bar']);
     });
 
     it('should merge the current tags with the new tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo']});
-      const res = S.createScope({tags: ['bar']});
+      const S = new OAOperationGroup(builder, {tags: ['foo']});
+      const res = S.createOperationGroup({tags: ['bar']});
       expect(res.getTags()).to.be.eql(['foo', 'bar']);
     });
 
     it('should ignore the current tags existed in the new tags', function () {
       const builder = new OADocumentBuilder();
-      const S = new OAOperationsScope(builder, {tags: ['foo', 'bar']});
-      const res = S.createScope({tags: ['bar', 'baz']});
+      const S = new OAOperationGroup(builder, {tags: ['foo', 'bar']});
+      const res = S.createOperationGroup({tags: ['bar', 'baz']});
       expect(res.getTags()).to.be.eql(['foo', 'bar', 'baz']);
     });
   });

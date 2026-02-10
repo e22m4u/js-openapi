@@ -4,22 +4,22 @@ import {
 } from './oa-document-builder.js';
 
 /**
- * Operations scope options.
+ * Operation group options.
  */
-export type OAOperationsScopeOptions = {
+export type OAOperationGroupOptions = {
   pathPrefix?: string;
   tags?: string[];
 };
 
 /**
- * Operations scope.
+ * Operation group.
  */
-export declare class OAOperationsScope {
+export declare class OAOperationGroup {
   /**
    * @param builder
    * @param options
    */
-  constructor(builder: OADocumentBuilder, options?: OAOperationsScopeOptions);
+  constructor(builder: OADocumentBuilder, options?: OAOperationGroupOptions);
 
   /**
    * Get builder.
@@ -44,9 +44,9 @@ export declare class OAOperationsScope {
   defineOperation(operationDef: OAOperationDefinition): this;
 
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param options
    */
-  createScope(options?: OAOperationsScopeOptions): OAOperationsScope;
+  createOperationGroup(options?: OAOperationGroupOptions): OAOperationGroup;
 }

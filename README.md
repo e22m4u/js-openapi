@@ -9,7 +9,7 @@ JavaScript модуль для создания
 - [Базовый пример](#базовый-пример)
 - [Работа с компонентами](#работа-с-компонентами)
 - [Содержимое запросов и ответов](#содержимое-запросов-и-ответов)
-- [Группировка маршрутов](#группировка-маршрутов)
+- [Группировка операций](#группировка-операций)
 - [Тесты](#тесты)
 - [Лицензия](#лицензия)
 
@@ -309,21 +309,21 @@ builder.defineOperation({
 });
 ```
 
-## Группировка маршрутов
+## Группировка операций
 
-Создание области с общим префиксом пути и тегом.
+Создание группы операций с общим префиксом пути и тегом.
 
 ```js
 import {OAOperationMethod} from '@e22m4u/js-openapi';
 
-// создание области /users
-const usersScope = builder.createScope({
+// создание группы /users
+const usersOps = builder.createOperationGroup({
   pathPrefix: '/users',
   tags: ['User'], // опционально
 });
 
-// маршрут GET /users/{id}
-usersScope.defineOperation({
+// операция GET /users/{id}
+usersOps.defineOperation({
   path: '/{id}',
   method: OAOperationMethod.GET,
   operation: {
@@ -336,8 +336,8 @@ usersScope.defineOperation({
   },
 });
 
-// маршрут DELETE /users/{id}
-usersScope.defineOperation({
+// операция DELETE /users/{id}
+usersOps.defineOperation({
   path: '/{id}',
   method: OAOperationMethod.DELETE,
   operation: {
@@ -351,23 +351,23 @@ usersScope.defineOperation({
 });
 ```
 
-Создание вложенных областей для комбинирования маршрутов.
+Создание вложенных групп для комбинирования операций.
 
 ```js
 import {OAOperationMethod} from '@e22m4u/js-openapi';
 
-// область "/api/v1"
-const v1Scope = builder.createScope({
+// группа "/api/v1"
+const v1Ops = builder.createOperationGroup({
   pathPrefix: '/api/v1',
 });
 
-// область "/api/v1/admin"
-const adminScope = v1Scope.createScope({
+// группа "/api/v1/admin"
+const adminOps = v1Ops.createOperationGroup({
   pathPrefix: '/admin',
 });
 
 // DELETE /api/v1/admin/users/{id}
-adminScope.defineOperation({
+adminOps.defineOperation({
   path: '/users/{id}',
   method: OAOperationMethod.DELETE,
   operation: {

@@ -38,8 +38,8 @@ __export(index_exports, {
   OADataType: () => OADataType,
   OADocumentBuilder: () => OADocumentBuilder,
   OAMediaType: () => OAMediaType,
+  OAOperationGroup: () => OAOperationGroup,
   OAOperationMethod: () => OAOperationMethod,
-  OAOperationsScope: () => OAOperationsScope,
   OAParameterLocation: () => OAParameterLocation,
   OAParameterStyle: () => OAParameterStyle,
   OASecuritySchemeType: () => OASecuritySchemeType,
@@ -230,7 +230,7 @@ function unescapeJsonPointer(jsonPointer) {
 }
 __name(unescapeJsonPointer, "unescapeJsonPointer");
 
-// src/oa-operations-scope.js
+// src/oa-operation-group.js
 var import_js_format6 = require("@e22m4u/js-format");
 
 // src/oa-document-builder.js
@@ -2196,13 +2196,13 @@ var OADocumentBuilder = class extends import_js_service.Service {
     return this;
   }
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param {object} [options]
-   * @returns {OAOperationsScope}
+   * @returns {OAOperationGroup}
    */
-  createScope(options) {
-    return new OAOperationsScope(this, options);
+  createOperationGroup(options) {
+    return new OAOperationGroup(this, options);
   }
   /**
    * Build.
@@ -2223,10 +2223,10 @@ var OADocumentBuilder = class extends import_js_service.Service {
   }
 };
 
-// src/oa-operations-scope.js
-var OAOperationsScope = class _OAOperationsScope {
+// src/oa-operation-group.js
+var OAOperationGroup = class _OAOperationGroup {
   static {
-    __name(this, "OAOperationsScope");
+    __name(this, "OAOperationGroup");
   }
   /**
    * Builder.
@@ -2380,12 +2380,12 @@ var OAOperationsScope = class _OAOperationsScope {
     return this;
   }
   /**
-   * Create scope.
+   * Create operation group.
    *
    * @param {object} [options]
-   * @returns {OAOperationsScope}
+   * @returns {OAOperationGroup}
    */
-  createScope(options = {}) {
+  createOperationGroup(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
       throw new import_js_format6.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
@@ -2431,7 +2431,7 @@ var OAOperationsScope = class _OAOperationsScope {
         fullPathPrefix += options.pathPrefix;
       }
     }
-    return new _OAOperationsScope(this._builder, {
+    return new _OAOperationGroup(this._builder, {
       pathPrefix: fullPathPrefix,
       tags: [...this._tags, ...options.tags || []]
     });
@@ -2550,8 +2550,8 @@ __name(resolveOAReferenceObject, "resolveOAReferenceObject");
   OADataType,
   OADocumentBuilder,
   OAMediaType,
+  OAOperationGroup,
   OAOperationMethod,
-  OAOperationsScope,
   OAParameterLocation,
   OAParameterStyle,
   OASecuritySchemeType,
