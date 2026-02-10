@@ -1,5 +1,6 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {ajv, OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI} from '../ajv.js';
+import {OADocumentObjectValidationError} from '../errors/index.js';
 
 /**
  * Validate OADocumentObject.
@@ -36,13 +37,16 @@ export function validateOADocumentObject(data, options = {}) {
   const isValid = validate(data);
   if (!isValid) {
     const error = validate.errors[0];
-    throw new InvalidArgumentError(
+    let instancePath = error.instancePath || '';
+    let dataSourceUri = options.dataSourceUri || '';
+    if (!options.schemaUri && !options.dataSourceUri) {
+      dataSourceUri = '#';
+    }
+    throw new OADocumentObjectValidationError(
       'Value at %v %s.',
-      options.dataSourceUri && error.instancePath
-        ? [options.dataSourceUri, error.instancePath]
-            .join('/')
-            .replace(/\/+/g, '/')
-        : (options.dataSourceUri || '') + (error.instancePath || ''),
+      dataSourceUri && error.instancePath
+        ? [dataSourceUri, error.instancePath].join('/').replace(/\/+/g, '/')
+        : dataSourceUri + instancePath,
       error.message.replace(/'/g, '"'),
     );
   }

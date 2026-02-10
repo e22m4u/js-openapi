@@ -1,3 +1,4 @@
+export * from './errors/index.js';
 export * from './oa-specification.js';
 export * from './json-pointer/index.js';
 export * from './oa-operation-group.js';

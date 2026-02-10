@@ -104,22 +104,19 @@ console.log(jsonDoc);
 ```js
 import {OADataType, OAOperationMethod} from '@e22m4u/js-openapi';
 
-builder.defineSchemaComponent({
-  name: 'User', // <= имя нового компонента
-  schema: {
-    type: OADataType.OBJECT,
-    properties: {
-      id: {
-        type: OADataType.STRING,
-        format: 'uuid',
-      },
-      email: {
-        type: OADataType.STRING,
-        format: 'email',
-      },
+builder.defineSchemaComponent('User', {
+  type: OADataType.OBJECT,
+  properties: {
+    id: {
+      type: OADataType.STRING,
+      format: 'uuid',
     },
-    required: ['id', 'email'],
+    email: {
+      type: OADataType.STRING,
+      format: 'email',
+    },
   },
+  required: ['id', 'email'],
 });
 ```
 
@@ -128,14 +125,13 @@ builder.defineSchemaComponent({
 ```js
 import {OADataType, OAParameterLocation} from '@e22m4u/js-openapi';
 
-builder.defineParameterComponent({
-  name: 'idParam', // <= имя нового компонента
-  parameter: {
-    name: 'id',
-    in: OAParameterLocation.PATH,
-    description: 'Identifier',
-    required: true,
-  },
+builder.defineParameterComponent('idParam', {
+  // фактическое имя параметра может
+  // отличаться от имени компонента
+  name: 'id',
+  in: OAParameterLocation.PATH,
+  description: 'Identifier',
+  required: true,
 });
 ```
 
@@ -177,7 +173,7 @@ builder.defineOperation({
 
 ## Содержимое запросов и ответов
 
-Определение тела запроса для операции.
+Определение тела запроса операции.
 
 ```js
 import {OADataType, OAMediaType, OAOperationMethod} from '@e22m4u/js-openapi';
@@ -215,7 +211,7 @@ builder.defineOperation({
 });
 ```
 
-Определение тела ответа для операции.
+Определение тела ответа операции.
 
 ```js
 import {OADataType, OAMediaType, OAOperationMethod} from '@e22m4u/js-openapi';
@@ -255,21 +251,19 @@ builder.defineOperation({
 ```js
 import {OADataType} from '@e22m4u/js-openapi';
 
-builder.defineSchemaComponent({
-  name: 'UserInput', // <= имя нового компонента
-  schema: {
-    type: OADataType.OBJECT,
-    properties: {
-      email: {
-        type: OADataType.STRING,
-        format: 'email',
-      },
-      password: {
-        type: OADataType.STRING,
-      },
+// структура начальных данных пользователя
+builder.defineSchemaComponent('UserInput', {
+  type: OADataType.OBJECT,
+  properties: {
+    email: {
+      type: OADataType.STRING,
+      format: 'email',
     },
-    required: ['email', 'password'],
+    password: {
+      type: OADataType.STRING,
+    },
   },
+  required: ['email', 'password'],
 });
 ```
 

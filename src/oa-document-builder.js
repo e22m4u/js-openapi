@@ -142,10 +142,11 @@ export class OADocumentBuilder extends Service {
    * Define component.
    *
    * @param {string} type
-   * @param {object} definition
+   * @param {object} name
+   * @param {object} component
    * @returns {this}
    */
-  defineComponent(type, definition) {
+  defineComponent(type, name, component) {
     // type
     if (!OA_COMPONENT_TYPES.includes(type)) {
       throw new InvalidArgumentError(
@@ -153,40 +154,28 @@ export class OADocumentBuilder extends Service {
         type,
       );
     }
-    // definition
-    if (
-      !definition ||
-      typeof definition !== 'object' ||
-      Array.isArray(definition)
-    ) {
+    // name
+    if (!name || typeof name !== 'string') {
       throw new InvalidArgumentError(
-        'Component definition must be an Object, but %v was given.',
-        definition,
+        'Component name must be a non-empty String, but %v was given.',
+        name,
       );
     }
-    // definition.name
-    if (!definition.name || typeof definition.name !== 'string') {
-      throw new InvalidArgumentError(
-        'Keyword "name" must be a non-empty String, but %v was given.',
-        definition.name,
-      );
-    }
-    if (!OA_COMPONENT_NAME_REGEX.test(definition.name)) {
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
       throw new InvalidArgumentError(
         'Component name %v contains invalid characters.',
-        definition.name,
+        name,
       );
     }
-    // definition[type]
-    const component = definition[type];
+    // component
     if (
       !component ||
       typeof component !== 'object' ||
       Array.isArray(component)
     ) {
       throw new InvalidArgumentError(
-        'Keyword %v must be an Object, but %v was given.',
-        type,
+        'Component %v must be an Object, but %v was given.',
+        name,
         component,
       );
     }
@@ -209,13 +198,12 @@ export class OADocumentBuilder extends Service {
     // validation
     validateOADocumentObject(component, {
       schemaUri: `#/$defs/${definitionName}`,
-      dataSourceUri: `/components/${componentsKey}/${escapeJsonPointer(definition.name)}`,
+      dataSourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`,
     });
     this._document.components = this._document.components || {};
     this._document.components[componentsKey] =
       this._document.components[componentsKey] || {};
-    this._document.components[componentsKey][definition.name] =
-      structuredClone(component);
+    this._document.components[componentsKey][name] = structuredClone(component);
     return this;
   }
 
@@ -227,10 +215,23 @@ export class OADocumentBuilder extends Service {
    * @returns {boolean}
    */
   hasComponent(type, name) {
+    // type
+    if (!OA_COMPONENT_TYPES.includes(type)) {
+      throw new InvalidArgumentError(
+        'Components type %v is not supported.',
+        type,
+      );
+    }
     // name
     if (!name || typeof name !== 'string') {
       throw new InvalidArgumentError(
-        'Parameter "name" must be a non-empty String, but %v was given.',
+        'Component name must be a non-empty String, but %v was given.',
+        name,
+      );
+    }
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+      throw new InvalidArgumentError(
+        'Component name %v contains invalid characters.',
         name,
       );
     }
@@ -257,10 +258,23 @@ export class OADocumentBuilder extends Service {
    * @returns {object}
    */
   getComponent(type, name) {
+    // type
+    if (!OA_COMPONENT_TYPES.includes(type)) {
+      throw new InvalidArgumentError(
+        'Components type %v is not supported.',
+        type,
+      );
+    }
     // name
     if (!name || typeof name !== 'string') {
       throw new InvalidArgumentError(
-        'Parameter "name" must be a non-empty String, but %v was given.',
+        'Component name must be a non-empty String, but %v was given.',
+        name,
+      );
+    }
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+      throw new InvalidArgumentError(
+        'Component name %v contains invalid characters.',
         name,
       );
     }
@@ -290,104 +304,115 @@ export class OADocumentBuilder extends Service {
   /**
    * Define schema component.
    *
-   * @param {object} schemaDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineSchemaComponent(schemaDef) {
-    return this.defineComponent(OAComponentType.SCHEMA, schemaDef);
+  defineSchemaComponent(name, component) {
+    return this.defineComponent(OAComponentType.SCHEMA, name, component);
   }
 
   /**
    * Define response component.
    *
-   * @param {object} responseDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineResponseComponent(responseDef) {
-    return this.defineComponent(OAComponentType.RESPONSE, responseDef);
+  defineResponseComponent(name, component) {
+    return this.defineComponent(OAComponentType.RESPONSE, name, component);
   }
 
   /**
    * Define parameter component.
    *
-   * @param {object} parameterDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineParameterComponent(parameterDef) {
-    return this.defineComponent(OAComponentType.PARAMETER, parameterDef);
+  defineParameterComponent(name, component) {
+    return this.defineComponent(OAComponentType.PARAMETER, name, component);
   }
 
   /**
    * Define example component.
    *
-   * @param {object} exampleDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineExampleComponent(exampleDef) {
-    return this.defineComponent(OAComponentType.EXAMPLE, exampleDef);
+  defineExampleComponent(name, component) {
+    return this.defineComponent(OAComponentType.EXAMPLE, name, component);
   }
 
   /**
    * Define request body component.
    *
-   * @param {object} requestBodyDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineRequestBodyComponent(requestBodyDef) {
-    return this.defineComponent(OAComponentType.REQUEST_BODY, requestBodyDef);
+  defineRequestBodyComponent(name, component) {
+    return this.defineComponent(OAComponentType.REQUEST_BODY, name, component);
   }
 
   /**
    * Define header component.
    *
-   * @param {object} headerDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineHeaderComponent(headerDef) {
-    return this.defineComponent(OAComponentType.HEADER, headerDef);
+  defineHeaderComponent(name, component) {
+    return this.defineComponent(OAComponentType.HEADER, name, component);
   }
 
   /**
    * Define security scheme component.
    *
-   * @param {object} securitySchemeDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineSecuritySchemeComponent(securitySchemeDef) {
+  defineSecuritySchemeComponent(name, component) {
     return this.defineComponent(
       OAComponentType.SECURITY_SCHEME,
-      securitySchemeDef,
+      name,
+      component,
     );
   }
 
   /**
    * Define link component.
    *
-   * @param {object} linkDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineLinkComponent(linkDef) {
-    return this.defineComponent(OAComponentType.LINK, linkDef);
+  defineLinkComponent(name, component) {
+    return this.defineComponent(OAComponentType.LINK, name, component);
   }
 
   /**
    * Define callback component.
    *
-   * @param {object} callbackDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineCallbackComponent(callbackDef) {
-    return this.defineComponent(OAComponentType.CALLBACK, callbackDef);
+  defineCallbackComponent(name, component) {
+    return this.defineComponent(OAComponentType.CALLBACK, name, component);
   }
 
   /**
    * Define path item component.
    *
-   * @param {object} pathItemDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  definePathItemComponent(pathItemDef) {
-    return this.defineComponent(OAComponentType.PATH_ITEM, pathItemDef);
+  definePathItemComponent(name, component) {
+    return this.defineComponent(OAComponentType.PATH_ITEM, name, component);
   }
 
   /**

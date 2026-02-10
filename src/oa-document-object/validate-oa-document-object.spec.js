@@ -82,7 +82,7 @@ describe('validateOADocumentObject', function () {
         components: {},
       });
     expect(throwable).to.throw(
-      'Value at "" must have required property "openapi".',
+      'Value at "#" must have required property "openapi".',
     );
   });
 
@@ -93,7 +93,7 @@ describe('validateOADocumentObject', function () {
         components: {},
       });
     expect(throwable).to.throw(
-      'Value at "" must have required property "info".',
+      'Value at "#" must have required property "info".',
     );
   });
 
@@ -111,11 +111,11 @@ describe('validateOADocumentObject', function () {
         {type: 123},
         {
           schemaUri: '#/$defs/schema',
-          dataSourceUri: '/components/schemas/mySchema',
+          dataSourceUri: '#/components/schemas/mySchema',
         },
       );
     expect(throwable).to.throw(
-      'Value at "/components/schemas/mySchema/type" ' +
+      'Value at "#/components/schemas/mySchema/type" ' +
         'must be equal to one of the allowed values.',
     );
   });

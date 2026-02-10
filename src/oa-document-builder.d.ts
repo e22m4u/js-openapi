@@ -66,86 +66,6 @@ export declare const OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP: {
 };
 
 /**
- * Schema component definition.
- */
-export type OASchemaComponentDefinition = {
-  name: string;
-  schema: OASchemaObject | OAReferenceObject;
-};
-
-/**
- * Response component definition.
- */
-export type OAResponseComponentDefinition = {
-  name: string;
-  response: OAResponseObject | OAReferenceObject;
-};
-
-/**
- * Parameter component definition.
- */
-export type OAParameterComponentDefinition = {
-  name: string;
-  parameter: OAParameterObject | OAReferenceObject;
-};
-
-/**
- * Example component definition.
- */
-export type OAExampleComponentDefinition = {
-  name: string;
-  example: OAExampleObject | OAReferenceObject;
-};
-
-/**
- * Request body component definition.
- */
-export type OARequestBodyComponentDefinition = {
-  name: string;
-  requestBody: OARequestBodyObject | OAReferenceObject;
-};
-
-/**
- * Header component definition.
- */
-export type OAHeaderComponentDefinition = {
-  name: string;
-  header: OAHeaderObject | OAReferenceObject;
-};
-
-/**
- * Security scheme component definition.
- */
-export type OASecuritySchemeComponentDefinition = {
-  name: string;
-  securityScheme: OASecuritySchemeObject | OAReferenceObject;
-};
-
-/**
- * Link component definition.
- */
-export type OALinkComponentDefinition = {
-  name: string;
-  link: OALinkObject | OAReferenceObject;
-};
-
-/**
- * Callback component definition.
- */
-export type OACallbackComponentDefinition = {
-  name: string;
-  callback: OACallbackObject | OAReferenceObject;
-};
-
-/**
- * Path item component definition.
- */
-export type OAPathItemComponentDefinition = {
-  name: string;
-  pathItem: OAPathItemObject;
-};
-
-/**
  * Operation definition.
  */
 export type OAOperationDefinition = {
@@ -202,7 +122,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.SCHEMA,
-    definition: OASchemaComponentDefinition,
+    name: string,
+    component: OASchemaObject | OAReferenceObject,
   ): this;
 
   /**
@@ -213,7 +134,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.RESPONSE,
-    definition: OAResponseComponentDefinition,
+    name: string,
+    component: OAResponseObject | OAReferenceObject,
   ): this;
 
   /**
@@ -224,7 +146,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.PARAMETER,
-    definition: OAParameterComponentDefinition,
+    name: string,
+    component: OAParameterObject | OAReferenceObject,
   ): this;
 
   /**
@@ -235,7 +158,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.EXAMPLE,
-    definition: OAExampleComponentDefinition,
+    name: string,
+    component: OAExampleObject | OAReferenceObject,
   ): this;
 
   /**
@@ -246,7 +170,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.REQUEST_BODY,
-    definition: OARequestBodyComponentDefinition,
+    name: string,
+    component: OARequestBodyObject | OAReferenceObject,
   ): this;
 
   /**
@@ -257,7 +182,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.HEADER,
-    definition: OAHeaderComponentDefinition,
+    name: string,
+    component: OAHeaderObject | OAReferenceObject,
   ): this;
 
   /**
@@ -268,7 +194,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.SECURITY_SCHEME,
-    definition: OASecuritySchemeComponentDefinition,
+    name: string,
+    component: OASecuritySchemeObject | OAReferenceObject,
   ): this;
 
   /**
@@ -279,7 +206,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.LINK,
-    definition: OALinkComponentDefinition,
+    name: string,
+    component: OALinkObject | OAReferenceObject,
   ): this;
 
   /**
@@ -290,7 +218,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.CALLBACK,
-    definition: OACallbackComponentDefinition,
+    name: string,
+    component: OACallbackObject | OAReferenceObject,
   ): this;
 
   /**
@@ -301,7 +230,8 @@ export declare class OADocumentBuilder extends Service {
    */
   defineComponent(
     type: typeof OAComponentType.PATH_ITEM,
-    definition: OAPathItemComponentDefinition,
+    name: string,
+    component: OAPathItemObject | OAReferenceObject,
   ): this;
 
   /**
@@ -310,7 +240,7 @@ export declare class OADocumentBuilder extends Service {
    * @param type
    * @param definition
    */
-  defineComponent(type: OAComponentType, definition: object): this;
+  defineComponent(type: OAComponentType, name: string, component: object): this;
 
   /**
    * Has component.
@@ -441,76 +371,109 @@ export declare class OADocumentBuilder extends Service {
   /**
    * Define schema component.
    *
-   * @param schemaDef
+   * @param name
+   * @param component
    */
-  defineSchemaComponent(schemaDef: OASchemaComponentDefinition): this;
+  defineSchemaComponent(
+    name: string,
+    component: OASchemaObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define response component.
    *
-   * @param responseDef
+   * @param name
+   * @param component
    */
-  defineResponseComponent(responseDef: OAResponseComponentDefinition): this;
+  defineResponseComponent(
+    name: string,
+    component: OAResponseObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define parameter component.
    *
-   * @param parameterDef
+   * @param name
+   * @param component
    */
-  defineParameterComponent(parameterDef: OAParameterComponentDefinition): this;
+  defineParameterComponent(
+    name: string,
+    component: OAParameterObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define example component.
    *
-   * @param exampleDef
+   * @param name
+   * @param component
    */
-  defineExampleComponent(exampleDef: OAExampleComponentDefinition): this;
+  defineExampleComponent(
+    name: string,
+    component: OAExampleObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define request body component.
    *
-   * @param requestBodyDef
+   * @param name
+   * @param component
    */
   defineRequestBodyComponent(
-    requestBodyDef: OARequestBodyComponentDefinition,
+    name: string,
+    component: OARequestBodyObject | OAReferenceObject,
   ): this;
 
   /**
    * Define header component.
    *
-   * @param headerDef
+   * @param name
+   * @param component
    */
-  defineHeaderComponent(headerDef: OAHeaderComponentDefinition): this;
+  defineHeaderComponent(
+    name: string,
+    component: OAHeaderObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define security scheme component.
    *
-   * @param securitySchemeDef
+   * @param name
+   * @param component
    */
   defineSecuritySchemeComponent(
-    securitySchemeDef: OASecuritySchemeComponentDefinition,
+    name: string,
+    component: OASecuritySchemeObject | OAReferenceObject,
   ): this;
 
   /**
    * Define link component.
    *
-   * @param linkDef
+   * @param name
+   * @param component
    */
-  defineLinkComponent(linkDef: OALinkComponentDefinition): this;
+  defineLinkComponent(
+    name: string,
+    component: OALinkObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define callback component.
    *
-   * @param callbackDef
+   * @param name
+   * @param component
    */
-  defineCallbackComponent(callbackDef: OACallbackComponentDefinition): this;
+  defineCallbackComponent(
+    name: string,
+    component: OACallbackObject | OAReferenceObject,
+  ): this;
 
   /**
    * Define path item component.
    *
-   * @param pathItemDef
+   * @param name
+   * @param component
    */
-  definePathItemComponent(pathItemDef: OAPathItemComponentDefinition): this;
+  definePathItemComponent(name: string, component: OAPathItemObject): this;
 
   /**
    * Define operation.

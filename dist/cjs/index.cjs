@@ -37,6 +37,7 @@ __export(index_exports, {
   OADataFormat: () => OADataFormat,
   OADataType: () => OADataType,
   OADocumentBuilder: () => OADocumentBuilder,
+  OADocumentObjectValidationError: () => OADocumentObjectValidationError,
   OAMediaType: () => OAMediaType,
   OAOperationGroup: () => OAOperationGroup,
   OAOperationMethod: () => OAOperationMethod,
@@ -65,6 +66,14 @@ __export(index_exports, {
   validateOADocumentObject: () => validateOADocumentObject
 });
 module.exports = __toCommonJS(index_exports);
+
+// src/errors/oa-document-object-validation-error.js
+var import_js_format = require("@e22m4u/js-format");
+var OADocumentObjectValidationError = class extends import_js_format.Errorf {
+  static {
+    __name(this, "OADocumentObjectValidationError");
+  }
+};
 
 // src/oa-specification.js
 var OPENAPI_VERSION = "3.1.2";
@@ -159,10 +168,10 @@ var OAAccessMode = {
 };
 
 // src/json-pointer/escape-json-pointer.js
-var import_js_format = require("@e22m4u/js-format");
+var import_js_format2 = require("@e22m4u/js-format");
 function escapeJsonPointer(jsonPointer) {
   if (typeof jsonPointer !== "string") {
-    throw new import_js_format.InvalidArgumentError(
+    throw new import_js_format2.InvalidArgumentError(
       'Parameter "jsonPointer" must be a String, but %v was given.',
       jsonPointer
     );
@@ -172,17 +181,17 @@ function escapeJsonPointer(jsonPointer) {
 __name(escapeJsonPointer, "escapeJsonPointer");
 
 // src/json-pointer/resolve-json-pointer.js
-var import_js_format2 = require("@e22m4u/js-format");
+var import_js_format3 = require("@e22m4u/js-format");
 var ARRAY_INDEX_PATTERN = /^(0|[1-9][0-9]*)$/;
 function resolveJsonPointer(document, pointer) {
   if (!document || typeof document !== "object") {
-    throw new import_js_format2.InvalidArgumentError(
+    throw new import_js_format3.InvalidArgumentError(
       'Parameter "document" must be an Object or an Array, but %v was given.',
       document
     );
   }
   if (typeof pointer !== "string") {
-    throw new import_js_format2.InvalidArgumentError(
+    throw new import_js_format3.InvalidArgumentError(
       "JSON pointer must be a String, but %v was given.",
       pointer
     );
@@ -191,7 +200,7 @@ function resolveJsonPointer(document, pointer) {
     return document;
   }
   if (!pointer.startsWith("/")) {
-    throw new import_js_format2.InvalidArgumentError(
+    throw new import_js_format3.InvalidArgumentError(
       'JSON pointer must start with "/", but %v was given.',
       pointer
     );
@@ -207,7 +216,7 @@ function resolveJsonPointer(document, pointer) {
       current = current[segment];
     } else {
       const currentPointer = "/" + pathParts.slice(0, i + 1).join("/");
-      throw new import_js_format2.InvalidArgumentError(
+      throw new import_js_format3.InvalidArgumentError(
         "Unable to resolve %v in the given document.",
         currentPointer
       );
@@ -218,10 +227,10 @@ function resolveJsonPointer(document, pointer) {
 __name(resolveJsonPointer, "resolveJsonPointer");
 
 // src/json-pointer/unescape-json-pointer.js
-var import_js_format3 = require("@e22m4u/js-format");
+var import_js_format4 = require("@e22m4u/js-format");
 function unescapeJsonPointer(jsonPointer) {
   if (typeof jsonPointer !== "string") {
-    throw new import_js_format3.InvalidArgumentError(
+    throw new import_js_format4.InvalidArgumentError(
       'Parameter "jsonPointer" must be a String, but %v was given.',
       jsonPointer
     );
@@ -231,14 +240,14 @@ function unescapeJsonPointer(jsonPointer) {
 __name(unescapeJsonPointer, "unescapeJsonPointer");
 
 // src/oa-operation-group.js
-var import_js_format6 = require("@e22m4u/js-format");
+var import_js_format7 = require("@e22m4u/js-format");
 
 // src/oa-document-builder.js
-var import_js_format5 = require("@e22m4u/js-format");
+var import_js_format6 = require("@e22m4u/js-format");
 var import_js_service = require("@e22m4u/js-service");
 
 // src/oa-document-object/validate-oa-document-object.js
-var import_js_format4 = require("@e22m4u/js-format");
+var import_js_format5 = require("@e22m4u/js-format");
 
 // src/ajv.js
 var import_ajv_formats = __toESM(require("ajv-formats"), 1);
@@ -1799,14 +1808,14 @@ ajv.getSchema(OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI);
 // src/oa-document-object/validate-oa-document-object.js
 function validateOADocumentObject(data, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format4.InvalidArgumentError(
+    throw new import_js_format5.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.schemaUri !== void 0) {
     if (typeof options.schemaUri !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Option "schemaUri" must be a String, but %v was given.',
         options.schemaUri
       );
@@ -1814,7 +1823,7 @@ function validateOADocumentObject(data, options = {}) {
   }
   if (options.dataSourceUri !== void 0) {
     if (typeof options.dataSourceUri !== "string") {
-      throw new import_js_format4.InvalidArgumentError(
+      throw new import_js_format5.InvalidArgumentError(
         'Option "dataSourceUri" must be a String, but %v was given.',
         options.dataSourceUri
       );
@@ -1826,9 +1835,14 @@ function validateOADocumentObject(data, options = {}) {
   const isValid = validate(data);
   if (!isValid) {
     const error = validate.errors[0];
-    throw new import_js_format4.InvalidArgumentError(
+    let instancePath = error.instancePath || "";
+    let dataSourceUri = options.dataSourceUri || "";
+    if (!options.schemaUri && !options.dataSourceUri) {
+      dataSourceUri = "#";
+    }
+    throw new OADocumentObjectValidationError(
       "Value at %v %s.",
-      options.dataSourceUri && error.instancePath ? [options.dataSourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : (options.dataSourceUri || "") + (error.instancePath || ""),
+      dataSourceUri && error.instancePath ? [dataSourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : dataSourceUri + instancePath,
       error.message.replace(/'/g, '"')
     );
   }
@@ -1905,7 +1919,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
       super();
       if (containerOrDocument !== void 0) {
         if (!containerOrDocument || typeof containerOrDocument !== "object" || Array.isArray(containerOrDocument)) {
-          throw new import_js_format5.InvalidArgumentError(
+          throw new import_js_format6.InvalidArgumentError(
             'Parameter "containerOrDocument" must be an Object, but %v was given.',
             containerOrDocument
           );
@@ -1915,7 +1929,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     if (document !== void 0) {
       if (!document || typeof document !== "object" || Array.isArray(document)) {
-        throw new import_js_format5.InvalidArgumentError(
+        throw new import_js_format6.InvalidArgumentError(
           'Parameter "document" must be an Object, but %v was given.',
           document
         );
@@ -1937,63 +1951,57 @@ var OADocumentBuilder = class extends import_js_service.Service {
    * Define component.
    *
    * @param {string} type
-   * @param {object} definition
+   * @param {object} name
+   * @param {object} component
    * @returns {this}
    */
-  defineComponent(type, definition) {
+  defineComponent(type, name, component) {
     if (!OA_COMPONENT_TYPES.includes(type)) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Components type %v is not supported.",
         type
       );
     }
-    if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
-      throw new import_js_format5.InvalidArgumentError(
-        "Component definition must be an Object, but %v was given.",
-        definition
+    if (!name || typeof name !== "string") {
+      throw new import_js_format6.InvalidArgumentError(
+        "Component name must be a non-empty String, but %v was given.",
+        name
       );
     }
-    if (!definition.name || typeof definition.name !== "string") {
-      throw new import_js_format5.InvalidArgumentError(
-        'Keyword "name" must be a non-empty String, but %v was given.',
-        definition.name
-      );
-    }
-    if (!OA_COMPONENT_NAME_REGEX.test(definition.name)) {
-      throw new import_js_format5.InvalidArgumentError(
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+      throw new import_js_format6.InvalidArgumentError(
         "Component name %v contains invalid characters.",
-        definition.name
+        name
       );
     }
-    const component = definition[type];
     if (!component || typeof component !== "object" || Array.isArray(component)) {
-      throw new import_js_format5.InvalidArgumentError(
-        "Keyword %v must be an Object, but %v was given.",
-        type,
+      throw new import_js_format6.InvalidArgumentError(
+        "Component %v must be an Object, but %v was given.",
+        name,
         component
       );
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         componentsKey
       );
     }
     const definitionName = OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP[type];
     if (!definitionName) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the definition name.",
         definitionName
       );
     }
     validateOADocumentObject(component, {
       schemaUri: `#/$defs/${definitionName}`,
-      dataSourceUri: `/components/${componentsKey}/${escapeJsonPointer(definition.name)}`
+      dataSourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`
     });
     this._document.components = this._document.components || {};
     this._document.components[componentsKey] = this._document.components[componentsKey] || {};
-    this._document.components[componentsKey][definition.name] = structuredClone(component);
+    this._document.components[componentsKey][name] = structuredClone(component);
     return this;
   }
   /**
@@ -2004,15 +2012,27 @@ var OADocumentBuilder = class extends import_js_service.Service {
    * @returns {boolean}
    */
   hasComponent(type, name) {
+    if (!OA_COMPONENT_TYPES.includes(type)) {
+      throw new import_js_format6.InvalidArgumentError(
+        "Components type %v is not supported.",
+        type
+      );
+    }
     if (!name || typeof name !== "string") {
-      throw new import_js_format5.InvalidArgumentError(
-        'Parameter "name" must be a non-empty String, but %v was given.',
+      throw new import_js_format6.InvalidArgumentError(
+        "Component name must be a non-empty String, but %v was given.",
+        name
+      );
+    }
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+      throw new import_js_format6.InvalidArgumentError(
+        "Component name %v contains invalid characters.",
         name
       );
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         componentsKey
       );
@@ -2029,22 +2049,34 @@ var OADocumentBuilder = class extends import_js_service.Service {
    * @returns {object}
    */
   getComponent(type, name) {
+    if (!OA_COMPONENT_TYPES.includes(type)) {
+      throw new import_js_format6.InvalidArgumentError(
+        "Components type %v is not supported.",
+        type
+      );
+    }
     if (!name || typeof name !== "string") {
-      throw new import_js_format5.InvalidArgumentError(
-        'Parameter "name" must be a non-empty String, but %v was given.',
+      throw new import_js_format6.InvalidArgumentError(
+        "Component name must be a non-empty String, but %v was given.",
+        name
+      );
+    }
+    if (!OA_COMPONENT_NAME_REGEX.test(name)) {
+      throw new import_js_format6.InvalidArgumentError(
+        "Component name %v contains invalid characters.",
         name
       );
     }
     const componentsKey = OA_COMPONENT_TYPE_TO_COMPONENTS_KEY_MAP[type];
     if (!componentsKey) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
         type
       );
     }
     const component = this._document && this._document.components && this._document.components[componentsKey] && this._document.components[componentsKey][name];
     if (!component) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Component "#/components/%s/%s" does not exist.',
         componentsKey,
         name
@@ -2055,95 +2087,106 @@ var OADocumentBuilder = class extends import_js_service.Service {
   /**
    * Define schema component.
    *
-   * @param {object} schemaDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineSchemaComponent(schemaDef) {
-    return this.defineComponent(OAComponentType.SCHEMA, schemaDef);
+  defineSchemaComponent(name, component) {
+    return this.defineComponent(OAComponentType.SCHEMA, name, component);
   }
   /**
    * Define response component.
    *
-   * @param {object} responseDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineResponseComponent(responseDef) {
-    return this.defineComponent(OAComponentType.RESPONSE, responseDef);
+  defineResponseComponent(name, component) {
+    return this.defineComponent(OAComponentType.RESPONSE, name, component);
   }
   /**
    * Define parameter component.
    *
-   * @param {object} parameterDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineParameterComponent(parameterDef) {
-    return this.defineComponent(OAComponentType.PARAMETER, parameterDef);
+  defineParameterComponent(name, component) {
+    return this.defineComponent(OAComponentType.PARAMETER, name, component);
   }
   /**
    * Define example component.
    *
-   * @param {object} exampleDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineExampleComponent(exampleDef) {
-    return this.defineComponent(OAComponentType.EXAMPLE, exampleDef);
+  defineExampleComponent(name, component) {
+    return this.defineComponent(OAComponentType.EXAMPLE, name, component);
   }
   /**
    * Define request body component.
    *
-   * @param {object} requestBodyDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineRequestBodyComponent(requestBodyDef) {
-    return this.defineComponent(OAComponentType.REQUEST_BODY, requestBodyDef);
+  defineRequestBodyComponent(name, component) {
+    return this.defineComponent(OAComponentType.REQUEST_BODY, name, component);
   }
   /**
    * Define header component.
    *
-   * @param {object} headerDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineHeaderComponent(headerDef) {
-    return this.defineComponent(OAComponentType.HEADER, headerDef);
+  defineHeaderComponent(name, component) {
+    return this.defineComponent(OAComponentType.HEADER, name, component);
   }
   /**
    * Define security scheme component.
    *
-   * @param {object} securitySchemeDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineSecuritySchemeComponent(securitySchemeDef) {
+  defineSecuritySchemeComponent(name, component) {
     return this.defineComponent(
       OAComponentType.SECURITY_SCHEME,
-      securitySchemeDef
+      name,
+      component
     );
   }
   /**
    * Define link component.
    *
-   * @param {object} linkDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineLinkComponent(linkDef) {
-    return this.defineComponent(OAComponentType.LINK, linkDef);
+  defineLinkComponent(name, component) {
+    return this.defineComponent(OAComponentType.LINK, name, component);
   }
   /**
    * Define callback component.
    *
-   * @param {object} callbackDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  defineCallbackComponent(callbackDef) {
-    return this.defineComponent(OAComponentType.CALLBACK, callbackDef);
+  defineCallbackComponent(name, component) {
+    return this.defineComponent(OAComponentType.CALLBACK, name, component);
   }
   /**
    * Define path item component.
    *
-   * @param {object} pathItemDef
+   * @param {string} name
+   * @param {object} component
    * @returns {this}
    */
-  definePathItemComponent(pathItemDef) {
-    return this.defineComponent(OAComponentType.PATH_ITEM, pathItemDef);
+  definePathItemComponent(name, component) {
+    return this.defineComponent(OAComponentType.PATH_ITEM, name, component);
   }
   /**
    * Define operation.
@@ -2153,31 +2196,31 @@ var OADocumentBuilder = class extends import_js_service.Service {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (typeof operationDef.path !== "string") {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "path" must be a String, but %v was given.',
         operationDef.path
       );
     }
     if (!operationDef.path.startsWith("/")) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "method" must be one of the allowed values, but %v was given.',
         operationDef.method
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format5.InvalidArgumentError(
+      throw new import_js_format6.InvalidArgumentError(
         'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
@@ -2252,26 +2295,26 @@ var OAOperationGroup = class _OAOperationGroup {
    */
   constructor(builder, options = {}) {
     if (!(builder instanceof OADocumentBuilder)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Parameter "builder" must be an instance of OADocumentBuilder, but %v was given.',
         builder
       );
     }
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (typeof options.pathPrefix !== "string") {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "pathPrefix" must be a String, but %v was given.',
           options.pathPrefix
         );
       }
       if (!options.pathPrefix.startsWith("/")) {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
@@ -2279,14 +2322,14 @@ var OAOperationGroup = class _OAOperationGroup {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format6.InvalidArgumentError(
+          throw new import_js_format7.InvalidArgumentError(
             'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2330,31 +2373,31 @@ var OAOperationGroup = class _OAOperationGroup {
    */
   defineOperation(operationDef) {
     if (!operationDef || typeof operationDef !== "object" || Array.isArray(operationDef)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         "Operation Definition must be an Object, but %v was given.",
         operationDef
       );
     }
     if (typeof operationDef.path !== "string") {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Keyword "path" must be a String, but %v was given.',
         operationDef.path
       );
     }
     if (!operationDef.path.startsWith("/")) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Operation path must start with "/", but %v was given.',
         operationDef.path
       );
     }
     if (!Object.values(OAOperationMethod).includes(operationDef.method)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Keyword "method" must be one of the allowed values, but %v was given.',
         operationDef.method
       );
     }
     if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Keyword "operation" must be an Object, but %v was given.',
         operationDef.operation
       );
@@ -2387,20 +2430,20 @@ var OAOperationGroup = class _OAOperationGroup {
    */
   createOperationGroup(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new import_js_format6.InvalidArgumentError(
+      throw new import_js_format7.InvalidArgumentError(
         'Parameter "options" must be an Object, but %v was given.',
         options
       );
     }
     if (options.pathPrefix !== void 0) {
       if (typeof options.pathPrefix !== "string") {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "pathPrefix" must be a String, but %v was given.',
           options.pathPrefix
         );
       }
       if (!options.pathPrefix.startsWith("/")) {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "pathPrefix" must start with "/", but %v was given.',
           options.pathPrefix
         );
@@ -2408,14 +2451,14 @@ var OAOperationGroup = class _OAOperationGroup {
     }
     if (options.tags !== void 0) {
       if (!Array.isArray(options.tags)) {
-        throw new import_js_format6.InvalidArgumentError(
+        throw new import_js_format7.InvalidArgumentError(
           'Option "tags" must be an Array, but %v was given.',
           options.tags
         );
       }
       options.tags.forEach((tag, index) => {
         if (!tag || typeof tag !== "string") {
-          throw new import_js_format6.InvalidArgumentError(
+          throw new import_js_format7.InvalidArgumentError(
             'Element %v in the option "tags" must be a non-empty String, but %v was given.',
             index,
             tag
@@ -2439,16 +2482,16 @@ var OAOperationGroup = class _OAOperationGroup {
 };
 
 // src/oa-reference-object/oa-ref.js
-var import_js_format7 = require("@e22m4u/js-format");
+var import_js_format8 = require("@e22m4u/js-format");
 function oaRef(name, segment) {
   if (!name || typeof name !== "string") {
-    throw new import_js_format7.InvalidArgumentError(
+    throw new import_js_format8.InvalidArgumentError(
       'Parameter "name" must be a non-empty String, but %v was given.',
       name
     );
   }
   if (!OA_COMPONENT_NAME_REGEX.test(name)) {
-    throw new import_js_format7.InvalidArgumentError(
+    throw new import_js_format8.InvalidArgumentError(
       "Component name %v contains invalid characters.",
       name
     );
@@ -2479,23 +2522,23 @@ function isOAReferenceObject(value) {
 __name(isOAReferenceObject, "isOAReferenceObject");
 
 // src/oa-reference-object/resolve-oa-reference-object.js
-var import_js_format8 = require("@e22m4u/js-format");
+var import_js_format9 = require("@e22m4u/js-format");
 function resolveOAReferenceObject(referenceObj, options = {}) {
   if (!referenceObj || typeof referenceObj !== "object" || Array.isArray(referenceObj)) {
-    throw new import_js_format8.InvalidArgumentError(
+    throw new import_js_format9.InvalidArgumentError(
       'Parameter "referenceObj" must be an Object, but %v was given.',
       referenceObj
     );
   }
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    throw new import_js_format8.InvalidArgumentError(
+    throw new import_js_format9.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
       options
     );
   }
   if (options.rootDocument !== void 0) {
     if (!options.rootDocument || typeof options.rootDocument !== "object") {
-      throw new import_js_format8.InvalidArgumentError(
+      throw new import_js_format9.InvalidArgumentError(
         'Option "rootDocument" must be an Object or an Array, but %v was given.',
         options.rootDocument
       );
@@ -2503,7 +2546,7 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
   }
   if (referenceObj.$ref !== void 0) {
     if (!referenceObj.$ref || typeof referenceObj.$ref !== "string") {
-      throw new import_js_format8.InvalidArgumentError(
+      throw new import_js_format9.InvalidArgumentError(
         'Schema keyword "$ref" must be a non-empty String, but %v was given.',
         referenceObj.$ref
       );
@@ -2511,7 +2554,7 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
     const refUri = referenceObj.$ref;
     if (refUri.startsWith("#")) {
       if (!options.rootDocument) {
-        throw new import_js_format8.InvalidArgumentError(
+        throw new import_js_format9.InvalidArgumentError(
           'Option "rootDocument" is required to resolve the same-document reference (URI starts with "#").'
         );
       }
@@ -2520,23 +2563,23 @@ function resolveOAReferenceObject(referenceObj, options = {}) {
       } else if (refUri.startsWith("#/")) {
         return resolveJsonPointer(options.rootDocument, refUri.substring(1));
       }
-      throw new import_js_format8.InvalidArgumentError(
+      throw new import_js_format9.InvalidArgumentError(
         "Anchor reference is not supported, but %v was given.",
         refUri
       );
     }
     if (refUri.startsWith("http://") || refUri.startsWith("https://")) {
-      throw new import_js_format8.InvalidArgumentError(
+      throw new import_js_format9.InvalidArgumentError(
         "External resource is not supported, but %v was given.",
         refUri
       );
     }
-    throw new import_js_format8.InvalidArgumentError(
+    throw new import_js_format9.InvalidArgumentError(
       "Relative reference is not supported, but %v was given.",
       refUri
     );
   }
-  throw new import_js_format8.InvalidArgumentError(
+  throw new import_js_format9.InvalidArgumentError(
     "Reference object does not have reference properties."
   );
 }
@@ -2549,6 +2592,7 @@ __name(resolveOAReferenceObject, "resolveOAReferenceObject");
   OADataFormat,
   OADataType,
   OADocumentBuilder,
+  OADocumentObjectValidationError,
   OAMediaType,
   OAOperationGroup,
   OAOperationMethod,
