@@ -3,6 +3,10 @@
 JavaScript модуль для создания
 [OpenAPI Документа 3.1.2](https://spec.openapis.org/oas/v3.1.2)
 
+Модуль автоматически проверяет структуру документа при определении компонентов
+и операций. Если передать неверное поле, будет выброшена ошибка с указанием
+пути.
+
 ## Содержание
 
 - [Установка](#установка)
@@ -68,7 +72,34 @@ builder.defineOperation({
 });
 ```
 
-Формирование JSON документа.
+Сборка документа в виде JavaScript объекта.
+
+```js
+const oaDocumentObject = builder.build();
+
+console.log(oaDocumentObject);
+// {
+//   openapi: '3.1.2',
+//   info: {
+//     title: 'My Simple API',
+//     version: '0.0.1'
+//   },
+//   paths: {
+//     '/status': {
+//       get: {
+//         summary: 'Get server status',
+//         responses: {
+//           '200': {
+//             description: 'Server works fine'
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+```
+
+Формирование JSON документа (сериализация).
 
 ```js
 const jsonDoc = builder.buildJson(2);
