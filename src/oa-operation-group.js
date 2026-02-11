@@ -144,7 +144,7 @@ export class OAOperationGroup {
   /**
    * Define operation.
    *
-   * @param {object} operationDef
+   * @param {import('./oa-document-builder.js').OAOperationDefinition} operationDef
    * @returns {this}
    */
   defineOperation(operationDef) {
@@ -167,7 +167,7 @@ export class OAOperationGroup {
     }
     if (!operationDef.path.startsWith('/')) {
       throw new InvalidArgumentError(
-        'Operation path must start with "/", but %v was given.',
+        'Keyword "path" must start with "/", but %v was given.',
         operationDef.path,
       );
     }
@@ -179,16 +179,20 @@ export class OAOperationGroup {
       );
     }
     // operation
-    if (
-      !operationDef.operation ||
-      typeof operationDef.operation !== 'object' ||
-      Array.isArray(operationDef.operation)
-    ) {
-      throw new InvalidArgumentError(
-        'Keyword "operation" must be an Object, but %v was given.',
-        operationDef.operation,
-      );
+    if (operationDef.operation !== undefined) {
+      if (
+        !operationDef.operation ||
+        typeof operationDef.operation !== 'object' ||
+        Array.isArray(operationDef.operation)
+      ) {
+        throw new InvalidArgumentError(
+          'Keyword "operation" must be an Object, but %v was given.',
+          operationDef.operation,
+        );
+      }
     }
+    // объединение префикса и пути операции выполняется
+    // с учетом наличия косой черты в начале пути
     let fullPath = this._pathPrefix;
     if (operationDef.path !== '/') {
       if (fullPath === '/') {
@@ -197,8 +201,8 @@ export class OAOperationGroup {
         fullPath += operationDef.path;
       }
     }
-    // создание поверхностной копии схемы операции
-    // чтобы избежать мутации аргумента
+    // создание поверхностной копии определения
+    // операции для избежания мутации аргумента
     const operation = {...operationDef.operation};
     // объединение тегов текущей области с тегами
     // текущей операции и удаление дубликатов

@@ -71,7 +71,7 @@ export declare const OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP: {
 export type OAOperationDefinition = {
   path: string;
   method: OAOperationMethod;
-  operation: OAOperationObject;
+  operation?: OAOperationObject;
 };
 
 /**

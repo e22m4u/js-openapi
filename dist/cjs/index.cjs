@@ -1904,7 +1904,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
       title: "API Documentation",
       version: "0.0.1"
     },
-    components: {}
+    paths: {}
   };
   /**
    * Constructor.
@@ -2191,7 +2191,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
   /**
    * Define operation.
    *
-   * @param {object} operationDef
+   * @param {import('./oa-document-builder.js').OAOperationDefinition} operationDef
    * @returns {this}
    */
   defineOperation(operationDef) {
@@ -2209,7 +2209,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     if (!operationDef.path.startsWith("/")) {
       throw new import_js_format6.InvalidArgumentError(
-        'Operation path must start with "/", but %v was given.',
+        'Keyword "path" must start with "/", but %v was given.',
         operationDef.path
       );
     }
@@ -2219,29 +2219,32 @@ var OADocumentBuilder = class extends import_js_service.Service {
         operationDef.method
       );
     }
-    if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format6.InvalidArgumentError(
-        'Keyword "operation" must be an Object, but %v was given.',
-        operationDef.operation
-      );
+    if (operationDef.operation !== void 0) {
+      if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
+        throw new import_js_format6.InvalidArgumentError(
+          'Keyword "operation" must be an Object, but %v was given.',
+          operationDef.operation
+        );
+      }
+      validateOADocumentObject(operationDef.operation, {
+        schemaUri: "#/$defs/operation",
+        dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
+      });
     }
-    validateOADocumentObject(operationDef.operation, {
-      schemaUri: "#/$defs/operation",
-      dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
-    });
+    const operation = operationDef.operation ? structuredClone(operationDef.operation) : {};
     if (!this._document.paths) {
       this._document.paths = {};
     }
     if (!this._document.paths[operationDef.path]) {
       this._document.paths[operationDef.path] = {};
     }
-    this._document.paths[operationDef.path][operationDef.method] = structuredClone(operationDef.operation);
+    this._document.paths[operationDef.path][operationDef.method] = operation;
     return this;
   }
   /**
    * Create operation group.
    *
-   * @param {object} [options]
+   * @param {import('./oa-operation-group.js').OAOperationGroupOptions} [options]
    * @returns {OAOperationGroup}
    */
   createOperationGroup(options) {
@@ -2368,7 +2371,7 @@ var OAOperationGroup = class _OAOperationGroup {
   /**
    * Define operation.
    *
-   * @param {object} operationDef
+   * @param {import('./oa-document-builder.js').OAOperationDefinition} operationDef
    * @returns {this}
    */
   defineOperation(operationDef) {
@@ -2386,7 +2389,7 @@ var OAOperationGroup = class _OAOperationGroup {
     }
     if (!operationDef.path.startsWith("/")) {
       throw new import_js_format7.InvalidArgumentError(
-        'Operation path must start with "/", but %v was given.',
+        'Keyword "path" must start with "/", but %v was given.',
         operationDef.path
       );
     }
@@ -2396,11 +2399,13 @@ var OAOperationGroup = class _OAOperationGroup {
         operationDef.method
       );
     }
-    if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
-      throw new import_js_format7.InvalidArgumentError(
-        'Keyword "operation" must be an Object, but %v was given.',
-        operationDef.operation
-      );
+    if (operationDef.operation !== void 0) {
+      if (!operationDef.operation || typeof operationDef.operation !== "object" || Array.isArray(operationDef.operation)) {
+        throw new import_js_format7.InvalidArgumentError(
+          'Keyword "operation" must be an Object, but %v was given.',
+          operationDef.operation
+        );
+      }
     }
     let fullPath = this._pathPrefix;
     if (operationDef.path !== "/") {

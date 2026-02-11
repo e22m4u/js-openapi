@@ -10,7 +10,9 @@ import {
   OPENAPI_VERSION,
   OAParameterLocation,
   OASecuritySchemeType,
+  OAOperationMethod,
 } from './oa-specification.js';
+import {OAOperationGroup} from './oa-operation-group.js';
 
 describe('OADocumentBuilder', function () {
   describe('constructor', function () {
@@ -70,7 +72,7 @@ describe('OADocumentBuilder', function () {
       };
       const S = new OADocumentBuilder(doc);
       const res = S.getDocumentObjectRef();
-      expect(res).to.be.eql({...doc, components: {}});
+      expect(res).to.be.eql({...doc, paths: {}});
     });
 
     it('should merge the document from the second parameter with the default document', function () {
@@ -83,7 +85,7 @@ describe('OADocumentBuilder', function () {
       };
       const S = new OADocumentBuilder(undefined, doc);
       const res = S.getDocumentObjectRef();
-      expect(res).to.be.eql({...doc, components: {}});
+      expect(res).to.be.eql({...doc, paths: {}});
     });
 
     it('should validate the given document object', function () {
@@ -106,7 +108,7 @@ describe('OADocumentBuilder', function () {
           title: 'API Documentation',
           version: '0.0.1',
         },
-        components: {},
+        paths: {},
       });
       expect(ref1).to.be.eq(ref2);
     });
@@ -184,6 +186,13 @@ describe('OADocumentBuilder', function () {
       expect(throwable(undefined)).to.throw(error('undefined'));
       expect(throwable(null)).to.throw(error('null'));
       throwable({})();
+    });
+
+    it('should return the current instance', function () {
+      const S = new OADocumentBuilder();
+      const type = OAComponentType.SCHEMA;
+      const res = S.defineComponent(type, 'comp', {});
+      expect(res).to.be.eql(S);
     });
 
     describe('when the type is "schema"', function () {
@@ -1149,6 +1158,251 @@ describe('OADocumentBuilder', function () {
       const res = S.definePathItemComponent(name, component);
       expect(res).to.be.eq('OK');
       expect(invoked).to.be.eq(1);
+    });
+  });
+
+  describe('defineOperation', function () {
+    it('should require the parameter "operationDef" to be an Object', function () {
+      const throwable = v => () => {
+        const builder = new OADocumentBuilder();
+        builder.defineOperation(v);
+      };
+      const error = s =>
+        format('Operation Definition must be an Object, but %s was given.', s);
+      expect(throwable('str')).to.throw(error('"str"'));
+      expect(throwable('')).to.throw(error('""'));
+      expect(throwable(10)).to.throw(error('10'));
+      expect(throwable(0)).to.throw(error('0'));
+      expect(throwable(true)).to.throw(error('true'));
+      expect(throwable(false)).to.throw(error('false'));
+      expect(throwable([])).to.throw(error('Array'));
+      expect(throwable(undefined)).to.throw(error('undefined'));
+      expect(throwable(null)).to.throw(error('null'));
+      throwable({
+        method: OAOperationMethod.GET,
+        path: '/',
+      })();
+    });
+
+    it('should require the keyword "path" to be a String', function () {
+      const throwable = v => () => {
+        const S = new OADocumentBuilder();
+        S.defineOperation({
+          method: OAOperationMethod.GET,
+          path: v,
+        });
+      };
+      const error = s =>
+        format('Keyword "path" must be a String, but %s was given.', s);
+      expect(throwable(10)).to.throw(error('10'));
+      expect(throwable(0)).to.throw(error('0'));
+      expect(throwable(true)).to.throw(error('true'));
+      expect(throwable(false)).to.throw(error('false'));
+      expect(throwable([])).to.throw(error('Array'));
+      expect(throwable({})).to.throw(error('Object'));
+      expect(throwable(undefined)).to.throw(error('undefined'));
+      expect(throwable(null)).to.throw(error('null'));
+      throwable('/path')();
+    });
+
+    it('should require the keyword "path" to start with a forward slash', function () {
+      const throwable = v => () => {
+        const S = new OADocumentBuilder();
+        S.defineOperation({
+          method: OAOperationMethod.GET,
+          path: v,
+        });
+      };
+      const error = s =>
+        format('Keyword "path" must start with "/", but %s was given.', s);
+      expect(throwable('path')).to.throw(error('"path"'));
+      expect(throwable('')).to.throw(error('""'));
+      throwable('/path')();
+      throwable('/')();
+    });
+
+    it('should require the keyword "method" to be a correct value', function () {
+      const throwable = v => () => {
+        const S = new OADocumentBuilder();
+        S.defineOperation({
+          method: v,
+          path: '/',
+        });
+      };
+      const error = s =>
+        format(
+          'Keyword "method" must be one of the allowed values, ' +
+            'but %s was given.',
+          s,
+        );
+      expect(throwable('str')).to.throw(error('"str"'));
+      expect(throwable('')).to.throw(error('""'));
+      expect(throwable(10)).to.throw(error('10'));
+      expect(throwable(0)).to.throw(error('0'));
+      expect(throwable(true)).to.throw(error('true'));
+      expect(throwable(false)).to.throw(error('false'));
+      expect(throwable([])).to.throw(error('Array'));
+      expect(throwable({})).to.throw(error('Object'));
+      expect(throwable(undefined)).to.throw(error('undefined'));
+      expect(throwable(null)).to.throw(error('null'));
+      Object.values(OAOperationMethod).forEach(method => {
+        throwable(method)();
+      });
+    });
+
+    it('should require the keyword "operation" to be an Object', function () {
+      const throwable = v => () => {
+        const builder = new OADocumentBuilder();
+        builder.defineOperation({
+          method: OAOperationMethod.GET,
+          path: '/',
+          operation: v,
+        });
+      };
+      const error = s =>
+        format('Keyword "operation" must be an Object, but %s was given.', s);
+      expect(throwable('str')).to.throw(error('"str"'));
+      expect(throwable('')).to.throw(error('""'));
+      expect(throwable(10)).to.throw(error('10'));
+      expect(throwable(0)).to.throw(error('0'));
+      expect(throwable(true)).to.throw(error('true'));
+      expect(throwable(false)).to.throw(error('false'));
+      expect(throwable([])).to.throw(error('Array'));
+      expect(throwable(null)).to.throw(error('null'));
+      throwable({})();
+      throwable(undefined)();
+    });
+
+    it('should validate the operation object', function () {
+      const S = new OADocumentBuilder();
+      const throwable = () => {
+        S.defineOperation({
+          method: OAOperationMethod.GET,
+          path: '/',
+          operation: {parameters: 123},
+        });
+      };
+      expect(throwable).to.throw(OADocumentObjectValidationError);
+    });
+
+    it('should define the operation object', function () {
+      const S = new OADocumentBuilder();
+      const operation = {
+        parameters: [
+          {
+            name: 'id',
+            in: OAParameterLocation.PATH,
+            required: true,
+            schema: {type: OADataType.OBJECT},
+          },
+        ],
+      };
+      S.defineOperation({
+        method: OAOperationMethod.GET,
+        path: '/users/{id}',
+        operation,
+      });
+      const doc = S.getDocumentObjectRef();
+      expect(doc.paths['/users/{id}'].get).to.be.eql(operation);
+    });
+
+    it('should return the current instance', function () {
+      const S = new OADocumentBuilder();
+      const res = S.defineOperation({
+        method: OAOperationMethod.GET,
+        path: '/users/{id}',
+      });
+      expect(res).to.be.eq(S);
+    });
+  });
+
+  describe('createOperationGroup', function () {
+    it('should return an instance of OAOperationGroup', function () {
+      const S = new OADocumentBuilder();
+      const res = S.createOperationGroup();
+      expect(res).to.be.instanceOf(OAOperationGroup);
+    });
+
+    it('should pass the current instance to the operation group', function () {
+      const S = new OADocumentBuilder();
+      const res = S.createOperationGroup();
+      expect(res.getBuilder()).to.be.eq(S);
+    });
+
+    it('should create the operation group with specified options', function () {
+      const S = new OADocumentBuilder();
+      const res = S.createOperationGroup({
+        pathPrefix: '/prefix',
+        tags: ['foo', 'bar'],
+      });
+      expect(res.getPathPrefix()).to.be.eq('/prefix');
+      expect(res.getTags()).to.be.eql(['foo', 'bar']);
+    });
+  });
+
+  describe('build', function () {
+    it('should return a copy of the document object', function () {
+      const S = new OADocumentBuilder({
+        info: {
+          title: 'My amazing API',
+          description: 'API Documentation',
+          version: '1.0.0',
+        },
+      });
+      const res1 = S.build();
+      const res2 = S.build();
+      expect(res1).to.be.eql({
+        openapi: OPENAPI_VERSION,
+        info: {
+          title: 'My amazing API',
+          description: 'API Documentation',
+          version: '1.0.0',
+        },
+        paths: {},
+      });
+      expect(res1).to.be.eql(res2);
+      expect(res1).to.be.not.eq(res2);
+    });
+  });
+
+  describe('buildJson', function () {
+    it('should return the document object in JSON', function () {
+      const info = {
+        title: 'My amazing API',
+        description: 'API Documentation',
+        version: '1.0.0',
+      };
+      const S = new OADocumentBuilder({info});
+      const res = S.buildJson();
+      expect(res).to.be.eq(
+        JSON.stringify({
+          openapi: OPENAPI_VERSION,
+          info,
+          paths: {},
+        }),
+      );
+    });
+
+    it('should allow specify the parameter "space" for JSON.stringify', function () {
+      const info = {
+        title: 'My amazing API',
+        description: 'API Documentation',
+        version: '1.0.0',
+      };
+      const S = new OADocumentBuilder({info});
+      const space = 2;
+      const res = S.buildJson(space);
+      expect(res).to.be.eq(
+        JSON.stringify(
+          {
+            openapi: OPENAPI_VERSION,
+            info,
+            paths: {},
+          },
+          undefined,
+          space,
+        ),
+      );
     });
   });
 });

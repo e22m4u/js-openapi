@@ -198,9 +198,8 @@ describe('OAOperationGroup', function () {
       expect(throwable(undefined)).to.throw(error('undefined'));
       expect(throwable(null)).to.throw(error('null'));
       throwable({
-        method: OAOperationMethod.POST,
-        path: '/create',
-        operation: {},
+        method: OAOperationMethod.GET,
+        path: '/path',
       })();
     });
 
@@ -211,7 +210,6 @@ describe('OAOperationGroup', function () {
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
-          operation: {},
         });
       };
       const error = s =>
@@ -233,11 +231,10 @@ describe('OAOperationGroup', function () {
         S.defineOperation({
           method: OAOperationMethod.POST,
           path: v,
-          operation: {},
         });
       };
       const error = s =>
-        format('Operation path must start with "/", but %s was given.', s);
+        format('Keyword "path" must start with "/", but %s was given.', s);
       expect(throwable('path')).to.throw(error('"path"'));
       expect(throwable('')).to.throw(error('""'));
       throwable('/path')();
@@ -251,7 +248,6 @@ describe('OAOperationGroup', function () {
         S.defineOperation({
           method: v,
           path: '/',
-          operation: {},
         });
       };
       const error = s =>
@@ -293,9 +289,9 @@ describe('OAOperationGroup', function () {
       expect(throwable(true)).to.throw(error('true'));
       expect(throwable(false)).to.throw(error('false'));
       expect(throwable([])).to.throw(error('Array'));
-      expect(throwable(undefined)).to.throw(error('undefined'));
       expect(throwable(null)).to.throw(error('null'));
       throwable({})();
+      throwable(undefined)();
     });
 
     it('should define operation in the document builder', function () {
@@ -325,7 +321,6 @@ describe('OAOperationGroup', function () {
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
-        operation: {},
       });
       const res = builder.getDocumentObjectRef();
       expect(res.paths['/prefix/path'].get).to.be.an('object');
@@ -337,7 +332,6 @@ describe('OAOperationGroup', function () {
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
-        operation: {},
       });
       const res = builder.getDocumentObjectRef();
       expect(res.paths['/path'].get).to.be.an('object');
@@ -349,7 +343,6 @@ describe('OAOperationGroup', function () {
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/',
-        operation: {},
       });
       const res = builder.getDocumentObjectRef();
       expect(res.paths['/prefix'].get).to.be.an('object');
@@ -361,7 +354,6 @@ describe('OAOperationGroup', function () {
       S.defineOperation({
         method: OAOperationMethod.GET,
         path: '/path',
-        operation: {},
       });
       const res = builder.getDocumentObjectRef();
       expect(res.paths['/path'].get.tags).to.be.eql(['foo', 'bar']);
