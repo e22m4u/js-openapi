@@ -1282,7 +1282,10 @@ describe('OADocumentBuilder', function () {
           operation: {parameters: 123},
         });
       };
-      expect(throwable).to.throw(OADocumentObjectValidationError);
+      expect(throwable).to.throw(
+        OADocumentObjectValidationError,
+        'Value at "#/paths/~1/get/parameters" must be array.',
+      );
     });
 
     it('should define the operation object', function () {

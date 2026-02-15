@@ -2228,7 +2228,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
       }
       validateOADocumentObject(operationDef.operation, {
         schemaUri: "#/$defs/operation",
-        dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
+        dataSourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
       });
     }
     const operation = operationDef.operation ? structuredClone(operationDef.operation) : {};

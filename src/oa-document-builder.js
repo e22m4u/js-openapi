@@ -467,7 +467,7 @@ export class OADocumentBuilder extends Service {
       // validation
       validateOADocumentObject(operationDef.operation, {
         schemaUri: '#/$defs/operation',
-        dataSourceUri: `/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
+        dataSourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
       });
     }
     // создание поверхностной копии определения
