@@ -421,6 +421,7 @@ export declare const OAMediaType: {
   TEXT_HTML: 'text/html';
   APPLICATION_XML: 'application/xml';
   APPLICATION_JSON: 'application/json';
+  APPLICATION_OCTET_STREAM: 'application/octet-stream';
   MULTIPART_FORM_DATA: 'multipart/form-data';
 };
 
