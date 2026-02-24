@@ -184,7 +184,7 @@ export class OADocumentBuilder extends Service {
     if (!componentsKey) {
       throw new InvalidArgumentError(
         'Component type %v does not have a reference to the components key.',
-        componentsKey,
+        type,
       );
     }
     // definition name
@@ -192,7 +192,7 @@ export class OADocumentBuilder extends Service {
     if (!definitionName) {
       throw new InvalidArgumentError(
         'Component type %v does not have a reference to the definition name.',
-        definitionName,
+        type,
       );
     }
     // validation

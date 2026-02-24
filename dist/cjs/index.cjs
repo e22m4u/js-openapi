@@ -2003,14 +2003,14 @@ var OADocumentBuilder = class extends import_js_service.Service {
     if (!componentsKey) {
       throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the components key.",
-        componentsKey
+        type
       );
     }
     const definitionName = OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP[type];
     if (!definitionName) {
       throw new import_js_format6.InvalidArgumentError(
         "Component type %v does not have a reference to the definition name.",
-        definitionName
+        type
       );
     }
     validateOADocumentObject(component, {
