@@ -7,10 +7,10 @@ export declare class OADocumentObjectValidationError extends Errorf {
   /**
    * Instance path.
    */
-  readonly instancePath?: string;
+  instancePath?: string;
 
   /**
    * Reason.
    */
-  readonly reason?: string;
+  reason?: string;
 }
