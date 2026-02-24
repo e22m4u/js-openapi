@@ -1,6 +1,6 @@
 import {expect} from 'chai';
-import {validateOADocumentObject} from './validate-oa-document-object.js';
 import {format} from '@e22m4u/js-format';
+import {validateOADocumentObject} from './validate-oa-document-object.js';
 
 const VALID_DOC_SAMPLE = {
   openapi: '3.1.2',
@@ -105,7 +105,7 @@ describe('validateOADocumentObject', function () {
     );
   });
 
-  it('should add the "sourceUri" option as prefix to the instance path', function () {
+  it('should add the option "sourceUri" as a path prefix to the error message', function () {
     const throwable = () =>
       validateOADocumentObject(
         {type: 123},
@@ -118,5 +118,19 @@ describe('validateOADocumentObject', function () {
       'Value at "#/components/schemas/mySchema/type" ' +
         'must be equal to one of the allowed values.',
     );
+  });
+
+  it('should set the "instancePath" and "reason" properties to the validation error', function () {
+    let isCaught = false;
+    try {
+      validateOADocumentObject({type: 123}, {schemaUri: '#/$defs/schema'});
+    } catch (error) {
+      isCaught = true;
+      expect(error.instancePath).to.be.eql('/type');
+      expect(error.reason).to.be.eq(
+        'must be equal to one of the allowed values',
+      );
+    }
+    expect(isCaught).to.be.true;
   });
 });

@@ -5,8 +5,17 @@ import {OADocumentObjectValidationError} from '../errors/index.js';
 /**
  * Validate OADocumentObject.
  *
- * @param {*} instance
- * @param {*} options
+ * @param {*}      instance  Проверяемый экземпляр.
+ * @param {object} [options] Параметры проверки.
+ * @param {string} [options.schemaUri]
+ *   URI участка JSON-схемы, согласно которому будет
+ *   выполняться проверка (прим. "#/$defs/operation").
+ *   Используется, если нужно проверить часть OpenAPI
+ *   документа, когда в первый аргумент данной функции
+ *   передается только проверяемый участок.
+ * @param {string} [options.sourceUri]
+ *   Строка добавляется префиксом к URI проблемного
+ *   значения в сообщении об ошибке (прим. "#/paths/~1/get").
  */
 export function validateOADocumentObject(instance, options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
@@ -39,15 +48,33 @@ export function validateOADocumentObject(instance, options = {}) {
     const error = validate.errors[0];
     let instancePath = error.instancePath || '';
     let sourceUri = options.sourceUri || '';
+    // если URI схемы и источника экземпляра не определен,
+    // значит ошибка вызвана при проверке целого OpenAPI
+    // документа, и в таком случае, сообщение об ошибке
+    // должно содержать путь экземпляра с префиксом "#",
+    // указывающем на корень документа, пример: "#/info"
     if (!options.schemaUri && !options.sourceUri) {
       sourceUri = '#';
     }
-    throw new OADocumentObjectValidationError(
+    // если передан URI источника экземпляра, то значение
+    // объединяется с путем экземпляра косой чертой,
+    // пример: "#/components/schemas/city" + "/type"
+    const sourceUriWithInstancePath =
+      sourceUri && instancePath
+        ? [sourceUri, instancePath].join('/').replace(/\/+/g, '/')
+        : sourceUri + instancePath;
+    const errorReason = error.message.replace(/'/g, '"');
+    // при создании ошибки выполняется интерполяция сообщения,
+    // пример: Value at "#" must have required property "info".
+    const validationError = new OADocumentObjectValidationError(
       'Value at %v %s.',
-      sourceUri && error.instancePath
-        ? [sourceUri, error.instancePath].join('/').replace(/\/+/g, '/')
-        : sourceUri + instancePath,
-      error.message.replace(/'/g, '"'),
+      sourceUriWithInstancePath,
+      errorReason,
     );
+    // в экземпляр ошибки устанавливаются
+    // дополнительные свойства из данных AJV
+    validationError.instancePath = error.instancePath;
+    validationError.reason = errorReason;
+    throw validationError;
   }
 }

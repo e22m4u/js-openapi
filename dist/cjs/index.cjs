@@ -73,6 +73,18 @@ var OADocumentObjectValidationError = class extends import_js_format.Errorf {
   static {
     __name(this, "OADocumentObjectValidationError");
   }
+  /**
+   * Instance path.
+   *
+   * @type {string|undefined}
+   */
+  instancePath;
+  /**
+   * Reason.
+   *
+   * @type {string|undefined}
+   */
+  reason;
 };
 
 // src/oa-specification.js
@@ -1841,11 +1853,16 @@ function validateOADocumentObject(instance, options = {}) {
     if (!options.schemaUri && !options.sourceUri) {
       sourceUri = "#";
     }
-    throw new OADocumentObjectValidationError(
+    const sourceUriWithInstancePath = sourceUri && instancePath ? [sourceUri, instancePath].join("/").replace(/\/+/g, "/") : sourceUri + instancePath;
+    const errorReason = error.message.replace(/'/g, '"');
+    const validationError = new OADocumentObjectValidationError(
       "Value at %v %s.",
-      sourceUri && error.instancePath ? [sourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : sourceUri + instancePath,
-      error.message.replace(/'/g, '"')
+      sourceUriWithInstancePath,
+      errorReason
     );
+    validationError.instancePath = error.instancePath;
+    validationError.reason = errorReason;
+    throw validationError;
   }
 }
 __name(validateOADocumentObject, "validateOADocumentObject");

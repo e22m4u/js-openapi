@@ -9,10 +9,10 @@ export type OADocumentObjectValidationOptions = {
 /**
  * Validate OADocumentObject.
  *
- * @param data
+ * @param instance
  * @param options
  */
 export function validateOADocumentObject(
-  data: any,
+  instance: any,
   options?: OADocumentObjectValidationOptions,
 ): void;
