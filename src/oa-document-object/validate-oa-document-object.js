@@ -5,10 +5,10 @@ import {OADocumentObjectValidationError} from '../errors/index.js';
 /**
  * Validate OADocumentObject.
  *
- * @param {*} data
+ * @param {*} instance
  * @param {*} options
  */
-export function validateOADocumentObject(data, options = {}) {
+export function validateOADocumentObject(instance, options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
     throw new InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
@@ -23,30 +23,30 @@ export function validateOADocumentObject(data, options = {}) {
       );
     }
   }
-  if (options.dataSourceUri !== undefined) {
-    if (typeof options.dataSourceUri !== 'string') {
+  if (options.sourceUri !== undefined) {
+    if (typeof options.sourceUri !== 'string') {
       throw new InvalidArgumentError(
-        'Option "dataSourceUri" must be a String, but %v was given.',
-        options.dataSourceUri,
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri,
       );
     }
   }
   const validate = ajv.getSchema(
     `${OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI}${options.schemaUri || ''}`,
   );
-  const isValid = validate(data);
+  const isValid = validate(instance);
   if (!isValid) {
     const error = validate.errors[0];
     let instancePath = error.instancePath || '';
-    let dataSourceUri = options.dataSourceUri || '';
-    if (!options.schemaUri && !options.dataSourceUri) {
-      dataSourceUri = '#';
+    let sourceUri = options.sourceUri || '';
+    if (!options.schemaUri && !options.sourceUri) {
+      sourceUri = '#';
     }
     throw new OADocumentObjectValidationError(
       'Value at %v %s.',
-      dataSourceUri && error.instancePath
-        ? [dataSourceUri, error.instancePath].join('/').replace(/\/+/g, '/')
-        : dataSourceUri + instancePath,
+      sourceUri && error.instancePath
+        ? [sourceUri, error.instancePath].join('/').replace(/\/+/g, '/')
+        : sourceUri + instancePath,
       error.message.replace(/'/g, '"'),
     );
   }

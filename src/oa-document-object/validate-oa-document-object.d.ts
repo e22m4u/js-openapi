@@ -3,7 +3,7 @@
  */
 export type OADocumentObjectValidationOptions = {
   schemaUri?: string;
-  dataSourceUri?: string;
+  sourceUri?: string;
 };
 
 /**

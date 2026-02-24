@@ -1807,7 +1807,7 @@ var OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI = "https://spec.openapis.org/oas/3.1/sche
 ajv.getSchema(OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI);
 
 // src/oa-document-object/validate-oa-document-object.js
-function validateOADocumentObject(data, options = {}) {
+function validateOADocumentObject(instance, options = {}) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
     throw new import_js_format5.InvalidArgumentError(
       'Parameter "options" must be an Object, but %v was given.',
@@ -1822,28 +1822,28 @@ function validateOADocumentObject(data, options = {}) {
       );
     }
   }
-  if (options.dataSourceUri !== void 0) {
-    if (typeof options.dataSourceUri !== "string") {
+  if (options.sourceUri !== void 0) {
+    if (typeof options.sourceUri !== "string") {
       throw new import_js_format5.InvalidArgumentError(
-        'Option "dataSourceUri" must be a String, but %v was given.',
-        options.dataSourceUri
+        'Option "sourceUri" must be a String, but %v was given.',
+        options.sourceUri
       );
     }
   }
   const validate = ajv.getSchema(
     `${OA_DOCUMENT_OBJECT_JSON_SCHEMA_URI}${options.schemaUri || ""}`
   );
-  const isValid = validate(data);
+  const isValid = validate(instance);
   if (!isValid) {
     const error = validate.errors[0];
     let instancePath = error.instancePath || "";
-    let dataSourceUri = options.dataSourceUri || "";
-    if (!options.schemaUri && !options.dataSourceUri) {
-      dataSourceUri = "#";
+    let sourceUri = options.sourceUri || "";
+    if (!options.schemaUri && !options.sourceUri) {
+      sourceUri = "#";
     }
     throw new OADocumentObjectValidationError(
       "Value at %v %s.",
-      dataSourceUri && error.instancePath ? [dataSourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : dataSourceUri + instancePath,
+      sourceUri && error.instancePath ? [sourceUri, error.instancePath].join("/").replace(/\/+/g, "/") : sourceUri + instancePath,
       error.message.replace(/'/g, '"')
     );
   }
@@ -1998,7 +1998,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
     }
     validateOADocumentObject(component, {
       schemaUri: `#/$defs/${definitionName}`,
-      dataSourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`
+      sourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`
     });
     this._document.components = this._document.components || {};
     this._document.components[componentsKey] = this._document.components[componentsKey] || {};
@@ -2229,7 +2229,7 @@ var OADocumentBuilder = class extends import_js_service.Service {
       }
       validateOADocumentObject(operationDef.operation, {
         schemaUri: "#/$defs/operation",
-        dataSourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
+        sourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`
       });
     }
     const operation = operationDef.operation ? structuredClone(operationDef.operation) : {};

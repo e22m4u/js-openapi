@@ -198,7 +198,7 @@ export class OADocumentBuilder extends Service {
     // validation
     validateOADocumentObject(component, {
       schemaUri: `#/$defs/${definitionName}`,
-      dataSourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`,
+      sourceUri: `#/components/${componentsKey}/${escapeJsonPointer(name)}`,
     });
     this._document.components = this._document.components || {};
     this._document.components[componentsKey] =
@@ -467,7 +467,7 @@ export class OADocumentBuilder extends Service {
       // validation
       validateOADocumentObject(operationDef.operation, {
         schemaUri: '#/$defs/operation',
-        dataSourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
+        sourceUri: `#/paths/${escapeJsonPointer(operationDef.path)}/${escapeJsonPointer(operationDef.method)}`,
       });
     }
     // создание поверхностной копии определения

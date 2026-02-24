@@ -44,11 +44,11 @@ describe('validateOADocumentObject', function () {
     throwable(undefined)();
   });
 
-  it('should require the option "dataSourceUri" to be a String', function () {
+  it('should require the option "sourceUri" to be a String', function () {
     const throwable = v => () =>
-      validateOADocumentObject(VALID_DOC_SAMPLE, {dataSourceUri: v});
+      validateOADocumentObject(VALID_DOC_SAMPLE, {sourceUri: v});
     const error = s =>
-      format('Option "dataSourceUri" must be a String, but %s was given.', s);
+      format('Option "sourceUri" must be a String, but %s was given.', s);
     expect(throwable(10)).to.throw(error('10'));
     expect(throwable(0)).to.throw(error('0'));
     expect(throwable(true)).to.throw(error('true'));
@@ -105,13 +105,13 @@ describe('validateOADocumentObject', function () {
     );
   });
 
-  it('should add the "dataSourceUri" option as prefix to the instance path', function () {
+  it('should add the "sourceUri" option as prefix to the instance path', function () {
     const throwable = () =>
       validateOADocumentObject(
         {type: 123},
         {
           schemaUri: '#/$defs/schema',
-          dataSourceUri: '#/components/schemas/mySchema',
+          sourceUri: '#/components/schemas/mySchema',
         },
       );
     expect(throwable).to.throw(
