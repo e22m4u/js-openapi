@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "@e22m4u/js-format": "~0.4.0",
-    "@e22m4u/js-service": "~0.6.1",
     "ajv": "~8.18.0",
     "ajv-formats": "~3.0.1"
   },

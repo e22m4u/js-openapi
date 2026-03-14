@@ -1,5 +1,4 @@
 import {Optional} from './types.js';
-import {Service, ServiceContainer} from '@e22m4u/js-service';
 
 import {
   OAOperationGroup,
@@ -82,32 +81,13 @@ export type OADocumentInput = Optional<OADocumentObject, 'openapi' | 'info'>;
 /**
  * Document builder.
  */
-export declare class OADocumentBuilder extends Service {
-  /**
-   * Constructor.
-   *
-   * @param container
-   * @param document
-   */
-  constructor(container: ServiceContainer, document?: OADocumentInput);
-
+export declare class OADocumentBuilder {
   /**
    * Constructor.
    *
    * @param document
    */
   constructor(document?: OADocumentInput);
-
-  /**
-   * Constructor.
-   *
-   * @param containerOrDocument
-   * @param document
-   */
-  constructor(
-    containerOrDocument?: ServiceContainer | OADocumentInput,
-    document?: OADocumentInput,
-  );
 
   /**
    * Get document object reference.

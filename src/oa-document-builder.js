@@ -1,6 +1,5 @@
 import {InvalidArgumentError} from '@e22m4u/js-format';
 import {OAOperationGroup} from './oa-operation-group.js';
-import {isServiceContainer, Service} from '@e22m4u/js-service';
 import {validateOADocumentObject} from './oa-document-object/index.js';
 import {escapeJsonPointer} from './json-pointer/escape-json-pointer.js';
 import {OPENAPI_VERSION, OAOperationMethod} from './oa-specification.js';
@@ -67,7 +66,7 @@ export const OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP = {
 /**
  * OpenAPI Document builder.
  */
-export class OADocumentBuilder extends Service {
+export class OADocumentBuilder {
   /**
    * Document.
    *
@@ -86,30 +85,9 @@ export class OADocumentBuilder extends Service {
   /**
    * Constructor.
    *
-   * @param {import('@e22m4u/js-service').ServiceContainer|import('./oa-document-builder.js').OADocumentInput} containerOrDocument
-   * @param {import('./oa-document-builder.js').OADocumentInput} document
+   * @param {import('./oa-document-builder.js').OADocumentInput} [document]
    */
-  constructor(containerOrDocument, document) {
-    if (isServiceContainer(containerOrDocument)) {
-      super(containerOrDocument);
-    } else {
-      super();
-      // containerOrDocument
-      if (containerOrDocument !== undefined) {
-        if (
-          !containerOrDocument ||
-          typeof containerOrDocument !== 'object' ||
-          Array.isArray(containerOrDocument)
-        ) {
-          throw new InvalidArgumentError(
-            'Parameter "containerOrDocument" must be an Object, ' +
-              'but %v was given.',
-            containerOrDocument,
-          );
-        }
-      }
-      document = document === undefined ? containerOrDocument : document;
-    }
+  constructor(document) {
     // document
     if (document !== undefined) {
       if (

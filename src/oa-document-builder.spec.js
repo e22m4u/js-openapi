@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {format} from '@e22m4u/js-format';
-import {ServiceContainer} from '@e22m4u/js-service';
+import {OAOperationGroup} from './oa-operation-group.js';
 import {OADocumentObjectValidationError} from './errors/index.js';
 import {OAComponentType, OADocumentBuilder} from './oa-document-builder.js';
 
@@ -12,7 +12,6 @@ import {
   OASecuritySchemeType,
   OAOperationMethod,
 } from './oa-specification.js';
-import {OAOperationGroup} from './oa-operation-group.js';
 
 describe('OADocumentBuilder', function () {
   describe('constructor', function () {
@@ -20,34 +19,8 @@ describe('OADocumentBuilder', function () {
       new OADocumentBuilder();
     });
 
-    it('should pass the ServiceContainer to the super class', function () {
-      const cont = new ServiceContainer();
-      const S = new OADocumentBuilder(cont);
-      expect(S.container).to.be.eq(cont);
-    });
-
-    it('should require the parameter "containerOrDocument" to be an Object', function () {
-      const throwable = v => () => new OADocumentBuilder(v);
-      const error = s =>
-        format(
-          'Parameter "containerOrDocument" must be an Object, ' +
-            'but %s was given.',
-          s,
-        );
-      expect(throwable('str')).to.throw(error('"str"'));
-      expect(throwable('')).to.throw(error('""'));
-      expect(throwable(10)).to.throw(error('10'));
-      expect(throwable(0)).to.throw(error('0'));
-      expect(throwable(true)).to.throw(error('true'));
-      expect(throwable(false)).to.throw(error('false'));
-      expect(throwable([])).to.throw(error('Array'));
-      expect(throwable(null)).to.throw(error('null'));
-      throwable({})();
-      throwable(undefined)();
-    });
-
     it('should require the parameter "document" to be an Object', function () {
-      const throwable = v => () => new OADocumentBuilder(undefined, v);
+      const throwable = v => () => new OADocumentBuilder(v);
       const error = s =>
         format('Parameter "document" must be an Object, but %s was given.', s);
       expect(throwable('str')).to.throw(error('"str"'));
@@ -62,7 +35,7 @@ describe('OADocumentBuilder', function () {
       throwable(undefined)();
     });
 
-    it('should merge the document from the first parameter with the default document', function () {
+    it('should merge the parameter "document" with the default document', function () {
       const doc = {
         openapi: '3.1.2',
         info: {
@@ -71,19 +44,6 @@ describe('OADocumentBuilder', function () {
         },
       };
       const S = new OADocumentBuilder(doc);
-      const res = S.getDocumentObjectRef();
-      expect(res).to.be.eql({...doc, paths: {}});
-    });
-
-    it('should merge the document from the second parameter with the default document', function () {
-      const doc = {
-        openapi: '3.1.2',
-        info: {
-          title: 'My OpenAPI Doc',
-          version: '1.0.0',
-        },
-      };
-      const S = new OADocumentBuilder(undefined, doc);
       const res = S.getDocumentObjectRef();
       expect(res).to.be.eql({...doc, paths: {}});
     });

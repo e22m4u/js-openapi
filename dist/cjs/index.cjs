@@ -257,7 +257,6 @@ var import_js_format7 = require("@e22m4u/js-format");
 
 // src/oa-document-builder.js
 var import_js_format6 = require("@e22m4u/js-format");
-var import_js_service = require("@e22m4u/js-service");
 
 // src/oa-document-object/validate-oa-document-object.js
 var import_js_format5 = require("@e22m4u/js-format");
@@ -1906,7 +1905,7 @@ var OA_COMPONENT_TYPE_TO_DEFINITION_NAME_MAP = {
   [OAComponentType.CALLBACK]: "callbacks-or-reference",
   [OAComponentType.PATH_ITEM]: "path-item"
 };
-var OADocumentBuilder = class extends import_js_service.Service {
+var OADocumentBuilder = class {
   static {
     __name(this, "OADocumentBuilder");
   }
@@ -1927,24 +1926,9 @@ var OADocumentBuilder = class extends import_js_service.Service {
   /**
    * Constructor.
    *
-   * @param {import('@e22m4u/js-service').ServiceContainer|import('./oa-document-builder.js').OADocumentInput} containerOrDocument
-   * @param {import('./oa-document-builder.js').OADocumentInput} document
+   * @param {import('./oa-document-builder.js').OADocumentInput} [document]
    */
-  constructor(containerOrDocument, document) {
-    if ((0, import_js_service.isServiceContainer)(containerOrDocument)) {
-      super(containerOrDocument);
-    } else {
-      super();
-      if (containerOrDocument !== void 0) {
-        if (!containerOrDocument || typeof containerOrDocument !== "object" || Array.isArray(containerOrDocument)) {
-          throw new import_js_format6.InvalidArgumentError(
-            'Parameter "containerOrDocument" must be an Object, but %v was given.',
-            containerOrDocument
-          );
-        }
-      }
-      document = document === void 0 ? containerOrDocument : document;
-    }
+  constructor(document) {
     if (document !== void 0) {
       if (!document || typeof document !== "object" || Array.isArray(document)) {
         throw new import_js_format6.InvalidArgumentError(
