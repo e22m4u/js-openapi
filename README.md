@@ -136,7 +136,7 @@ console.log(jsonDoc);
 ```js
 import {OADataType, OAOperationMethod} from '@e22m4u/js-openapi';
 
-builder.defineSchemaComponent('User', {
+builder.defineSchemaComponent('user', {
   type: OADataType.OBJECT,
   properties: {
     id: {
@@ -192,9 +192,9 @@ builder.defineOperation({
         description: 'User found',
         content: {
           [OAMediaType.APPLICATION_JSON]: {
-            schema: oaSchemaRef('User'), // <= ссылка на схему
+            schema: oaSchemaRef('user'), // <= ссылка на схему
             // утилита "oaSchemaRef" создаст объект-ссылку:
-            // {"$ref": "#/components/schemas/User"}
+            // {"$ref": "#/components/schemas/user"}
           },
         },
       },
@@ -326,7 +326,7 @@ builder.defineOperation({
         description: 'User created',
         content: {
           [OAMediaType.APPLICATION_JSON]: {
-            schema: oaSchemaRef('User'), // <= ссылка на схему
+            schema: oaSchemaRef('user'), // <= ссылка на схему
           },
         },
       },
