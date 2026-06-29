@@ -701,10 +701,7 @@ export type OAServerVariablesObject = {
  */
 export type OASchemaPropertiesObject = {
   [name: string]:
-    | OABooleanSchema
-    | OASchemaObject
-    | OAReferenceObject
-    | undefined;
+    OABooleanSchema | OASchemaObject | OAReferenceObject | undefined;
 };
 
 /**
