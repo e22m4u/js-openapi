@@ -9,10 +9,10 @@
     "openapi",
     "generator"
   ],
-  "homepage": "https://gitverse.ru/e22m4u/js-openapi",
+  "homepage": "https://github.com/e22m4u/js-openapi",
   "repository": {
     "type": "git",
-    "url": "git+https://gitverse.ru/e22m4u/js-openapi.git"
+    "url": "git+https://github.com/e22m4u/js-openapi.git"
   },
   "type": "module",
   "types": "./src/index.d.ts",
