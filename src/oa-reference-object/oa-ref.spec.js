@@ -26,7 +26,6 @@ const ALIASES_MAP = [
 ];
 
 describe('oaRef aliases', function () {
-  // eslint-disable-next-line mocha/no-setup-in-describe
   ALIASES_MAP.forEach(([fn, segment]) => {
     describe(fn.name, function () {
       it('should require the "name" parameter to be a none-empty String', function () {
